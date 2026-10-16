@@ -15,6 +15,68 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // Accessible homepage carousel: autoplay pauses on interaction, focus, hover and reduced motion.
+  document.querySelectorAll('[data-carousel]').forEach(carousel => {
+    const slides = Array.from(carousel.querySelectorAll('[data-slide]'));
+    const dots = Array.from(carousel.querySelectorAll('[data-slide-to]'));
+    const prev = carousel.querySelector('[data-slide-prev]');
+    const next = carousel.querySelector('[data-slide-next]');
+    const pause = carousel.querySelector('[data-slide-pause]');
+    if (slides.length < 2) return;
+    let active = Math.max(0, slides.findIndex(slide => slide.classList.contains('is-active')));
+    let timer = null;
+    let paused = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const show = index => {
+      active = (index + slides.length) % slides.length;
+      slides.forEach((slide, i) => {
+        const selected = i === active;
+        slide.classList.toggle('is-active', selected);
+        slide.setAttribute('aria-hidden', String(!selected));
+      });
+      dots.forEach((dot, i) => {
+        const selected = i === active;
+        dot.classList.toggle('is-active', selected);
+        dot.setAttribute('aria-pressed', String(selected));
+      });
+    };
+    const stop = () => { if (timer) window.clearInterval(timer); timer = null; };
+    const start = () => {
+      stop();
+      if (paused || document.hidden) return;
+      timer = window.setInterval(() => show(active + 1), 6500);
+    };
+    const userNavigate = index => { show(index); start(); };
+    if (prev) prev.addEventListener('click', () => userNavigate(active - 1));
+    if (next) next.addEventListener('click', () => userNavigate(active + 1));
+    dots.forEach((dot, i) => dot.addEventListener('click', () => userNavigate(i)));
+    if (pause) pause.addEventListener('click', () => {
+      paused = !paused;
+      pause.setAttribute('aria-pressed', String(paused));
+      pause.setAttribute('aria-label', paused ? 'ادامه حرکت خودکار' : 'توقف حرکت خودکار');
+      pause.textContent = paused ? '▶' : 'Ⅱ';
+      start();
+    });
+    carousel.addEventListener('mouseenter', stop);
+    carousel.addEventListener('mouseleave', start);
+    carousel.addEventListener('focusin', stop);
+    carousel.addEventListener('focusout', start);
+    document.addEventListener('visibilitychange', start);
+    show(active);
+    start();
+  });
+
+  // Password visibility toggle for auth pages.
+  document.querySelectorAll('[data-password-toggle]').forEach(button => {
+    button.addEventListener('click', () => {
+      const field = document.getElementById(button.dataset.passwordToggle);
+      if (!field) return;
+      const reveal = field.type === 'password';
+      field.type = reveal ? 'text' : 'password';
+      button.setAttribute('aria-label', reveal ? 'پنهان‌کردن رمز عبور' : 'نمایش رمز عبور');
+      button.setAttribute('aria-pressed', String(reveal));
+    });
+  });
+
   // Tabs
   document.querySelectorAll('.tabs').forEach(tabGroup => {
     const buttons = tabGroup.querySelectorAll('.tab-btn');
@@ -135,6 +197,18 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       if (label) label.textContent = file.name;
     });
+  });
+
+  // Keep password confirmation in sync with native browser validation.
+  document.querySelectorAll('[data-confirm-password]').forEach(field => {
+    const form = field.form;
+    const source = form && form.querySelector('#' + CSS.escape(field.dataset.confirmPassword));
+    if (!source) return;
+    const validateMatch = () => {
+      field.setCustomValidity(field.value && field.value !== source.value ? 'رمز عبور و تکرار آن یکسان نیستند.' : '');
+    };
+    field.addEventListener('input', validateMatch);
+    source.addEventListener('input', validateMatch);
   });
 
   // Highlight active navigation link.
