@@ -70,6 +70,18 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!fieldValid) valid = false;
       });
 
+      form.querySelectorAll('[data-confirm-password]').forEach(field => {
+        const source = form.querySelector('#' + CSS.escape(field.dataset.confirmPassword));
+        const matches = !!source && field.value === source.value;
+        field.style.borderColor = matches ? '' : '#ef4444';
+        if (!matches) {
+          valid = false;
+          field.setCustomValidity('رمز عبور و تکرار آن یکسان نیستند.');
+        } else {
+          field.setCustomValidity('');
+        }
+      });
+
       if (valid && typeof form.reportValidity === 'function' && !form.checkValidity()) {
         valid = false;
         form.reportValidity();
