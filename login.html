@@ -1,63 +1,8 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ورود | همایش فناوری و نوآوری ۱۴۰۵</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-  <header class="header">
-    <div class="container">
-      <nav class="navbar">
-        <a href="index.html" class="logo"><div class="logo-icon">هـ</div><span>همایش فناوری ۱۴۰۵</span></a>
-        <div class="nav-actions">
-          <a href="register.html" class="btn btn-primary btn-sm">ثبت‌نام</a>
-        </div>
-      </nav>
-    </div>
-  </header>
-
-  <div class="auth-wrapper">
-    <div class="auth-card">
-      <div class="auth-header">
-        <h2>ورود به پنل</h2>
-        <p>به حساب کاربری خود وارد شوید</p>
-      </div>
-      <div class="auth-body">
-        <form onsubmit="event.preventDefault(); loginDemo(document.getElementById('email').value, document.getElementById('role').value);">
-          <div class="form-group">
-            <label class="form-label">ایمیل</label>
-            <input type="email" id="email" class="form-control" required placeholder="example@email.com" value="user@example.com">
-          </div>
-          <div class="form-group">
-            <label class="form-label">رمز عبور</label>
-            <input type="password" class="form-control" required placeholder="رمز عبور" value="12345678">
-          </div>
-          <div class="form-group">
-            <label class="form-label">نقش (برای دمو)</label>
-            <select id="role" class="form-control">
-              <option value="user">شرکت‌کننده / نویسنده</option>
-              <option value="reviewer">داور</option>
-              <option value="admin">مدیر سیستم</option>
-            </select>
-          </div>
-          <div class="form-check" style="margin-bottom:20px;">
-            <input type="checkbox" id="remember">
-            <label for="remember">مرا به خاطر بسپار</label>
-          </div>
-          <button type="submit" class="btn btn-primary btn-lg btn-block">ورود</button>
-        </form>
-        <div style="text-align:center;margin-top:15px;">
-          <a href="contact.html" style="color:var(--primary);font-size:0.9rem;">برای بازیابی رمز عبور با پشتیبانی تماس بگیرید</a>
-        </div>
-      </div>
-      <div class="auth-footer">
-        حساب کاربری ندارید؟ <a href="register.html">ثبت‌نام کنید</a>
-      </div>
-    </div>
-  </div>
-
-  <script src="js/main.js"></script>
-</body>
-</html>
+<html lang="fa" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#102d2b"><title>ورود به حساب | همایش فناوری و نوآوری</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/mvp-redesign.css"></head>
+<body class="auth-page"><main class="auth-shell">
+<section class="auth-visual auth-visual-login"><a href="index.html" class="auth-brand"><span class="auth-brand-mark">هـ</span><span>همایش<span class="auth-brand-light"> ۱۴۰۵</span></span></a><div class="auth-visual-content"><span class="auth-overline"><span></span> جامعه‌ای برای ایده‌های بزرگ</span><h1>دوباره به مسیر<br><em>یادگیری برگردید.</em></h1><p>به فضای شخصی خود دسترسی پیدا کنید؛ مقالات، ثبت‌نام و فعالیت‌های همایش در یک مسیر روشن.</p><div class="auth-visual-note"><span class="auth-note-symbol">✳</span><span><strong>دانش، وقتی به اشتراک گذاشته می‌شود رشد می‌کند.</strong><small>همایش بین‌المللی فناوری و نوآوری</small></span></div></div><div class="auth-visual-footer"><span>۱۵ تا ۱۷ آذر ۱۴۰۵</span><span>تهران · ایران</span></div></section>
+<section class="auth-panel"><div class="auth-panel-top"><a href="index.html" class="auth-back">← بازگشت به وب‌سایت</a><span>حساب کاربری ندارید؟ <a href="register.html">ثبت‌نام کنید</a></span></div><div class="auth-form-wrap"><div class="auth-step">ورود به فضای شخصی</div><h2>خوش برگشتید <span>👋</span></h2><p class="auth-intro">اطلاعات حساب خود را وارد کنید تا ادامه دهید.</p><div class="demo-notice"><span>i</span><p><strong>پیش‌نمایش MVP</strong><br>این نسخه هنوز ورود واقعی ندارد. انتخاب نقش فقط برای نمایش صفحات نمونه است؛ رمز عبور واقعی وارد نکنید.</p></div>
+<form class="auth-form" id="login-form"><div class="form-group"><label for="email" class="form-label">ایمیل</label><div class="field-with-icon"><span aria-hidden="true">✉</span><input type="email" id="email" class="form-control" required autocomplete="email" placeholder="name@example.com"></div></div><div class="form-group"><div class="label-row"><label for="password" class="form-label">رمز عبور</label><a href="contact.html">نیاز به راهنمایی دارید؟</a></div><div class="field-with-icon"><span aria-hidden="true">⌑</span><input type="password" id="password" class="form-control" required autocomplete="current-password" placeholder="رمز عبور خود را وارد کنید"><button type="button" class="password-toggle" data-password-toggle="password" aria-label="نمایش رمز عبور">◉</button></div></div><div class="form-group"><label for="role" class="form-label">ورود به‌عنوان</label><select id="role" class="form-control"><option value="user">شرکت‌کننده / نویسنده</option><option value="reviewer">داور علمی</option><option value="admin">مدیر همایش</option></select></div><div class="auth-form-options"><label class="check-line"><input type="checkbox" id="remember"><span>مرا به خاطر بسپار</span></label><span class="auth-encrypted">◈ اطلاعات نمایشی</span></div><button type="submit" class="btn btn-primary btn-lg btn-block auth-submit">ورود به حساب <span>←</span></button></form>
+<div class="auth-divider"><span>یا</span></div><a href="register.html" class="auth-secondary-action">حساب ندارید؟ <strong>ساخت حساب جدید</strong><span>↗</span></a><p class="auth-legal">با ادامه، شما با <a href="faq.html">قوانین و راهنمای همایش</a> موافقت می‌کنید.</p></div><div class="auth-panel-footer">© ۱۴۰۵ همایش فناوری و نوآوری <span>طراحی‌شده برای جامعه علمی</span></div></section></main>
+<script src="js/main.js"></script><script>document.getElementById('login-form').addEventListener('submit',function(event){event.preventDefault();if(!this.reportValidity())return;loginDemo(document.getElementById('email').value,document.getElementById('role').value)});</script></body></html>
