@@ -1,14 +1,17 @@
 /* ============================================
-   قالب همایش - اسکریپت اصلی
+   قالب همایش - اسکریپت رابط کاربری ایستا
+   توجه: این فایل backend یا ذخیره‌سازی واقعی فراهم نمی‌کند.
    ============================================ */
 
 document.addEventListener('DOMContentLoaded', function () {
-  // Mobile Menu Toggle
+  // Mobile menu
   const menuToggle = document.querySelector('.menu-toggle');
   const navMenu = document.querySelector('.nav-menu');
   if (menuToggle && navMenu) {
+    menuToggle.setAttribute('aria-expanded', 'false');
     menuToggle.addEventListener('click', () => {
-      navMenu.classList.toggle('show');
+      const isOpen = navMenu.classList.toggle('show');
+      menuToggle.setAttribute('aria-expanded', String(isOpen));
     });
   }
 
@@ -19,115 +22,155 @@ document.addEventListener('DOMContentLoaded', function () {
     buttons.forEach(btn => {
       btn.addEventListener('click', () => {
         const target = btn.dataset.tab;
-        buttons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        contents.forEach(c => {
-          c.classList.toggle('active', c.id === target);
+        buttons.forEach(button => {
+          const active = button === btn;
+          button.classList.toggle('active', active);
+          button.setAttribute('aria-selected', String(active));
+        });
+        contents.forEach(content => {
+          content.classList.toggle('active', content.id === target);
         });
       });
     });
   });
 
-  // Modal
+  // Modals
   document.querySelectorAll('[data-modal]').forEach(trigger => {
-    trigger.addEventListener('click', (e) => {
-      e.preventDefault();
-      const modalId = trigger.dataset.modal;
-      const modal = document.getElementById(modalId);
-      if (modal) modal.classList.add('show');
-    });
-  });
-
-  document.querySelectorAll('.modal-close, .modal-overlay').forEach(el => {
-    el.addEventListener('click', (e) => {
-      if (e.target === el) {
-        el.closest('.modal-overlay')?.classList.remove('show');
-        if (el.classList.contains('modal-overlay')) el.classList.remove('show');
+    trigger.addEventListener('click', event => {
+      event.preventDefault();
+      const modal = document.getElementById(trigger.dataset.modal);
+      if (modal) {
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
       }
     });
   });
 
-  // Form Validation Demo
+  document.querySelectorAll('.modal-close, .modal-overlay').forEach(element => {
+    element.addEventListener('click', event => {
+      if (event.target !== element) return;
+      const modal = element.closest('.modal-overlay') || element;
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden', 'true');
+    });
+  });
+
+  // Static forms: validate locally, but never claim data was saved.
   document.querySelectorAll('form[data-validate]').forEach(form => {
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const requiredFields = Array.from(form.querySelectorAll('[required]'));
       let valid = true;
-      form.querySelectorAll('[required]').forEach(input => {
-        if (!input.value.trim()) {
-          valid = false;
-          input.style.borderColor = '#ef4444';
-        } else {
-          input.style.borderColor = '';
-        }
+
+      requiredFields.forEach(field => {
+        const fieldValid = field.type === 'checkbox'
+          ? field.checked
+          : (field.type === 'file' ? field.files.length > 0 : field.value.trim() !== '');
+        field.style.borderColor = fieldValid ? '' : '#ef4444';
+        if (!fieldValid) valid = false;
       });
-      if (valid) {
-        showAlert('عملیات با موفقیت انجام شد!', 'success');
-        // Simulate redirect or success
-        const successMsg = form.dataset.success;
-        if (successMsg) {
-          setTimeout(() => {
-            if (form.dataset.redirect) {
-              window.location.href = form.dataset.redirect;
-            }
-          }, 1500);
-        }
-      } else {
-        showAlert('لطفاً تمام فیلدهای الزامی را پر کنید.', 'danger');
+
+      if (valid && typeof form.reportValidity === 'function' && !form.checkValidity()) {
+        valid = false;
+        form.reportValidity();
       }
+
+      if (!valid) {
+        showAlert('لطفاً فیلدهای الزامی را بررسی کنید.', 'danger');
+        return;
+      }
+
+      showAlert('اعتبارسنجی انجام شد؛ این نسخه ایستا است و اطلاعات را ذخیره یا ارسال نمی‌کند.', 'info');
     });
   });
 
-  // File Upload Visual
-  document.querySelectorAll('.file-upload input[type="file"]').forEach(input => {
+  // File chooser: avoid bubbling a programmatic input click back to its wrapper.
+  document.querySelectorAll('.file-upload').forEach(wrapper => {
+    const input = wrapper.querySelector('input[type="file"]');
+    if (!input) return;
+
+    wrapper.setAttribute('role', 'button');
+    wrapper.setAttribute('tabindex', '0');
+    if (!wrapper.hasAttribute('aria-label')) {
+      wrapper.setAttribute('aria-label', 'انتخاب فایل');
+    }
+    wrapper.addEventListener('click', event => {
+      if (event.target !== input) input.click();
+    });
+    wrapper.addEventListener('keydown', event => {
+      if (event.target === wrapper && (event.key === 'Enter' || event.key === ' ')) {
+        event.preventDefault();
+        input.click();
+      }
+    });
     input.addEventListener('change', function () {
-      const label = this.closest('.file-upload').querySelector('.file-name');
-      if (label && this.files.length) {
-        label.textContent = this.files[0].name;
+      const label = wrapper.querySelector('.file-name');
+      if (!this.files || !this.files.length) {
+        if (label) label.textContent = 'فایلی انتخاب نشده است';
+        return;
       }
+
+      const file = this.files[0];
+      const maxBytes = 10 * 1024 * 1024;
+      const isPdfField = this.accept.toLowerCase().split(',').some(type => type.trim() === '.pdf' || type.trim() === 'application/pdf');
+      const extensionIsPdf = file.name.toLowerCase().endsWith('.pdf');
+      const mimeIsPdf = file.type === 'application/pdf' || file.type === '';
+      if (file.size > maxBytes || (isPdfField && (!extensionIsPdf || !mimeIsPdf))) {
+        this.value = '';
+        if (label) label.textContent = 'فایل نامعتبر است؛ PDF حداکثر ۱۰ مگابایت انتخاب کنید';
+        showAlert('فایل انتخاب‌شده معتبر نیست. برای مقاله، PDF حداکثر ۱۰ مگابایت انتخاب کنید.', 'danger');
+        return;
+      }
+      if (label) label.textContent = file.name;
     });
   });
 
-  // Active Nav Link
+  // Highlight active navigation link.
   const currentPage = window.location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.nav-menu a, .sidebar-nav a').forEach(link => {
     const href = link.getAttribute('href');
-    if (href && (href === currentPage || href.endsWith(currentPage))) {
+    if (href && (href === currentPage || href.endsWith('/' + currentPage))) {
       link.classList.add('active');
     }
   });
 
-  // Simple LocalStorage Auth Simulation
-  const user = JSON.parse(localStorage.getItem('conference_user') || 'null');
+  // localStorage authentication is a demo only, never a security boundary.
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem('conference_user') || 'null');
+  } catch (error) {
+    localStorage.removeItem('conference_user');
+  }
   updateAuthUI(user);
 });
 
 function showAlert(message, type = 'info') {
-  const existing = document.querySelector('.toast-alert');
-  if (existing) existing.remove();
-
+  document.querySelectorAll('.toast-alert').forEach(existing => existing.remove());
   const alert = document.createElement('div');
-  alert.className = `alert alert-${type} toast-alert`;
-  alert.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;min-width:300px;box-shadow:0 10px 25px rgba(0,0,0,0.15);';
-  alert.innerHTML = `<span>${message}</span>`;
+  alert.className = 'alert alert-' + type + ' toast-alert';
+  alert.setAttribute('role', type === 'danger' ? 'alert' : 'status');
+  alert.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;min-width:min(300px,90vw);max-width:90vw;box-shadow:0 10px 25px rgba(0,0,0,0.15);';
+  const text = document.createElement('span');
+  text.textContent = message;
+  alert.appendChild(text);
   document.body.appendChild(alert);
-  setTimeout(() => alert.remove(), 3500);
+  window.setTimeout(() => alert.remove(), 5000);
 }
 
-function updateAuthUI(user) {
-  const authButtons = document.querySelector('.nav-actions');
-  if (!authButtons) return;
-  // Auth state is handled per-page for static template
+function updateAuthUI(_user) {
+  // Auth state is handled per-page for this static preview.
 }
 
 function loginDemo(email, role) {
   const user = {
-    name: role === 'admin' ? 'مدیر سیستم' : 'کاربر نمونه',
+    name: role === 'admin' ? 'مدیر سیستم (دمو)' : 'کاربر نمونه (دمو)',
     email: email || 'user@example.com',
-    role: role || 'user'
+    role: role || 'user',
+    demo: true
   };
   localStorage.setItem('conference_user', JSON.stringify(user));
-  showAlert('ورود موفقیت‌آمیز بود!', 'success');
-  setTimeout(() => {
+  showAlert('ورود نمایشی انجام شد؛ این ورود امن نیست و حساب واقعی ایجاد نمی‌کند.', 'info');
+  window.setTimeout(() => {
     if (role === 'admin') {
       window.location.href = 'admin-dashboard.html';
     } else if (role === 'reviewer') {
@@ -135,33 +178,36 @@ function loginDemo(email, role) {
     } else {
       window.location.href = 'dashboard.html';
     }
-  }, 1000);
+  }, 1400);
 }
 
 function logout() {
   localStorage.removeItem('conference_user');
-  showAlert('با موفقیت خارج شدید.', 'info');
-  setTimeout(() => window.location.href = 'index.html', 800);
+  showAlert('از حالت نمایشی خارج شدید.', 'info');
+  window.setTimeout(() => window.location.href = 'index.html', 800);
 }
 
-// Counter Animation
+// Counter animation
 function animateCounters() {
-  document.querySelectorAll('[data-count]').forEach(el => {
-    const target = parseInt(el.dataset.count);
+  document.querySelectorAll('[data-count]').forEach(element => {
+    const target = Number.parseInt(element.dataset.count, 10);
+    if (!Number.isFinite(target)) return;
     let current = 0;
-    const step = target / 50;
-    const timer = setInterval(() => {
+    const step = Math.max(target / 50, 1);
+    const timer = window.setInterval(() => {
       current += step;
       if (current >= target) {
-        el.textContent = target.toLocaleString('fa-IR');
-        clearInterval(timer);
+        element.textContent = target.toLocaleString('fa-IR');
+        window.clearInterval(timer);
       } else {
-        el.textContent = Math.floor(current).toLocaleString('fa-IR');
+        element.textContent = Math.floor(current).toLocaleString('fa-IR');
       }
     }, 30);
   });
 }
 
-if (document.querySelector('[data-count]')) {
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', animateCounters, { once: true });
+} else {
   animateCounters();
 }
