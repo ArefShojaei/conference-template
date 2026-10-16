@@ -1408,3 +1408,19 @@ tr:hover td {
 .flex-wrap { flex-wrap: wrap; }
 .w-100 { width: 100%; }
 .hidden { display: none !important; }
+
+
+/* Accessibility and static-prototype interaction states */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--accent, #f59e0b);
+  outline-offset: 3px;
+}
+button:disabled,
+.btn:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+.file-upload[role="button"]:focus-visible {
+  outline-offset: 4px;
+}
