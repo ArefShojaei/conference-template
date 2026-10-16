@@ -199,6 +199,18 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  // Keep password confirmation in sync with native browser validation.
+  document.querySelectorAll('[data-confirm-password]').forEach(field => {
+    const form = field.form;
+    const source = form && form.querySelector('#' + CSS.escape(field.dataset.confirmPassword));
+    if (!source) return;
+    const validateMatch = () => {
+      field.setCustomValidity(field.value && field.value !== source.value ? 'رمز عبور و تکرار آن یکسان نیستند.' : '');
+    };
+    field.addEventListener('input', validateMatch);
+    source.addEventListener('input', validateMatch);
+  });
+
   // Highlight active navigation link.
   const currentPage = window.location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.nav-menu a, .sidebar-nav a').forEach(link => {
