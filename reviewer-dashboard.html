@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>پنل داوری | همایش فناوری ۱۴۰۵</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="index.html" class="logo"><div class="logo-icon">هـ</div><span>پنل داوری</span></a>
+        <div class="nav-actions">
+          <span style="color:var(--gray-600);font-size:0.9rem;">داور نمونه</span>
+          <button class="btn btn-outline btn-sm" onclick="logout()">خروج</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">د</div>
+          <div class="sidebar-user-info">
+            <h4>داور نمونه</h4>
+            <span>Reviewer</span>
+          </div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section">داوری</div>
+        <a href="reviewer-dashboard.html" class="active"><span class="nav-icon">📊</span> داشبورد</a>
+        <a href="review-queue.html"><span class="nav-icon">📋</span> صف داوری</a>
+        <a href="my-reviews.html"><span class="nav-icon">✅</span> داوری‌های من</a>
+        <div class="sidebar-section">حساب</div>
+        <a href="profile.html"><span class="nav-icon">👤</span> پروفایل</a>
+        <a href="#"><span class="nav-icon">⚙️</span> تنظیمات</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <div class="breadcrumb"><span>داوری</span> / <span>داشبورد</span></div>
+          <h1>پنل داوری مقالات</h1>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-icon orange">📋</div>
+          <div class="stat-card-info"><h3>۸</h3><p>در صف داوری</p></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon green">✅</div>
+          <div class="stat-card-info"><h3>۲۴</h3><p>داوری‌شده</p></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon red">⏰</div>
+          <div class="stat-card-info"><h3>۲</h3><p>نزدیک به مهلت</p></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon blue">⭐</div>
+          <div class="stat-card-info"><h3>۴.۲</h3><p>میانگین امتیاز</p></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span>مقالات در صف داوری شما</span>
+          <a href="review-queue.html" class="btn btn-sm btn-primary">مشاهده صف کامل</a>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <table>
+            <thead>
+              <tr>
+                <th>کد</th>
+                <th>عنوان</th>
+                <th>محور</th>
+                <th>مهلت</th>
+                <th>اولویت</th>
+                <th>عملیات</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>#P-1042</td>
+                <td>بهینه‌سازی مدل‌های Transformer برای زبان فارسی</td>
+                <td>هوش مصنوعی</td>
+                <td>۲۵ مهر</td>
+                <td><span class="badge badge-danger">فوری</span></td>
+                <td><a href="review-paper.html" class="btn btn-sm btn-primary">شروع داوری</a></td>
+              </tr>
+              <tr>
+                <td>#P-1038</td>
+                <td>چارچوب امنیتی برای سیستم‌های IoT صنعتی</td>
+                <td>امنیت سایبری</td>
+                <td>۲۸ مهر</td>
+                <td><span class="badge badge-warning">متوسط</span></td>
+                <td><a href="review-paper.html" class="btn btn-sm btn-primary">شروع داوری</a></td>
+              </tr>
+              <tr>
+                <td>#P-1035</td>
+                <td>تحلیل داده ژنومی با یادگیری عمیق</td>
+                <td>بیوانفورماتیک</td>
+                <td>۳۰ مهر</td>
+                <td><span class="badge badge-info">عادی</span></td>
+                <td><a href="review-paper.html" class="btn btn-sm btn-primary">شروع داوری</a></td>
+              </tr>
+              <tr>
+                <td>#P-1029</td>
+                <td>معماری ابری مقیاس‌پذیر برای استارتاپ‌ها</td>
+                <td>رایانش ابری</td>
+                <td>۲ آبان</td>
+                <td><span class="badge badge-info">عادی</span></td>
+                <td><a href="review-paper.html" class="btn btn-sm btn-outline">شروع داوری</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+</body>
+</html>

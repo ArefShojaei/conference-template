@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>پنل کاربری | همایش فناوری ۱۴۰۵</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="index.html" class="logo"><div class="logo-icon">هـ</div><span>همایش فناوری ۱۴۰۵</span></a>
+        <div class="nav-actions">
+          <span style="color:var(--gray-600);font-size:0.9rem;margin-left:10px;">کاربر نمونه</span>
+          <button class="btn btn-outline btn-sm" onclick="logout()">خروج</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">ک</div>
+          <div class="sidebar-user-info">
+            <h4>کاربر نمونه</h4>
+            <span>شرکت‌کننده / نویسنده</span>
+          </div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section">اصلی</div>
+        <a href="dashboard.html" class="active"><span class="nav-icon">📊</span> داشبورد</a>
+        <a href="profile.html"><span class="nav-icon">👤</span> پروفایل</a>
+        <div class="sidebar-section">مقالات</div>
+        <a href="my-papers.html"><span class="nav-icon">📄</span> مقالات من</a>
+        <a href="submit-paper.html"><span class="nav-icon">➕</span> ارسال مقاله جدید</a>
+        <div class="sidebar-section">همایش</div>
+        <a href="my-registration.html"><span class="nav-icon">🎫</span> ثبت‌نام من</a>
+        <a href="schedule.html"><span class="nav-icon">📅</span> برنامه زمانی</a>
+        <a href="certificates.html"><span class="nav-icon">🏆</span> گواهی‌ها</a>
+        <div class="sidebar-section">پشتیبانی</div>
+        <a href="messages.html"><span class="nav-icon">💬</span> پیام‌ها</a>
+        <a href="contact.html"><span class="nav-icon">❓</span> پشتیبانی</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <div class="breadcrumb"><a href="index.html">خانه</a> / <span>داشبورد</span></div>
+          <h1>خوش آمدید 👋</h1>
+        </div>
+        <a href="submit-paper.html" class="btn btn-primary">+ ارسال مقاله جدید</a>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-icon blue">📄</div>
+          <div class="stat-card-info">
+            <h3>۳</h3>
+            <p>مقاله ارسال‌شده</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon green">✅</div>
+          <div class="stat-card-info">
+            <h3>۱</h3>
+            <p>پذیرفته‌شده</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon orange">⏳</div>
+          <div class="stat-card-info">
+            <h3>۱</h3>
+            <p>در حال داوری</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon purple">🎫</div>
+          <div class="stat-card-info">
+            <h3>فعال</h3>
+            <p>وضعیت ثبت‌نام</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header">
+            <span>مقالات اخیر</span>
+            <a href="my-papers.html" class="btn btn-sm btn-outline">مشاهده همه</a>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table>
+              <thead>
+                <tr>
+                  <th>عنوان</th>
+                  <th>وضعیت</th>
+                  <th>تاریخ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>بهبود دقت مدل‌های یادگیری عمیق...</td>
+                  <td><span class="badge badge-success">پذیرفته</span></td>
+                  <td>۱۲ مهر</td>
+                </tr>
+                <tr>
+                  <td>امنیت در سیستم‌های ابری توزیع‌شده</td>
+                  <td><span class="badge badge-warning">در داوری</span></td>
+                  <td>۱۸ مهر</td>
+                </tr>
+                <tr>
+                  <td>کاربرد IoT در کشاورزی هوشمند</td>
+                  <td><span class="badge badge-danger">رد شده</span></td>
+                  <td>۵ مهر</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span>اعلان‌ها</span></div>
+          <div class="card-body">
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-date">۲۰ مهر ۱۴۰۵</div>
+                <div class="timeline-content">
+                  <strong>نتیجه داوری اعلام شد</strong>
+                  <p class="text-muted" style="font-size:0.9rem;margin-top:4px;">مقاله «بهبود دقت مدل‌های...» پذیرفته شد.</p>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-date">۱۸ مهر ۱۴۰۵</div>
+                <div class="timeline-content">
+                  <strong>مقاله جدید دریافت شد</strong>
+                  <p class="text-muted" style="font-size:0.9rem;margin-top:4px;">مقاله شما وارد صف داوری شد.</p>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-date">۱۰ مهر ۱۴۰۵</div>
+                <div class="timeline-content">
+                  <strong>ثبت‌نام تأیید شد</strong>
+                  <p class="text-muted" style="font-size:0.9rem;margin-top:4px;">پرداخت شما با موفقیت انجام شد.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+</body>
+</html>

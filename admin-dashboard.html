@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>پنل مدیریت | همایش فناوری ۱۴۰۵</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="index.html" class="logo"><div class="logo-icon">هـ</div><span>پنل مدیریت همایش</span></a>
+        <div class="nav-actions">
+          <span style="color:var(--gray-600);font-size:0.9rem;">مدیر سیستم</span>
+          <button class="btn btn-outline btn-sm" onclick="logout()">خروج</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">م</div>
+          <div class="sidebar-user-info">
+            <h4>مدیر سیستم</h4>
+            <span>Admin</span>
+          </div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section">مدیریت</div>
+        <a href="admin-dashboard.html" class="active"><span class="nav-icon">📊</span> داشبورد</a>
+        <a href="admin-users.html"><span class="nav-icon">👥</span> کاربران</a>
+        <a href="admin-papers.html"><span class="nav-icon">📄</span> مقالات</a>
+        <a href="admin-registrations.html"><span class="nav-icon">🎫</span> ثبت‌نام‌ها</a>
+        <a href="admin-reviews.html"><span class="nav-icon">⚖️</span> داوری‌ها</a>
+        <div class="sidebar-section">محتوا</div>
+        <a href="admin-speakers.html"><span class="nav-icon">🎤</span> سخنرانان</a>
+        <a href="admin-schedule.html"><span class="nav-icon">📅</span> برنامه زمانی</a>
+        <a href="admin-settings.html"><span class="nav-icon">⚙️</span> تنظیمات</a>
+        <div class="sidebar-section">گزارش</div>
+        <a href="admin-reports.html"><span class="nav-icon">📈</span> گزارش‌ها</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <div class="breadcrumb"><span>مدیریت</span> / <span>داشبورد</span></div>
+          <h1>داشبورد مدیریت</h1>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-icon blue">👥</div>
+          <div class="stat-card-info"><h3>۱٬۲۴۷</h3><p>کل کاربران</p></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon green">🎫</div>
+          <div class="stat-card-info"><h3>۸۹۳</h3><p>ثبت‌نام تأییدشده</p></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon orange">📄</div>
+          <div class="stat-card-info"><h3>۱۵۶</h3><p>مقاله دریافتی</p></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon purple">⚖️</div>
+          <div class="stat-card-info"><h3>۴۲</h3><p>در انتظار داوری</p></div>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header">
+            <span>آخرین مقالات</span>
+            <a href="admin-papers.html" class="btn btn-sm btn-outline">مدیریت</a>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table>
+              <thead><tr><th>عنوان</th><th>نویسنده</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>مدل‌های زبانی بزرگ فارسی</td>
+                  <td>علی رضایی</td>
+                  <td><span class="badge badge-warning">در داوری</span></td>
+                  <td><a href="#" class="btn btn-sm btn-outline">بررسی</a></td>
+                </tr>
+                <tr>
+                  <td>امنیت بلاکچین در IoT</td>
+                  <td>مریم احمدی</td>
+                  <td><span class="badge badge-info">جدید</span></td>
+                  <td><a href="#" class="btn btn-sm btn-outline">بررسی</a></td>
+                </tr>
+                <tr>
+                  <td>تشخیص بیماری با AI</td>
+                  <td>حسین کریمی</td>
+                  <td><span class="badge badge-success">پذیرفته</span></td>
+                  <td><a href="#" class="btn btn-sm btn-outline">مشاهده</a></td>
+                </tr>
+                <tr>
+                  <td>معماری میکروسرویس</td>
+                  <td>سارا نوری</td>
+                  <td><span class="badge badge-danger">رد شده</span></td>
+                  <td><a href="#" class="btn btn-sm btn-outline">مشاهده</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span>آمار ثبت‌نام</span></div>
+          <div class="card-body">
+            <div style="margin-bottom:20px;">
+              <div class="d-flex justify-between mb-1"><span>شرکت‌کننده عادی</span><span class="fw-bold">۴۵۲</span></div>
+              <div class="progress"><div class="progress-bar" style="width:50%;"></div></div>
+            </div>
+            <div style="margin-bottom:20px;">
+              <div class="d-flex justify-between mb-1"><span>نویسنده مقاله</span><span class="fw-bold">۲۸۷</span></div>
+              <div class="progress"><div class="progress-bar" style="width:32%;"></div></div>
+            </div>
+            <div style="margin-bottom:20px;">
+              <div class="d-flex justify-between mb-1"><span>دانشجویی</span><span class="fw-bold">۱۵۴</span></div>
+              <div class="progress"><div class="progress-bar" style="width:17%;"></div></div>
+            </div>
+            <div>
+              <div class="d-flex justify-between mb-1"><span>در انتظار پرداخت</span><span class="fw-bold">۹۸</span></div>
+              <div class="progress"><div class="progress-bar" style="width:11%;background:var(--warning);"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-3">
+        <div class="card-header"><span>فعالیت‌های اخیر سیستم</span></div>
+        <div class="card-body">
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-date">۱۶ مهر — ۱۴:۳۰</div>
+              <div class="timeline-content">کاربر جدید «محمد حسینی» ثبت‌نام کرد.</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-date">۱۶ مهر — ۱۳:۱۵</div>
+              <div class="timeline-content">مقاله «مدل‌های زبانی...» توسط داور تأیید اولیه شد.</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-date">۱۶ مهر — ۱۱:۰۰</div>
+              <div class="timeline-content">پرداخت ثبت‌نام #۱۲۴۷ تأیید شد.</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-date">۱۵ مهر — ۱۸:۴۵</div>
+              <div class="timeline-content">داور جدید «دکتر کاظمی» به سیستم اضافه شد.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+</body>
+</html>

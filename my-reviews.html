@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>داوری‌های من | پنل داور</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="reviewer-dashboard.html" class="logo"><div class="logo-icon">هـ</div><span>پنل داوری</span></a>
+        <div class="nav-actions"><button class="btn btn-outline btn-sm" onclick="logout()">خروج</button></div>
+      </nav>
+    </div>
+  </header>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-user"><div class="sidebar-avatar">د</div><div class="sidebar-user-info"><h4>داور نمونه</h4><span>Reviewer</span></div></div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="reviewer-dashboard.html"><span class="nav-icon">📊</span> داشبورد</a>
+        <a href="review-queue.html"><span class="nav-icon">📋</span> صف داوری</a>
+        <a href="my-reviews.html" class="active"><span class="nav-icon">✅</span> داوری‌های من</a>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <div class="page-header">
+        <div><div class="breadcrumb"><a href="reviewer-dashboard.html">داشبورد</a> / <span>داوری‌های من</span></div><h1>تاریخچه داوری‌ها</h1></div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>کد</th><th>عنوان</th><th>امتیاز کلی</th><th>توصیه</th><th>تاریخ</th></tr></thead>
+          <tbody>
+            <tr><td>#P-1001</td><td>تشخیص تصویر پزشکی</td><td>۴.۵</td><td><span class="badge badge-success">پذیرش</span></td><td>۱۸ مهر</td></tr>
+            <tr><td>#P-0980</td><td>معماری میکروسرویس</td><td>۳.۵</td><td><span class="badge badge-warning">اصلاحات عمده</span></td><td>۱۰ مهر</td></tr>
+            <tr><td>#P-0972</td><td>بلاکچین در زنجیره تأمین</td><td>۲.۰</td><td><span class="badge badge-danger">رد</span></td><td>۵ مهر</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+</body>
+</html>

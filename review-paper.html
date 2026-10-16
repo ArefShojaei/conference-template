@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>داوری مقاله | همایش فناوری ۱۴۰۵</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="reviewer-dashboard.html" class="logo"><div class="logo-icon">هـ</div><span>پنل داوری</span></a>
+        <div class="nav-actions">
+          <a href="reviewer-dashboard.html" class="btn btn-outline btn-sm">بازگشت</a>
+          <button class="btn btn-outline btn-sm" onclick="logout()">خروج</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">د</div>
+          <div class="sidebar-user-info"><h4>داور نمونه</h4><span>Reviewer</span></div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="reviewer-dashboard.html"><span class="nav-icon">📊</span> داشبورد</a>
+        <a href="review-queue.html"><span class="nav-icon">📋</span> صف داوری</a>
+        <a href="my-reviews.html"><span class="nav-icon">✅</span> داوری‌های من</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <div class="breadcrumb"><a href="reviewer-dashboard.html">داشبورد</a> / <span>داوری مقاله</span></div>
+          <h1>داوری مقاله #P-1042</h1>
+        </div>
+      </div>
+
+      <div class="grid grid-2" style="align-items:start;">
+        <div>
+          <div class="card mb-3">
+            <div class="card-header"><span>اطلاعات مقاله</span></div>
+            <div class="card-body">
+              <h3 style="margin-bottom:12px;">بهینه‌سازی مدل‌های Transformer برای زبان فارسی</h3>
+              <p class="text-muted mb-2"><strong>محور:</strong> هوش مصنوعی و یادگیری ماشین</p>
+              <p class="text-muted mb-2"><strong>نوع ارائه:</strong> شفاهی</p>
+              <p class="text-muted mb-2"><strong>کلمات کلیدی:</strong> Transformer، NLP، زبان فارسی، بهینه‌سازی</p>
+              <hr style="margin:15px 0;border:none;border-top:1px solid var(--gray-200);">
+              <h4 style="margin-bottom:8px;">چکیده</h4>
+              <p style="color:var(--gray-700);line-height:1.8;font-size:0.95rem;">
+                در این مقاله روشی نوین برای بهینه‌سازی مدل‌های Transformer در پردازش زبان طبیعی فارسی ارائه شده است. با استفاده از تکنیک‌های quantization و knowledge distillation، حجم مدل تا ۶۰٪ کاهش یافته و دقت روی معیارهای استاندارد حفظ شده است...
+              </p>
+              <div class="mt-3">
+                <a href="#" class="btn btn-outline btn-sm">📥 دانلود فایل PDF</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <div class="card-header"><span>فرم داوری</span></div>
+            <div class="card-body">
+              <form data-validate data-success="true" data-redirect="reviewer-dashboard.html">
+                <div class="form-group">
+                  <label class="form-label">اصالت و نوآوری (از ۱ تا ۵) *</label>
+                  <select class="form-control" required>
+                    <option value="">انتخاب...</option>
+                    <option>۵ — بسیار نوآورانه</option>
+                    <option>۴ — نوآورانه</option>
+                    <option>۳ — متوسط</option>
+                    <option>۲ — ضعیف</option>
+                    <option>۱ — فاقد نوآوری</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">کیفیت روش‌شناسی (از ۱ تا ۵) *</label>
+                  <select class="form-control" required>
+                    <option value="">انتخاب...</option>
+                    <option>۵</option><option>۴</option><option>۳</option><option>۲</option><option>۱</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">کیفیت نگارش و ساختار (از ۱ تا ۵) *</label>
+                  <select class="form-control" required>
+                    <option value="">انتخاب...</option>
+                    <option>۵</option><option>۴</option><option>۳</option><option>۲</option><option>۱</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">ارتباط با محور همایش (از ۱ تا ۵) *</label>
+                  <select class="form-control" required>
+                    <option value="">انتخاب...</option>
+                    <option>۵</option><option>۴</option><option>۳</option><option>۲</option><option>۱</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">نظرات تفصیلی برای نویسنده *</label>
+                  <textarea class="form-control" required placeholder="نقاط قوت، ضعف و پیشنهادات اصلاحی..." style="min-height:120px;"></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">نظرات محرمانه برای کمیته (اختیاری)</label>
+                  <textarea class="form-control" placeholder="نظرات فقط برای کمیته علمی..."></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">توصیه نهایی *</label>
+                  <select class="form-control" required>
+                    <option value="">انتخاب...</option>
+                    <option>پذیرش بدون اصلاح</option>
+                    <option>پذیرش با اصلاحات جزئی</option>
+                    <option>پذیرش با اصلاحات عمده</option>
+                    <option>رد مقاله</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg btn-block">ثبت داوری</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+</body>
+</html>

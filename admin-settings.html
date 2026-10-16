@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تنظیمات | پنل ادمین</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="admin-dashboard.html" class="logo"><div class="logo-icon">هـ</div><span>پنل مدیریت</span></a>
+        <div class="nav-actions"><button class="btn btn-outline btn-sm" onclick="logout()">خروج</button></div>
+      </nav>
+    </div>
+  </header>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-user"><div class="sidebar-avatar">م</div><div class="sidebar-user-info"><h4>مدیر سیستم</h4><span>Admin</span></div></div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="admin-dashboard.html"><span class="nav-icon">📊</span> داشبورد</a>
+        <a href="admin-users.html"><span class="nav-icon">👥</span> کاربران</a>
+        <a href="admin-papers.html"><span class="nav-icon">📄</span> مقالات</a>
+        <a href="admin-registrations.html"><span class="nav-icon">🎫</span> ثبت‌نام‌ها</a>
+        <a href="admin-reviews.html"><span class="nav-icon">⚖️</span> داوری‌ها</a>
+        <a href="admin-settings.html" class="active"><span class="nav-icon">⚙️</span> تنظیمات</a>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <div class="page-header">
+        <div><div class="breadcrumb"><a href="admin-dashboard.html">مدیریت</a> / <span>تنظیمات</span></div><h1>تنظیمات همایش</h1></div>
+      </div>
+      <div class="card" style="max-width:700px;">
+        <div class="card-body">
+          <form data-validate data-success="true">
+            <h3 style="margin-bottom:20px;">اطلاعات عمومی</h3>
+            <div class="form-group">
+              <label class="form-label">عنوان همایش</label>
+              <input type="text" class="form-control" value="همایش بین‌المللی فناوری و نوآوری ۱۴۰۵">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">تاریخ شروع</label>
+                <input type="text" class="form-control" value="۱۵ آذر ۱۴۰۵">
+              </div>
+              <div class="form-group">
+                <label class="form-label">تاریخ پایان</label>
+                <input type="text" class="form-control" value="۱۷ آذر ۱۴۰۵">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">مهلت ارسال مقاله</label>
+              <input type="text" class="form-control" value="۳۰ مهر ۱۴۰۵">
+            </div>
+            <hr style="margin:25px 0;border:none;border-top:1px solid var(--gray-200);">
+            <h3 style="margin-bottom:20px;">تعرفه‌ها (تومان)</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">شرکت‌کننده عادی</label>
+                <input type="number" class="form-control" value="1500000">
+              </div>
+              <div class="form-group">
+                <label class="form-label">نویسنده مقاله</label>
+                <input type="number" class="form-control" value="2000000">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">دانشجویی</label>
+              <input type="number" class="form-control" value="900000">
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">ذخیره تنظیمات</button>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+</body>
+</html>

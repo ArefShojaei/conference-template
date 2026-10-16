@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ارسال مقاله | همایش فناوری و نوآوری ۱۴۰۵</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-top"><div class="container"><div><span>📅 مهلت ارسال: ۳۰ مهر ۱۴۰۵</span></div><div style="display:flex;gap:20px;"><a href="login.html">ورود</a></div></div></div>
+    <div class="container">
+      <nav class="navbar">
+        <a href="index.html" class="logo"><div class="logo-icon">هـ</div><span>همایش فناوری ۱۴۰۵</span></a>
+        <button class="menu-toggle">☰</button>
+        <div class="nav-menu">
+          <a href="index.html">صفحه اصلی</a>
+          <a href="about.html">درباره</a>
+          <a href="speakers.html">سخنرانان</a>
+          <a href="schedule.html">برنامه</a>
+          <a href="papers.html">مقالات</a>
+          <a href="register.html">ثبت‌نام</a>
+          <a href="contact.html">تماس</a>
+        </div>
+        <div class="nav-actions">
+          <a href="login.html" class="btn btn-outline btn-sm">ورود</a>
+          <a href="register.html" class="btn btn-primary btn-sm">ثبت‌نام</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <section class="section" style="background:linear-gradient(135deg,#0f172a,#1e3a5f);color:white;padding:50px 0;">
+    <div class="container text-center">
+      <h1 style="font-size:2rem;margin-bottom:10px;">ارسال مقاله</h1>
+      <p style="opacity:0.9;">فرم ارسال مقاله علمی به همایش — مهلت: ۳۰ مهر ۱۴۰۵</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width:900px;">
+      <div class="alert alert-info mb-3">
+        <span>ℹ️</span>
+        <div>قبل از ارسال، لطفاً <a href="#" style="color:var(--primary);font-weight:600;">راهنمای نویسندگان</a> و قالب مقاله را مطالعه کنید. مقالات باید به زبان فارسی یا انگلیسی باشند.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h2 style="font-size:1.25rem;">اطلاعات مقاله</h2></div>
+        <div class="card-body">
+          <form data-validate data-success="true" data-redirect="dashboard.html">
+            <div class="form-group">
+              <label class="form-label">عنوان مقاله *</label>
+              <input type="text" class="form-control" required placeholder="عنوان کامل مقاله">
+            </div>
+            <div class="form-group">
+              <label class="form-label">عنوان انگلیسی</label>
+              <input type="text" class="form-control" placeholder="English Title">
+            </div>
+            <div class="form-group">
+              <label class="form-label">چکیده (حداقل ۲۰۰ کلمه) *</label>
+              <textarea class="form-control" required placeholder="چکیده مقاله را وارد کنید..." style="min-height:150px;"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">کلمات کلیدی *</label>
+              <input type="text" class="form-control" required placeholder="کلمات را با ویرگول جدا کنید">
+              <div class="form-hint">حداقل ۳ و حداکثر ۶ کلمه کلیدی</div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">محور همایش *</label>
+                <select class="form-control" required>
+                  <option value="">انتخاب محور...</option>
+                  <option>هوش مصنوعی و یادگیری ماشین</option>
+                  <option>رایانش ابری و توزیع‌شده</option>
+                  <option>امنیت سایبری و بلاکچین</option>
+                  <option>اینترنت اشیاء</option>
+                  <option>بیوانفورماتیک</option>
+                  <option>نوآوری دیجیتال و استارتاپ</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">نوع ارائه *</label>
+                <select class="form-control" required>
+                  <option value="">انتخاب...</option>
+                  <option>ارائه شفاهی</option>
+                  <option>پوستر</option>
+                  <option>هر دو</option>
+                </select>
+              </div>
+            </div>
+
+            <h3 style="margin:30px 0 20px;font-size:1.15rem;border-bottom:2px solid var(--gray-200);padding-bottom:10px;">نویسندگان</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">نام نویسنده مسئول *</label>
+                <input type="text" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">ایمیل نویسنده مسئول *</label>
+                <input type="email" class="form-control" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">سایر نویسندگان (نام‌ها را با ویرگول جدا کنید)</label>
+              <input type="text" class="form-control" placeholder="نام نویسنده ۲، نام نویسنده ۳، ...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">وابستگی سازمانی نویسندگان</label>
+              <textarea class="form-control" placeholder="دانشگاه/سازمان هر نویسنده"></textarea>
+            </div>
+
+            <h3 style="margin:30px 0 20px;font-size:1.15rem;border-bottom:2px solid var(--gray-200);padding-bottom:10px;">فایل‌ها</h3>
+            <div class="form-group">
+              <label class="form-label">فایل مقاله (PDF) *</label>
+              <div class="file-upload" onclick="this.querySelector('input').click()">
+                <div class="file-upload-icon">📄</div>
+                <p>فایل را اینجا رها کنید یا <span>انتخاب کنید</span></p>
+                <p class="file-name text-muted" style="font-size:0.85rem;">حداکثر ۱۰ مگابایت — فرمت PDF</p>
+                <input type="file" accept=".pdf" style="display:none;" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">فایل مکمل (اختیاری)</label>
+              <div class="file-upload" onclick="this.querySelector('input').click()">
+                <div class="file-upload-icon">📎</div>
+                <p>فایل‌های اضافی (کد، داده، ...)</p>
+                <input type="file" style="display:none;">
+              </div>
+            </div>
+
+            <div class="form-check mt-3">
+              <input type="checkbox" id="original" required>
+              <label for="original">این مقاله اصیل است و قبلاً منتشر نشده *</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" id="ethics" required>
+              <label for="ethics">اصول اخلاق پژوهشی را رعایت کرده‌ام *</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg btn-block mt-3">ارسال مقاله</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom"><p>© ۱۴۰۵ همایش فناوری و نوآوری</p></div>
+    </div>
+  </footer>
+  <script src="js/main.js"></script>
+</body>
+</html>

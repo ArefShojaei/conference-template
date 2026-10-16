@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مدیریت داوری‌ها | پنل ادمین</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="admin-dashboard.html" class="logo"><div class="logo-icon">هـ</div><span>پنل مدیریت</span></a>
+        <div class="nav-actions"><button class="btn btn-outline btn-sm" onclick="logout()">خروج</button></div>
+      </nav>
+    </div>
+  </header>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-user"><div class="sidebar-avatar">م</div><div class="sidebar-user-info"><h4>مدیر سیستم</h4><span>Admin</span></div></div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="admin-dashboard.html"><span class="nav-icon">📊</span> داشبورد</a>
+        <a href="admin-users.html"><span class="nav-icon">👥</span> کاربران</a>
+        <a href="admin-papers.html"><span class="nav-icon">📄</span> مقالات</a>
+        <a href="admin-registrations.html"><span class="nav-icon">🎫</span> ثبت‌نام‌ها</a>
+        <a href="admin-reviews.html" class="active"><span class="nav-icon">⚖️</span> داوری‌ها</a>
+        <a href="admin-settings.html"><span class="nav-icon">⚙️</span> تنظیمات</a>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <div class="page-header">
+        <div><div class="breadcrumb"><a href="admin-dashboard.html">مدیریت</a> / <span>داوری‌ها</span></div><h1>مدیریت داوری‌ها</h1></div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>مقاله</th><th>داور</th><th>امتیاز</th><th>توصیه</th><th>تاریخ</th><th>وضعیت</th></tr></thead>
+          <tbody>
+            <tr><td>#P-1001</td><td>دکتر کاظمی</td><td>۴.۵</td><td><span class="badge badge-success">پذیرش</span></td><td>۱۸ مهر</td><td>تکمیل</td></tr>
+            <tr><td>#P-1001</td><td>دکتر موسوی</td><td>۴.۰</td><td><span class="badge badge-success">پذیرش با اصلاح</span></td><td>۱۹ مهر</td><td>تکمیل</td></tr>
+            <tr><td>#P-1042</td><td>دکتر احمدی</td><td>—</td><td>—</td><td>—</td><td><span class="badge badge-warning">در انتظار</span></td></tr>
+            <tr><td>#P-1038</td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="badge badge-info">تخصیص‌نشده</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+</body>
+</html>

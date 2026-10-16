@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مدیریت کاربران | پنل ادمین</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="admin-dashboard.html" class="logo"><div class="logo-icon">هـ</div><span>پنل مدیریت</span></a>
+        <div class="nav-actions"><button class="btn btn-outline btn-sm" onclick="logout()">خروج</button></div>
+      </nav>
+    </div>
+  </header>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-user"><div class="sidebar-avatar">م</div><div class="sidebar-user-info"><h4>مدیر سیستم</h4><span>Admin</span></div></div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="admin-dashboard.html"><span class="nav-icon">📊</span> داشبورد</a>
+        <a href="admin-users.html" class="active"><span class="nav-icon">👥</span> کاربران</a>
+        <a href="admin-papers.html"><span class="nav-icon">📄</span> مقالات</a>
+        <a href="admin-registrations.html"><span class="nav-icon">🎫</span> ثبت‌نام‌ها</a>
+        <a href="admin-reviews.html"><span class="nav-icon">⚖️</span> داوری‌ها</a>
+        <a href="admin-settings.html"><span class="nav-icon">⚙️</span> تنظیمات</a>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <div class="page-header">
+        <div><div class="breadcrumb"><a href="admin-dashboard.html">مدیریت</a> / <span>کاربران</span></div><h1>مدیریت کاربران</h1></div>
+        <button class="btn btn-primary">+ کاربر جدید</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>نام</th><th>ایمیل</th><th>نقش</th><th>وضعیت</th><th>تاریخ عضویت</th><th>عملیات</th></tr></thead>
+          <tbody>
+            <tr><td>علی رضایی</td><td>ali@example.com</td><td><span class="badge badge-primary">نویسنده</span></td><td><span class="badge badge-success">فعال</span></td><td>۸ مهر</td><td><a href="#" class="btn btn-sm btn-outline">ویرایش</a></td></tr>
+            <tr><td>دکتر کاظمی</td><td>kazemi@uni.ac.ir</td><td><span class="badge badge-info">داور</span></td><td><span class="badge badge-success">فعال</span></td><td>۱ مهر</td><td><a href="#" class="btn btn-sm btn-outline">ویرایش</a></td></tr>
+            <tr><td>مریم احمدی</td><td>maryam@example.com</td><td><span class="badge badge-primary">نویسنده</span></td><td><span class="badge badge-success">فعال</span></td><td>۱۲ مهر</td><td><a href="#" class="btn btn-sm btn-outline">ویرایش</a></td></tr>
+            <tr><td>سارا نوری</td><td>sara@example.com</td><td><span class="badge badge-gray">شرکت‌کننده</span></td><td><span class="badge badge-warning">معلق</span></td><td>۱۵ مهر</td><td><a href="#" class="btn btn-sm btn-outline">ویرایش</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+</body>
+</html>

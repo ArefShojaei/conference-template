@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>پروفایل | همایش فناوری ۱۴۰۵</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="index.html" class="logo"><div class="logo-icon">هـ</div><span>همایش فناوری ۱۴۰۵</span></a>
+        <div class="nav-actions">
+          <button class="btn btn-outline btn-sm" onclick="logout()">خروج</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">ک</div>
+          <div class="sidebar-user-info"><h4>کاربر نمونه</h4><span>نویسنده</span></div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html"><span class="nav-icon">📊</span> داشبورد</a>
+        <a href="profile.html" class="active"><span class="nav-icon">👤</span> پروفایل</a>
+        <a href="my-papers.html"><span class="nav-icon">📄</span> مقالات من</a>
+        <a href="submit-paper.html"><span class="nav-icon">➕</span> ارسال مقاله</a>
+        <a href="my-registration.html"><span class="nav-icon">🎫</span> ثبت‌نام من</a>
+        <a href="certificates.html"><span class="nav-icon">🏆</span> گواهی‌ها</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <div class="breadcrumb"><a href="dashboard.html">داشبورد</a> / <span>پروفایل</span></div>
+          <h1>ویرایش پروفایل</h1>
+        </div>
+      </div>
+
+      <div class="card" style="max-width:700px;">
+        <div class="card-body">
+          <div style="text-align:center;margin-bottom:30px;">
+            <div class="speaker-avatar" style="margin:0 auto 15px;">ک</div>
+            <button class="btn btn-sm btn-outline">تغییر تصویر</button>
+          </div>
+          <form data-validate data-success="true">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">نام</label>
+                <input type="text" class="form-control" value="کاربر">
+              </div>
+              <div class="form-group">
+                <label class="form-label">نام خانوادگی</label>
+                <input type="text" class="form-control" value="نمونه">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">ایمیل</label>
+              <input type="email" class="form-control" value="user@example.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">شماره موبایل</label>
+              <input type="tel" class="form-control" value="09121234567">
+            </div>
+            <div class="form-group">
+              <label class="form-label">سازمان / دانشگاه</label>
+              <input type="text" class="form-control" value="دانشگاه تهران">
+            </div>
+            <div class="form-group">
+              <label class="form-label">بیوگرافی کوتاه</label>
+              <textarea class="form-control">پژوهشگر حوزه هوش مصنوعی</textarea>
+            </div>
+            <hr style="margin:25px 0;border:none;border-top:1px solid var(--gray-200);">
+            <h3 style="margin-bottom:15px;">تغییر رمز عبور</h3>
+            <div class="form-group">
+              <label class="form-label">رمز عبور فعلی</label>
+              <input type="password" class="form-control">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">رمز عبور جدید</label>
+                <input type="password" class="form-control">
+              </div>
+              <div class="form-group">
+                <label class="form-label">تکرار رمز جدید</label>
+                <input type="password" class="form-control">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">ذخیره تغییرات</button>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+</body>
+</html>

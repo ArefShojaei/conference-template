@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مدیریت ثبت‌نام‌ها | پنل ادمین</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="admin-dashboard.html" class="logo"><div class="logo-icon">هـ</div><span>پنل مدیریت</span></a>
+        <div class="nav-actions"><button class="btn btn-outline btn-sm" onclick="logout()">خروج</button></div>
+      </nav>
+    </div>
+  </header>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-user"><div class="sidebar-avatar">م</div><div class="sidebar-user-info"><h4>مدیر سیستم</h4><span>Admin</span></div></div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="admin-dashboard.html"><span class="nav-icon">📊</span> داشبورد</a>
+        <a href="admin-users.html"><span class="nav-icon">👥</span> کاربران</a>
+        <a href="admin-papers.html"><span class="nav-icon">📄</span> مقالات</a>
+        <a href="admin-registrations.html" class="active"><span class="nav-icon">🎫</span> ثبت‌نام‌ها</a>
+        <a href="admin-reviews.html"><span class="nav-icon">⚖️</span> داوری‌ها</a>
+        <a href="admin-settings.html"><span class="nav-icon">⚙️</span> تنظیمات</a>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <div class="page-header">
+        <div><div class="breadcrumb"><a href="admin-dashboard.html">مدیریت</a> / <span>ثبت‌نام‌ها</span></div><h1>مدیریت ثبت‌نام‌ها</h1></div>
+      </div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat-card"><div class="stat-card-icon green">✅</div><div class="stat-card-info"><h3>۸۹۳</h3><p>تأیید شده</p></div></div>
+        <div class="stat-card"><div class="stat-card-icon orange">⏳</div><div class="stat-card-info"><h3>۹۸</h3><p>در انتظار پرداخت</p></div></div>
+        <div class="stat-card"><div class="stat-card-icon blue">💰</div><div class="stat-card-info"><h3>۱.۸ میلیارد</h3><p>درآمد کل (تومان)</p></div></div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>شماره</th><th>نام</th><th>نوع</th><th>مبلغ</th><th>وضعیت</th><th>تاریخ</th><th>عملیات</th></tr></thead>
+          <tbody>
+            <tr><td>#REG-0847</td><td>کاربر نمونه</td><td>نویسنده</td><td>۲٬۰۰۰٬۰۰۰</td><td><span class="badge badge-success">پرداخت شده</span></td><td>۱۰ مهر</td><td><a href="#" class="btn btn-sm btn-outline">جزئیات</a></td></tr>
+            <tr><td>#REG-0846</td><td>محمد حسینی</td><td>عادی</td><td>۱٬۵۰۰٬۰۰۰</td><td><span class="badge badge-success">پرداخت شده</span></td><td>۱۶ مهر</td><td><a href="#" class="btn btn-sm btn-outline">جزئیات</a></td></tr>
+            <tr><td>#REG-0845</td><td>زهرا محمدی</td><td>دانشجویی</td><td>۹۰۰٬۰۰۰</td><td><span class="badge badge-warning">در انتظار</span></td><td>۱۶ مهر</td><td><a href="#" class="btn btn-sm btn-primary">تأیید</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+</body>
+</html>

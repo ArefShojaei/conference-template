@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>گواهی‌ها | همایش فناوری ۱۴۰۵</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="index.html" class="logo"><div class="logo-icon">هـ</div><span>همایش فناوری ۱۴۰۵</span></a>
+        <div class="nav-actions"><button class="btn btn-outline btn-sm" onclick="logout()">خروج</button></div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">ک</div>
+          <div class="sidebar-user-info"><h4>کاربر نمونه</h4><span>نویسنده</span></div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html"><span class="nav-icon">📊</span> داشبورد</a>
+        <a href="profile.html"><span class="nav-icon">👤</span> پروفایل</a>
+        <a href="my-papers.html"><span class="nav-icon">📄</span> مقالات من</a>
+        <a href="submit-paper.html"><span class="nav-icon">➕</span> ارسال مقاله</a>
+        <a href="my-registration.html"><span class="nav-icon">🎫</span> ثبت‌نام من</a>
+        <a href="certificates.html" class="active"><span class="nav-icon">🏆</span> گواهی‌ها</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <div class="breadcrumb"><a href="dashboard.html">داشبورد</a> / <span>گواهی‌ها</span></div>
+          <h1>گواهی‌های من</h1>
+        </div>
+      </div>
+
+      <div class="alert alert-info mb-3">
+        <span>ℹ️</span>
+        <div>گواهی‌ها پس از پایان همایش و تأیید حضور قابل دانلود خواهند بود.</div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card" style="padding:30px;text-align:center;">
+          <div style="font-size:3rem;margin-bottom:15px;">📜</div>
+          <h3 style="margin-bottom:8px;">گواهی شرکت در همایش</h3>
+          <p class="text-muted mb-3">گواهی حضور در همایش بین‌المللی فناوری و نوآوری ۱۴۰۵</p>
+          <span class="badge badge-warning mb-2">در انتظار برگزاری</span>
+          <br>
+          <button class="btn btn-outline btn-sm mt-2" disabled>دانلود (فعال پس از همایش)</button>
+        </div>
+        <div class="card" style="padding:30px;text-align:center;">
+          <div style="font-size:3rem;margin-bottom:15px;">🏆</div>
+          <h3 style="margin-bottom:8px;">گواهی ارائه مقاله</h3>
+          <p class="text-muted mb-3">گواهی ارائه شفاهی مقاله پذیرفته‌شده</p>
+          <span class="badge badge-warning mb-2">در انتظار برگزاری</span>
+          <br>
+          <button class="btn btn-outline btn-sm mt-2" disabled>دانلود (فعال پس از همایش)</button>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+</body>
+</html>

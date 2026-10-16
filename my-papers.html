@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مقالات من | همایش فناوری ۱۴۰۵</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="index.html" class="logo"><div class="logo-icon">هـ</div><span>همایش فناوری ۱۴۰۵</span></a>
+        <div class="nav-actions"><button class="btn btn-outline btn-sm" onclick="logout()">خروج</button></div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">ک</div>
+          <div class="sidebar-user-info"><h4>کاربر نمونه</h4><span>نویسنده</span></div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html"><span class="nav-icon">📊</span> داشبورد</a>
+        <a href="profile.html"><span class="nav-icon">👤</span> پروفایل</a>
+        <a href="my-papers.html" class="active"><span class="nav-icon">📄</span> مقالات من</a>
+        <a href="submit-paper.html"><span class="nav-icon">➕</span> ارسال مقاله</a>
+        <a href="my-registration.html"><span class="nav-icon">🎫</span> ثبت‌نام من</a>
+        <a href="certificates.html"><span class="nav-icon">🏆</span> گواهی‌ها</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <div class="breadcrumb"><a href="dashboard.html">داشبورد</a> / <span>مقالات من</span></div>
+          <h1>مقالات من</h1>
+        </div>
+        <a href="submit-paper.html" class="btn btn-primary">+ مقاله جدید</a>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>کد</th>
+              <th>عنوان</th>
+              <th>محور</th>
+              <th>وضعیت</th>
+              <th>تاریخ ارسال</th>
+              <th>عملیات</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#P-1001</td>
+              <td>بهبود دقت مدل‌های یادگیری عمیق در تشخیص تصویر</td>
+              <td>هوش مصنوعی</td>
+              <td><span class="badge badge-success">پذیرفته‌شده</span></td>
+              <td>۱۲ مهر ۱۴۰۵</td>
+              <td>
+                <a href="#" class="btn btn-sm btn-outline">مشاهده</a>
+                <a href="#" class="btn btn-sm btn-outline">نظرات داور</a>
+              </td>
+            </tr>
+            <tr>
+              <td>#P-1038</td>
+              <td>امنیت در سیستم‌های ابری توزیع‌شده</td>
+              <td>امنیت سایبری</td>
+              <td><span class="badge badge-warning">در حال داوری</span></td>
+              <td>۱۸ مهر ۱۴۰۵</td>
+              <td>
+                <a href="#" class="btn btn-sm btn-outline">مشاهده</a>
+              </td>
+            </tr>
+            <tr>
+              <td>#P-0995</td>
+              <td>کاربرد IoT در کشاورزی هوشمند</td>
+              <td>اینترنت اشیاء</td>
+              <td><span class="badge badge-danger">رد شده</span></td>
+              <td>۵ مهر ۱۴۰۵</td>
+              <td>
+                <a href="#" class="btn btn-sm btn-outline">مشاهده</a>
+                <a href="#" class="btn btn-sm btn-outline">نظرات داور</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>پیام‌ها | همایش فناوری ۱۴۰۵</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="index.html" class="logo"><div class="logo-icon">هـ</div><span>همایش فناوری ۱۴۰۵</span></a>
+        <div class="nav-actions"><button class="btn btn-outline btn-sm" onclick="logout()">خروج</button></div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">ک</div>
+          <div class="sidebar-user-info"><h4>کاربر نمونه</h4><span>نویسنده</span></div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html"><span class="nav-icon">📊</span> داشبورد</a>
+        <a href="profile.html"><span class="nav-icon">👤</span> پروفایل</a>
+        <a href="my-papers.html"><span class="nav-icon">📄</span> مقالات من</a>
+        <a href="messages.html" class="active"><span class="nav-icon">💬</span> پیام‌ها</a>
+        <a href="certificates.html"><span class="nav-icon">🏆</span> گواهی‌ها</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <div class="breadcrumb"><a href="dashboard.html">داشبورد</a> / <span>پیام‌ها</span></div>
+          <h1>صندوق پیام‌ها</h1>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body" style="padding:0;">
+          <div style="padding:20px;border-bottom:1px solid var(--gray-200);background:#f0f9ff;cursor:pointer;">
+            <div class="d-flex justify-between">
+              <strong>نتیجه داوری مقاله #P-1001</strong>
+              <span class="text-muted" style="font-size:0.85rem;">۲۰ مهر</span>
+            </div>
+            <p class="text-muted" style="font-size:0.9rem;margin-top:6px;">مقاله شما با موفقیت پذیرفته شد. لطفاً نسخه نهایی را تا ۱۵ آبان ارسال کنید...</p>
+          </div>
+          <div style="padding:20px;border-bottom:1px solid var(--gray-200);cursor:pointer;">
+            <div class="d-flex justify-between">
+              <strong>تأیید ثبت‌نام و پرداخت</strong>
+              <span class="text-muted" style="font-size:0.85rem;">۱۰ مهر</span>
+            </div>
+            <p class="text-muted" style="font-size:0.9rem;margin-top:6px;">ثبت‌نام شما با شماره #REG-2025-0847 تأیید شد. مبلغ ۲٬۰۰۰٬۰۰۰ تومان دریافت گردید.</p>
+          </div>
+          <div style="padding:20px;border-bottom:1px solid var(--gray-200);cursor:pointer;">
+            <div class="d-flex justify-between">
+              <strong>خوش‌آمدگویی به همایش</strong>
+              <span class="text-muted" style="font-size:0.85rem;">۸ مهر</span>
+            </div>
+            <p class="text-muted" style="font-size:0.9rem;margin-top:6px;">به سامانه همایش فناوری و نوآوری ۱۴۰۵ خوش آمدید. از پنل کاربری می‌توانید مقالات خود را مدیریت کنید.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+</body>
+</html>

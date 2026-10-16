@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مدیریت مقالات | پنل ادمین</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="admin-dashboard.html" class="logo"><div class="logo-icon">هـ</div><span>پنل مدیریت</span></a>
+        <div class="nav-actions"><button class="btn btn-outline btn-sm" onclick="logout()">خروج</button></div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">م</div>
+          <div class="sidebar-user-info"><h4>مدیر سیستم</h4><span>Admin</span></div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="admin-dashboard.html"><span class="nav-icon">📊</span> داشبورد</a>
+        <a href="admin-users.html"><span class="nav-icon">👥</span> کاربران</a>
+        <a href="admin-papers.html" class="active"><span class="nav-icon">📄</span> مقالات</a>
+        <a href="admin-registrations.html"><span class="nav-icon">🎫</span> ثبت‌نام‌ها</a>
+        <a href="admin-reviews.html"><span class="nav-icon">⚖️</span> داوری‌ها</a>
+        <a href="admin-settings.html"><span class="nav-icon">⚙️</span> تنظیمات</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <div class="breadcrumb"><a href="admin-dashboard.html">مدیریت</a> / <span>مقالات</span></div>
+          <h1>مدیریت مقالات</h1>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>کد</th>
+              <th>عنوان</th>
+              <th>نویسنده</th>
+              <th>محور</th>
+              <th>وضعیت</th>
+              <th>داوران</th>
+              <th>عملیات</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#P-1042</td>
+              <td>بهینه‌سازی Transformer برای فارسی</td>
+              <td>علی رضایی</td>
+              <td>هوش مصنوعی</td>
+              <td><span class="badge badge-warning">در داوری</span></td>
+              <td>۲ از ۳</td>
+              <td><a href="#" class="btn btn-sm btn-outline">جزئیات</a> <a href="#" class="btn btn-sm btn-primary">تخصیص داور</a></td>
+            </tr>
+            <tr>
+              <td>#P-1038</td>
+              <td>چارچوب امنیتی IoT صنعتی</td>
+              <td>مریم احمدی</td>
+              <td>امنیت</td>
+              <td><span class="badge badge-info">جدید</span></td>
+              <td>۰ از ۳</td>
+              <td><a href="#" class="btn btn-sm btn-outline">جزئیات</a> <a href="#" class="btn btn-sm btn-primary">تخصیص داور</a></td>
+            </tr>
+            <tr>
+              <td>#P-1001</td>
+              <td>تشخیص تصویر پزشکی با DL</td>
+              <td>حسین کریمی</td>
+              <td>هوش مصنوعی</td>
+              <td><span class="badge badge-success">پذیرفته</span></td>
+              <td>۳ از ۳</td>
+              <td><a href="#" class="btn btn-sm btn-outline">جزئیات</a></td>
+            </tr>
+            <tr>
+              <td>#P-0995</td>
+              <td>IoT در کشاورزی هوشمند</td>
+              <td>سارا نوری</td>
+              <td>IoT</td>
+              <td><span class="badge badge-danger">رد شده</span></td>
+              <td>۳ از ۳</td>
+              <td><a href="#" class="btn btn-sm btn-outline">جزئیات</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+  <script src="js/main.js"></script>
+</body>
+</html>
