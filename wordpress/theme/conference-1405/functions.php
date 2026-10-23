@@ -150,7 +150,9 @@ function hm1405_fallback_menu() {
         'مقالات' => '/papers/',
         'تماس' => '/contact/',
     );
+    echo '<ul class="menu">';
     foreach ($items as $label => $path) {
-        printf('<a href="%s">%s</a>', esc_url(home_url($path)), esc_html($label));
+        printf('<li><a href="%s">%s</a></li>', esc_url(home_url($path)), esc_html($label));
     }
+    echo '</ul>';
 }
