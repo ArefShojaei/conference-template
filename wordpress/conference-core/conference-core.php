@@ -337,7 +337,7 @@ final class Hamayesh_Conference_Core {
         $token = bin2hex(random_bytes(32));
         update_user_meta($user_id,self::VERIFY_HASH_META,hash('sha256',$token));
         update_user_meta($user_id,self::VERIFY_EXP_META,time()+DAY_IN_SECONDS);
-        $url = add_query_arg(['uid'=>$user_id,'token'=>$token],home_url('/hm-verify-email/'));
+        $url = add_query_arg(['action'=>'hm_verify_email','uid'=>$user_id,'token'=>$token],admin_url('admin-post.php'));
         $sent = wp_mail($email,'تأیید ایمیل حساب همایش',"برای فعال‌سازی حساب روی این پیوند کلیک کنید (اعتبار ۲۴ ساعت):\n".$url);
         $this->audit('register',$user_id,'user',$user_id);
         if (!$sent) error_log('Hamayesh: verification email delivery failed for user ID '.$user_id);
@@ -365,7 +365,7 @@ final class Hamayesh_Conference_Core {
             $token = bin2hex(random_bytes(32));
             update_user_meta($user->ID,self::VERIFY_HASH_META,hash('sha256',$token));
             update_user_meta($user->ID,self::VERIFY_EXP_META,time()+DAY_IN_SECONDS);
-            wp_mail($email,'پیوند تأیید ایمیل',add_query_arg(['uid'=>$user->ID,'token'=>$token],home_url('/hm-verify-email/')));
+            wp_mail($email,'پیوند تأیید ایمیل',add_query_arg(['action'=>'hm_verify_email','uid'=>$user->ID,'token'=>$token],admin_url('admin-post.php')));
         }
         $this->redirect('sent');
     }
@@ -435,7 +435,7 @@ final class Hamayesh_Conference_Core {
     public function handle_assign_reviewer() {
         if (!current_user_can('hm_manage_conference')) $this->redirect('denied');
         $paper_id=absint($_POST['paper_id']??0); $reviewer_id=absint($_POST['reviewer_id']??0);
-        if (!isset($_POST['hm_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['hm_nonce'])),'hm_assign_'.$paper_id)) $this->redirect('invalid');
+        if (!isset($_POST['hm_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['hm_nonce'])),'hm_assign_reviewer')) $this->redirect('invalid');
         $reviewer=get_user_by('id',$reviewer_id);
         if (!$reviewer || !in_array('hm_reviewer',(array)$reviewer->roles,true)) $this->redirect('invalid');
         global $wpdb;
@@ -571,7 +571,7 @@ final class Hamayesh_Conference_Core {
     public function admin_reviewers() {
         if (!current_user_can('hm_manage_conference')) return;
         $reviewers=get_users(['role'=>'hm_reviewer','fields'=>['ID','display_name','user_email']]);
-        echo '<div class="wrap"><h1>داوران</h1><p>برای تخصیص مقاله، شناسه مقاله و شناسه داور را در فرم زیر وارد کنید.</p><form method="post" action="'.esc_url(admin_url('admin-post.php')).'"><input type="hidden" name="action" value="hm_assign_reviewer">'.wp_nonce_field('hm_assign_0','hm_nonce',true,false).'<label>شناسه مقاله <input type="number" name="paper_id" min="1" required></label> <label>داور <select name="reviewer_id">';
+        echo '<div class="wrap"><h1>داوران</h1><p>برای تخصیص مقاله، شناسه مقاله و شناسه داور را در فرم زیر وارد کنید.</p><form method="post" action="'.esc_url(admin_url('admin-post.php')).'"><input type="hidden" name="action" value="hm_assign_reviewer">'.wp_nonce_field('hm_assign_reviewer','hm_nonce',true,false).'<label>شناسه مقاله <input type="number" name="paper_id" min="1" required></label> <label>داور <select name="reviewer_id">';
         foreach ($reviewers as $reviewer) echo '<option value="'.absint($reviewer->ID).'">'.esc_html($reviewer->display_name.' — '.$reviewer->user_email).'</option>';
         echo '</select></label><button class="button button-primary">تخصیص</button></form><p>شناسه مقاله را از جدول مقالات بردارید.</p></div>';
     }
