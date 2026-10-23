@@ -1,0 +1,3 @@
+<?php get_header(); ?>
+<main class="hm-dynamic-page" style="direction:rtl;max-width:1100px;margin:40px auto;padding:0 20px"><div class="container"><h1>ثبت‌نام رایگان در همایش</h1><?php if (shortcode_exists('hm_register')) { echo do_shortcode('[hm_register]'); } else { ?><div class="hm-theme-notice">برای استفاده از این بخش، افزونه Conference Core را نصب و فعال کنید.</div><?php } ?></div></main>
+<?php get_footer(); ?>
