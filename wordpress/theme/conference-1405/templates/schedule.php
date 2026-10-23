@@ -13,15 +13,7 @@
       <nav class="navbar">
         <a href="<?php echo esc_url(home_url('/')); ?>" class="logo"><div class="logo-icon">هـ</div><span>همایش فناوری ۱۴۰۵</span></a>
         <button class="menu-toggle">☰</button>
-        <div class="nav-menu">
-          <a href="<?php echo esc_url(home_url('/')); ?>">صفحه اصلی</a>
-          <a href="<?php echo esc_url(home_url('/about/')); ?>">درباره</a>
-          <a href="<?php echo esc_url(home_url('/speakers/')); ?>">سخنرانان</a>
-          <a href="<?php echo esc_url(home_url('/schedule/')); ?>" class="active">برنامه زمانی</a>
-          <a href="<?php echo esc_url(home_url('/papers/')); ?>">مقالات</a>
-          <a href="<?php echo esc_url(home_url('/register/')); ?>">ثبت‌نام</a>
-          <a href="<?php echo esc_url(home_url('/contact/')); ?>">تماس</a>
-        </div>
+        <div class="nav-menu"><?php wp_nav_menu(array('theme_location'=>'primary','container'=>false,'fallback_cb'=>'hm1405_fallback_menu','items_wrap'=>'%3$s')); ?></div>
         <div class="nav-actions">
           <a href="<?php echo esc_url(home_url('/login/')); ?>" class="btn btn-outline btn-sm">ورود</a>
           <a href="<?php echo esc_url(home_url('/register/')); ?>" class="btn btn-primary btn-sm">ثبت‌نام</a>
