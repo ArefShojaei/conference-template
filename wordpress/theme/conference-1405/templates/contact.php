@@ -82,6 +82,7 @@
     </div>
   </section>
 
+  <?php if (comments_open() || get_comments_number()) comments_template(); ?>
   <footer class="footer">
     <div class="container">
       <div class="footer-bottom"><p>© ۱۴۰۵ همایش فناوری و نوآوری</p></div>
