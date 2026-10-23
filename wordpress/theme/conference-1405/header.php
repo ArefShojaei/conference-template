@@ -7,7 +7,7 @@
 <div class="container"><nav class="navbar">
 <a class="logo" href="<?php echo esc_url(home_url('/')); ?>"><?php if (has_custom_logo()) { the_custom_logo(); } ?><span><?php bloginfo('name'); ?></span></a>
 <button class="menu-toggle" type="button" aria-label="باز کردن منو">☰</button>
-<div class="nav-menu"><?php wp_nav_menu(array('theme_location'=>'primary','container'=>false,'fallback_cb'=>'hm1405_fallback_menu','items_wrap'=>'%3$s')); ?></div>
+<div class="nav-menu"><?php wp_nav_menu(array('theme_location'=>'primary','container'=>false,'fallback_cb'=>'hm1405_fallback_menu','items_wrap'=>'<ul class="menu">%3$s</ul>')); ?></div>
 <div class="nav-actions">
 <?php if (is_user_logged_in()) : ?>
 <a class="btn btn-outline btn-sm" href="<?php echo esc_url(admin_url()); ?>">پیشخوان</a>
