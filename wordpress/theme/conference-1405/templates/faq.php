@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <?php wp_head(); ?>
-  <link rel="stylesheet" href="<?php echo esc_url(get_theme_file_uri("/assets/css/style.css")); ?>">
   <style>
     .faq-item { background:white; border-radius:var(--radius); margin-bottom:12px; box-shadow:var(--shadow-sm); overflow:hidden; }
     .faq-q { padding:18px 24px; font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
