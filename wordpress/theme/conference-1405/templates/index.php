@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <?php wp_head(); ?>
   <meta name="description" content="وب‌سایت رسمی همایش بین‌المللی فناوری و نوآوری - ثبت‌نام، ارسال مقاله، داوری و مدیریت رویداد">
-  <link rel="stylesheet" href="<?php echo esc_url(get_theme_file_uri("/assets/css/style.css")); ?>">
-  <link rel="stylesheet" href="<?php echo esc_url(get_theme_file_uri("/assets/css/mvp-redesign.css")); ?>">
 </head>
 <body <?php body_class(); ?>><?php wp_body_open(); ?>
   <!-- Header -->
