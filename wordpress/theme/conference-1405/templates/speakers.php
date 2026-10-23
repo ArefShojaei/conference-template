@@ -108,6 +108,7 @@
   </section>
 
     <section class="section" id="dynamic-speakers"><div class="container"><div class="section-header"><h2>سخنرانان ثبت‌شده</h2><p>اطلاعات سخنران‌ها را از بخش سخنرانان در پیشخوان مدیریت کنید.</p></div><?php hm1405_render_dynamic_content('speakers', 12); ?></div></section>
+  <?php if (comments_open() || get_comments_number()) comments_template(); ?>
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
