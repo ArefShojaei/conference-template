@@ -58,7 +58,7 @@ function hm1405_create_starter_pages() {
         elseif ($data[0] === 'reviewer-dashboard') $content = '[hm_reviewer_dashboard]';
         elseif ($data[0] === 'papers') $content = '[hm_events]';
         $id = wp_insert_post(array('post_title'=>$title,'post_name'=>$data[0],'post_status'=>'publish','post_type'=>'page','post_content'=>$content));
-        if (!is_wp_error($id) && $data[0] === 'home') update_option('show_on_front', 'page') && update_option('page_on_front', $id);
+        if (!is_wp_error($id) && $data[0] === 'home') { update_option('show_on_front', 'page'); update_option('page_on_front', $id); }
         if (!is_wp_error($id)) update_post_meta($id, '_hm1405_legacy_template', $data[1]);
     }
 }
