@@ -187,6 +187,7 @@
     </div>
   </section>
 
+    <section class="section" id="dynamic-program"><div class="container"><div class="section-header"><h2>اطلاعیه‌ها و برنامه‌های منتشرشده</h2><p>محتوا را از بخش همایش‌ها و نوشته‌های وردپرس به‌روز کنید.</p></div><?php hm1405_render_dynamic_content('events', 10); ?></div></section>
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
