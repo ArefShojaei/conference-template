@@ -187,12 +187,12 @@ final class Hamayesh_Conference_Core {
         register_post_type('hm_event', [
             'labels'=>['name'=>'همایش‌ها','singular_name'=>'همایش','add_new_item'=>'افزودن همایش'],
             'public'=>true,'has_archive'=>true,'show_in_rest'=>true,'menu_icon'=>'dashicons-calendar-alt',
-            'supports'=>['title','editor','excerpt','thumbnail'],'rewrite'=>['slug'=>'events']
+            'supports'=>['title','editor','excerpt','thumbnail','comments'],'rewrite'=>['slug'=>'events']
         ]);
         register_post_type('hm_speaker', [
             'labels'=>['name'=>'سخنرانان','singular_name'=>'سخنران'],
             'public'=>true,'has_archive'=>true,'show_in_rest'=>true,'menu_icon'=>'dashicons-microphone',
-            'supports'=>['title','editor','thumbnail']
+            'supports'=>['title','editor','excerpt','thumbnail','comments']
         ]);
     }
 
@@ -462,7 +462,7 @@ final class Hamayesh_Conference_Core {
         $comments=sanitize_textarea_field(wp_unslash($_POST['comments']??''));
         $confidential=sanitize_textarea_field(wp_unslash($_POST['confidential_comments']??''));
         $data=array_merge($scores,['recommendation'=>$recommendation,'comments'=>$comments,'confidential_comments'=>$confidential,'submitted_at'=>current_time('mysql',true),'updated_at'=>current_time('mysql',true)]);
-        $wpdb->update($table,$data,['paper_id'=>$paper_id,'reviewer_id'=>get_current_user_id()]);
+        $wpdb->replace($table,array_merge($data,['paper_id'=>$paper_id,'reviewer_id'=>get_current_user_id()]));
         $this->audit('review_saved',$paper_id,'paper',$paper_id,['recommendation'=>$recommendation]);
         $this->redirect('saved');
     }
