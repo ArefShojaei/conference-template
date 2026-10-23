@@ -7,8 +7,15 @@ defined('ABSPATH') || exit;
 function hm1405_theme_setup() {
     add_theme_support('title-tag');
     add_theme_support('post-thumbnails');
+    add_theme_support('custom-logo', array('height' => 80, 'width' => 240, 'flex-height' => true, 'flex-width' => true));
+    add_theme_support('automatic-feed-links');
+    add_theme_support('custom-background');
     add_theme_support('html5', array('search-form','comment-form','comment-list','gallery','caption','style','script'));
-    register_nav_menus(array('primary' => 'منوی اصلی'));
+    register_nav_menus(array('primary' => 'منوی اصلی', 'footer' => 'منوی پابرگ'));
+    add_post_type_support('post', 'comments');
+    add_post_type_support('page', 'comments');
+    add_post_type_support('hm_event', 'comments');
+    add_post_type_support('hm_speaker', 'comments');
     load_theme_textdomain('conference-1405', get_template_directory() . '/languages');
 }
 add_action('after_setup_theme', 'hm1405_theme_setup');
@@ -74,3 +81,62 @@ function hm1405_theme_fallback_shortcode_notice() {
         echo '<div class="hm-theme-notice"><strong>برای فعال شدن امکانات همایش، افزونه Conference Core را نصب و فعال کنید.</strong><p>قالب به‌تنهایی سامانه ارسال مقاله و داوری را اجرا نمی‌کند.</p></div>';
     }
 }
+
+
+/** Register editable widget areas. */
+function hm1405_widgets_init() {
+    register_sidebar(array(
+        'name' => 'ستون کناری وبلاگ',
+        'id' => 'blog-sidebar',
+        'description' => 'ابزارک‌های وبلاگ و نوشته‌ها',
+        'before_widget' => '<section id="%1$s" class="widget %2$s">',
+        'after_widget' => '</section>',
+        'before_title' => '<h3 class="widget-title">',
+        'after_title' => '</h3>',
+    ));
+}
+add_action('widgets_init', 'hm1405_widgets_init');
+
+/** Add native WordPress dynamic content sections to the existing visual design. */
+function hm1405_render_dynamic_content($kind = 'posts', $limit = 3) {
+    $args = array('posts_per_page' => absint($limit), 'post_status' => 'publish');
+    if ($kind === 'events' && post_type_exists('hm_event')) {
+        $args['post_type'] = 'hm_event';
+    } elseif ($kind === 'speakers' && post_type_exists('hm_speaker')) {
+        $args['post_type'] = 'hm_speaker';
+    } else {
+        $args['post_type'] = 'post';
+    }
+    $q = new WP_Query($args);
+    if (!$q->have_posts()) {
+        if (current_user_can('edit_posts')) {
+            echo '<div class="container hm-theme-notice">هنوز محتوایی ثبت نشده است. از پیشخوان وردپرس محتوا اضافه کنید تا این بخش نمایش داده شود.</div>';
+        }
+        wp_reset_postdata();
+        return;
+    }
+    echo '<div class="container hm-dynamic-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px">';
+    while ($q->have_posts()) {
+        $q->the_post();
+        echo '<article class="hm-dynamic-card" style="background:#fff;border:1px solid #e4e7ec;border-radius:14px;overflow:hidden;padding:18px">';
+        if (has_post_thumbnail()) {
+            echo '<a href="' . esc_url(get_permalink()) . '">' . get_the_post_thumbnail(get_the_ID(), 'medium_large', array('style'=>'width:100%;height:auto;border-radius:10px')) . '</a>';
+        }
+        echo '<h3><a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a></h3>';
+        echo '<p>' . esc_html(wp_trim_words(get_the_excerpt() ?: wp_strip_all_tags(get_the_content()), 26)) . '</p>';
+        echo '<a href="' . esc_url(get_permalink()) . '">ادامه مطلب ←</a>';
+        echo '</article>';
+    }
+    echo '</div>';
+    wp_reset_postdata();
+}
+
+/** Expose a small, safe set of conference settings through the Customizer. */
+function hm1405_customize_register($wp_customize) {
+    $wp_customize->add_section('hm1405_conference', array('title'=>'اطلاعات همایش','priority'=>35));
+    $wp_customize->add_setting('hm1405_conference_date', array('default'=>'۱۵ تا ۱۷ آذر ۱۴۰۵','sanitize_callback'=>'sanitize_text_field'));
+    $wp_customize->add_control('hm1405_conference_date', array('label'=>'تاریخ همایش','section'=>'hm1405_conference','type'=>'text'));
+    $wp_customize->add_setting('hm1405_conference_location', array('default'=>'تهران','sanitize_callback'=>'sanitize_text_field'));
+    $wp_customize->add_control('hm1405_conference_location', array('label'=>'محل برگزاری','section'=>'hm1405_conference','type'=>'text'));
+}
+add_action('customize_register', 'hm1405_customize_register');
