@@ -186,6 +186,7 @@
   </section>
 
   <!-- Footer -->
+    <section class="section" id="latest-news"><div class="container"><div class="section-header"><h2>آخرین اخبار و مطالب</h2><p>محتوا را از بخش «نوشته‌ها» در پیشخوان وردپرس مدیریت کنید.</p></div><?php hm1405_render_dynamic_content('posts', 3); ?></div></section>
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
