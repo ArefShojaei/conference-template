@@ -27,9 +27,12 @@ final class Hamayesh_Conference_Core {
         add_action('init', [$this, 'register_shortcodes']);
         add_action('admin_menu', [$this, 'admin_menu']);
         add_action('admin_post_nopriv_hm_register', [$this, 'handle_register']);
+        add_action('admin_post_hm_register', [$this, 'handle_register']);
         add_action('admin_post_nopriv_hm_login', [$this, 'handle_login']);
+        add_action('admin_post_hm_login', [$this, 'handle_login']);
         add_action('admin_post_nopriv_hm_verify_email', [$this, 'handle_verify_email']);
         add_action('admin_post_nopriv_hm_resend_verify', [$this, 'handle_resend_verify']);
+        add_action('admin_post_hm_resend_verify', [$this, 'handle_resend_verify']);
         add_action('admin_post_nopriv_hm_submit_paper', [$this, 'handle_submit_paper']);
         add_action('admin_post_hm_submit_paper', [$this, 'handle_submit_paper']);
         add_action('admin_post_hm_update_paper_status', [$this, 'handle_update_paper_status']);
