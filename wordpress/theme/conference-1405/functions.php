@@ -140,3 +140,17 @@ function hm1405_customize_register($wp_customize) {
     $wp_customize->add_control('hm1405_conference_location', array('label'=>'محل برگزاری','section'=>'hm1405_conference','type'=>'text'));
 }
 add_action('customize_register', 'hm1405_customize_register');
+
+function hm1405_fallback_menu() {
+    $items = array(
+        'صفحه اصلی' => '/',
+        'درباره همایش' => '/about/',
+        'سخنرانان' => '/speakers/',
+        'برنامه زمانی' => '/schedule/',
+        'مقالات' => '/papers/',
+        'تماس' => '/contact/',
+    );
+    foreach ($items as $label => $path) {
+        printf('<a href="%s">%s</a>', esc_url(home_url($path)), esc_html($label));
+    }
+}
