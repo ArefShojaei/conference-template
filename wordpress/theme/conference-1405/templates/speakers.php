@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><?php echo esc_html(wp_get_document_title()); ?></title><?php wp_head(); ?>
+  <?php wp_head(); ?>
   <link rel="stylesheet" href="<?php echo esc_url(get_theme_file_uri("/assets/css/style.css")); ?>">
 </head>
 <body <?php body_class(); ?>><?php wp_body_open(); ?>
