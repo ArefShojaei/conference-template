@@ -10,7 +10,7 @@
   <header class="header">
     <div class="header-top">
       <div class="container">
-        <div><span>📅 ۱۵ تا ۱۷ آذر ۱۴۰۵ | تهران</span></div>
+        <div><span>📅 <?php echo esc_html(get_theme_mod("hm1405_conference_date","۱۵ تا ۱۷ آذر ۱۴۰۵")); ?> | <?php echo esc_html(get_theme_mod("hm1405_conference_location","تهران")); ?></span></div>
         <div style="display:flex;gap:20px;"><a href="<?php echo esc_url(home_url('/contact/')); ?>">تماس</a><a href="<?php echo esc_url(home_url('/faq/')); ?>">سوالات متداول</a></div>
       </div>
     </div>
