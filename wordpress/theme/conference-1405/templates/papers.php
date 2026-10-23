@@ -133,6 +133,7 @@
   </section>
 
     <section class="section" id="dynamic-events"><div class="container"><div class="section-header"><h2>رویدادها و فراخوان‌های ثبت‌شده</h2><p>این بخش از محتوای همایش‌ها در پیشخوان مدیریت می‌شود.</p></div><?php hm1405_render_dynamic_content('events', 6); ?></div></section>
+  <?php if (comments_open() || get_comments_number()) comments_template(); ?>
   <footer class="footer">
     <div class="container">
       <div class="footer-bottom"><p>© ۱۴۰۵ همایش فناوری و نوآوری</p></div>
