@@ -8,7 +8,7 @@
 </head>
 <body <?php body_class(); ?>><?php wp_body_open(); ?>
   <header class="header">
-    <div class="header-top"><div class="container"><div><span>📅 ۱۵ تا ۱۷ آذر ۱۴۰۵</span></div><div style="display:flex;gap:20px;"><a href="<?php echo esc_url(home_url('/contact/')); ?>">تماس</a><a href="<?php echo esc_url(home_url('/faq/')); ?>">سوالات</a></div></div></div>
+    <div class="header-top"><div class="container"><div><span>📅 <?php echo esc_html(get_theme_mod("hm1405_conference_date","۱۵ تا ۱۷ آذر ۱۴۰۵")); ?></span></div><div style="display:flex;gap:20px;"><a href="<?php echo esc_url(home_url('/contact/')); ?>">تماس</a><a href="<?php echo esc_url(home_url('/faq/')); ?>">سوالات</a></div></div></div>
     <div class="container">
       <nav class="navbar">
         <a href="<?php echo esc_url(home_url('/')); ?>" class="logo"><div class="logo-icon">هـ</div><span>همایش فناوری ۱۴۰۵</span></a>
