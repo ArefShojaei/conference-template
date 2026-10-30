@@ -15,6 +15,7 @@ final class Conference_Core {
   private static $instance=null;
   public static function instance(){ if(self::$instance===null) self::$instance=new self(); return self::$instance; }
   private function __construct(){
+    add_action('init',array($this,'ensure_role_caps'),1);
     add_action('init',array($this,'register_types'));
     add_action('rest_api_init',array($this,'routes'));
     add_action('admin_menu',array($this,'admin_menu'));
@@ -94,6 +95,16 @@ final class Conference_Core {
       'author-guidelines'=>array('راهنمای نویسندگان','راهنمای نگارش و ارسال مقاله را از ویرایشگر برگه تکمیل کنید.')
     );
     foreach($extra as $slug=>$item){if(!get_page_by_path($slug))wp_insert_post(array('post_type'=>'page','post_status'=>'publish','post_title'=>$item[0],'post_name'=>$slug,'post_content'=>$item[1]));}
+  }
+  public function ensure_role_caps(){
+    $admin=get_role('administrator');
+    if($admin){$admin->add_cap('manage_conference');$admin->add_cap('review_conference_papers');}
+    $manager=get_role('conference_manager');
+    if($manager){foreach(array('read','edit_posts','edit_others_posts','read_private_posts','publish_posts','upload_files','manage_conference','review_conference_papers','list_users') as $cap)$manager->add_cap($cap);}
+    $author=get_role('conference_author');
+    if($author){$author->add_cap('submit_conference_papers');$author->add_cap('upload_files');}
+    $reviewer=get_role('conference_reviewer');
+    if($reviewer)$reviewer->add_cap('review_conference_papers');
   }
   public function register_types(){
     register_post_type('conf_speaker',array('labels'=>array('name'=>'سخنرانان','singular_name'=>'سخنران'),'public'=>true,'has_archive'=>true,'menu_icon'=>'dashicons-microphone','supports'=>array('title','editor','excerpt','thumbnail'),'show_in_rest'=>true));
