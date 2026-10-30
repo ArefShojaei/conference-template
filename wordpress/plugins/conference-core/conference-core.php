@@ -361,7 +361,7 @@ final class Conference_Core {
   public function download_paper(){
     $id=isset($_GET['paper'])?absint($_GET['paper']):0; if(!$id || !wp_verify_nonce(isset($_GET['_wpnonce'])?sanitize_text_field(wp_unslash($_GET['_wpnonce'])):'','confcore_download_'.$id))wp_die('درخواست نامعتبر است.',403);
     $post=get_post($id); if(!$post || $post->post_type!=='conf_paper')wp_die('مقاله پیدا نشد.',404);
-    $is_owner=(int)$post->post_author===get_current_user_id();
+    $is_owner=is_user_logged_in() && (int)$post->post_author===get_current_user_id();
     $is_manager=current_user_can('manage_conference') || current_user_can('manage_options');
     $is_assigned_reviewer=current_user_can('review_conference_papers') && (int)get_post_meta($id,'_conf_assigned_reviewer',true)===get_current_user_id();
     if(!$is_owner && !$is_manager && !$is_assigned_reviewer)wp_die('دسترسی غیرمجاز.',403);
