@@ -401,7 +401,7 @@ final class Conference_Core {
     $items=get_posts($queue_args);
     if(!$items)return '<p>مقاله‌ای در صف داوری نیست.</p>';
     $this->form_script();ob_start();echo '<div class="table-wrapper"><table><thead><tr><th>عنوان مقاله</th><th>شناسه</th><th>فایل و تصمیم</th></tr></thead><tbody>';
-    foreach($items as $p){echo '<tr><td>'.esc_html($p->post_title).'</td><td>'.esc_html($p->ID).'</td><td><a href="'.esc_url(wp_nonce_url(admin_url('admin-post.php?action=confcore_download&paper='.$p->ID),'confcore_download_'.$p->ID)).'">دریافت فایل</a> <button type="button" data-paper-decision="'.esc_attr($p->ID).'" data-decision="accept">پذیرش</button> <button type="button" data-paper-decision="'.esc_attr($p->ID).'" data-decision="reject">بازگشت برای اصلاح</button></td></tr>';}
+    foreach($items as $p){echo '<tr><td>'.esc_html($p->post_title).'</td><td>'.esc_html($p->ID).'</td><td><a href="'.esc_url(home_url('/review-paper/?paper_id='.$p->ID)).'">جزئیات و داوری</a> | <a href="'.esc_url(wp_nonce_url(admin_url('admin-post.php?action=confcore_download&paper='.$p->ID),'confcore_download_'.$p->ID)).'">دریافت فایل</a> <button type="button" data-paper-decision="'.esc_attr($p->ID).'" data-decision="accept">پذیرش</button> <button type="button" data-paper-decision="'.esc_attr($p->ID).'" data-decision="reject">بازگشت برای اصلاح</button></td></tr>';}
     echo '</tbody></table></div>';return ob_get_clean();
   }
   public function my_reviews_shortcode(){
