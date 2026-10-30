@@ -327,6 +327,11 @@ final class Conference_Core {
       echo '<p>شماره موبایل: <strong>'.esc_html(get_post_meta($post->ID,'_conf_contact_phone',true)).'</strong></p>';
       echo '<p>نام: '.esc_html(get_post_meta($post->ID,'_conf_contact_name',true)).'</p>';
     },'conf_message','side','high');
+    add_meta_box('confcore_registration_details','اطلاعات ثبت‌نام',function($post){
+      echo '<p>نام: '.esc_html(get_post_meta($post->ID,'_conf_reg_name',true)).'</p>';
+      echo '<p>شماره موبایل: '.esc_html(get_post_meta($post->ID,'_conf_reg_phone',true)).'</p>';
+      echo '<p>دانشگاه/سازمان: '.esc_html(get_post_meta($post->ID,'_conf_reg_org',true)).'</p>';
+    },'conf_registration','side','high');
   }
   public function admin_menu(){
     add_menu_page('سامانه همایش','سامانه همایش','manage_conference','confcore',array($this,'admin_page'),'dashicons-groups',26);
