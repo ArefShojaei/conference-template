@@ -313,7 +313,7 @@ final class Conference_Core {
   }
   public function certificates_shortcode(){
     if(!is_user_logged_in())return '<p>برای مشاهده گواهی‌ها وارد شوید.</p>';
-    $items=get_posts(array('post_type'=>'conf_certificate','author'=>get_current_user_id(),'posts_per_page'=>50,'post_status'=>'private'));
+    $items=get_posts(array('post_type'=>'conf_certificate','author'=>get_current_user_id(),'posts_per_page'=>50,'post_status'=>'publish'));
     if(!$items)return '<p>گواهی‌ای برای حساب شما ثبت نشده است.</p>';
     ob_start();echo '<div class="grid grid-2">';foreach($items as $p){echo '<article class="card"><h3>'.esc_html($p->post_title).'</h3><div>'.wp_kses_post(apply_filters('the_content',$p->post_content)).'</div></article>';}echo '</div>';return ob_get_clean();
   }
