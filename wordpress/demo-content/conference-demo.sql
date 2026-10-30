@@ -532,7 +532,7 @@ WHERE NOT EXISTS (SELECT 1 FROM wp_term_taxonomy WHERE term_id=@conf_menu_term_i
 SET @conf_menu_taxonomy_id=(SELECT term_taxonomy_id FROM wp_term_taxonomy WHERE term_id=@conf_menu_term_id AND taxonomy='nav_menu' LIMIT 1);
 
 INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
-SELECT COALESCE((SELECT ID FROM wp_users WHERE user_status=0 ORDER BY ID ASC LIMIT 1),1),NOW(),UTC_TIMESTAMP(),'','منوی اصلی همایش','', 'publish','closed','closed','',CONCAT('menu-item-',p.ID),'','',NOW(),UTC_TIMESTAMP(),' ',0,CONCAT('urn:conference-menu-item:',p.ID),
+SELECT COALESCE((SELECT ID FROM wp_users WHERE user_status=0 ORDER BY ID ASC LIMIT 1),1),NOW(),UTC_TIMESTAMP(),' ',p.post_title,'', 'publish','closed','closed','',CONCAT('menu-item-',p.ID),'','',NOW(),UTC_TIMESTAMP(),' ',0,CONCAT('urn:conference-menu-item:',p.ID),
 CASE p.post_name WHEN 'about' THEN 1 WHEN 'speakers' THEN 2 WHEN 'team' THEN 3 WHEN 'schedule' THEN 4 WHEN 'papers' THEN 5 WHEN 'news' THEN 6 WHEN 'event-registration' THEN 7 WHEN 'author-guidelines' THEN 8 WHEN 'faq' THEN 9 WHEN 'contact' THEN 10 ELSE 99 END,
 'nav_menu_item','',0
 FROM wp_posts p
