@@ -81,3 +81,14 @@ function conf1405_create_default_menu(){
 }
 add_action('after_switch_theme','conf1405_create_default_menu');
 add_action('admin_init','conf1405_create_default_menu');
+
+function conf1405_defer_frontend_script($tag,$handle){
+ if($handle==='conf1405-main' && strpos($tag,' defer')===false)$tag=str_replace(' src',' defer src',$tag);
+ return $tag;
+}
+add_filter('script_loader_tag','conf1405_defer_frontend_script',10,2);
+function conf1405_resource_hints($urls,$relation_type){
+ if($relation_type==='preconnect'){$urls[]='https://fonts.googleapis.com';$urls[]=array('href'=>'https://fonts.gstatic.com','crossorigin'=>'anonymous');}
+ return $urls;
+}
+add_filter('wp_resource_hints','conf1405_resource_hints',10,2);
