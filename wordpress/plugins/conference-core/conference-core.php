@@ -405,7 +405,7 @@ final class Conference_Core {
     if(!is_user_logged_in())return '<div class="card confcore-form"><p>برای ارسال مقاله ابتدا <a href="'.esc_url(home_url('/login/')).'">وارد شوید</a>.</p></div>';
     if(!current_user_can('submit_conference_papers'))return '<div class="card confcore-form"><p>دسترسی ارسال مقاله برای حساب شما فعال نیست. با مدیر همایش تماس بگیرید.</p></div>';
     $this->form_script(); ob_start(); ?>
-    <div class="card confcore-form"><h2>ارسال مقاله</h2><p>اطلاعات مقاله را کامل کنید. فایل فقط در فضای خصوصی سرور ذخیره می‌شود و از طریق لینک عمومی قابل دریافت نیست.</p>
+    <div class="card confcore-form"><p>اطلاعات مقاله را کامل کنید. فایل فقط در فضای خصوصی سرور ذخیره می‌شود و از طریق لینک عمومی قابل دریافت نیست.</p>
     <form class="confcore-paper-form"><label for="conf-paper-title">عنوان مقاله</label><input id="conf-paper-title" type="text" name="title" maxlength="180" required>
     <label for="conf-paper-abstract">چکیده مقاله</label><textarea id="conf-paper-abstract" name="abstract" rows="6" maxlength="5000" required></textarea>
     <label for="conf-paper-keywords">کلیدواژه‌ها</label><input id="conf-paper-keywords" type="text" name="keywords" maxlength="300" placeholder="هوش مصنوعی، یادگیری ماشین">
@@ -457,7 +457,7 @@ final class Conference_Core {
     $this->form_script();
     if(!is_user_logged_in())return '<p>برای مشاهده پروفایل وارد شوید.</p>';
     $u=wp_get_current_user();$phone=get_user_meta($u->ID,'conference_phone',true);
-    return '<div class="card confcore-form"><h2>پروفایل کاربری</h2><form method="post" action="'.esc_url(admin_url('admin-post.php')).'"><input type="hidden" name="action" value="confcore_profile">'.wp_nonce_field('confcore_profile','confcore_profile_nonce',true,false).'<label>نام نمایشی</label><input name="display_name" maxlength="100" value="'.esc_attr($u->display_name).'" required><label>شماره موبایل تأییدشده</label><input value="'.esc_attr($phone).'" readonly><button class="btn btn-primary" type="submit">ذخیره پروفایل</button></form></div>';
+    return '<div class="card confcore-form"><form method="post" action="'.esc_url(admin_url('admin-post.php')).'"><input type="hidden" name="action" value="confcore_profile">'.wp_nonce_field('confcore_profile','confcore_profile_nonce',true,false).'<label>نام نمایشی</label><input name="display_name" maxlength="100" value="'.esc_attr($u->display_name).'" required><label>شماره موبایل تأییدشده</label><input value="'.esc_attr($phone).'" readonly><button class="btn btn-primary" type="submit">ذخیره پروفایل</button></form></div>';
   }
   public function save_profile(){
     if(!is_user_logged_in() || !isset($_POST['confcore_profile_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['confcore_profile_nonce'])),'confcore_profile'))wp_die('درخواست نامعتبر است.',403);
@@ -521,7 +521,7 @@ final class Conference_Core {
     $user=wp_get_current_user();$phone=get_user_meta($user->ID,'conference_phone',true);
     $existing=get_posts(array('post_type'=>'conf_registration','author'=>$user->ID,'posts_per_page'=>1,'post_status'=>array('pending','publish','draft','private')));
     if($existing){$reg=$existing[0];$status=$reg->post_status==='pending'?'در انتظار تأیید':($reg->post_status==='publish'?'تأیید شده':'نیازمند پیگیری');return '<div class="card confcore-form"><h2>وضعیت ثبت‌نام همایش</h2><p>وضعیت: <strong>'.esc_html($status).'</strong></p><p>نام: '.esc_html(get_post_meta($reg->ID,'_conf_reg_name',true)).'</p><p>سازمان: '.esc_html(get_post_meta($reg->ID,'_conf_reg_org',true)).'</p><p>شماره موبایل: '.esc_html($phone).'</p></div>';}
-    return '<div class="card confcore-form"><h2>ثبت‌نام در همایش</h2><p>این فرم فقط درخواست حضور را ثبت می‌کند؛ هیچ نوع ثبت‌نام پولی یا انتخاب نوع ثبت‌نامی وجود ندارد.</p><form method="post" action="'.esc_url(admin_url('admin-post.php')).'"><input type="hidden" name="action" value="confcore_event_registration">'.wp_nonce_field('confcore_event_registration','confcore_event_registration_nonce',true,false).'<label>نام و نام خانوادگی</label><input name="reg_name" maxlength="120" value="'.esc_attr($user->display_name).'" required><label>دانشگاه یا سازمان</label><input name="reg_org" maxlength="180"><label>شماره موبایل تأییدشده</label><input value="'.esc_attr($phone).'" readonly><button class="btn btn-primary" type="submit">ثبت درخواست حضور</button></form></div>';
+    return '<div class="card confcore-form"><p>این فرم فقط درخواست حضور را ثبت می‌کند؛ هیچ نوع ثبت‌نام پولی یا انتخاب نوع ثبت‌نامی وجود ندارد.</p><form method="post" action="'.esc_url(admin_url('admin-post.php')).'"><input type="hidden" name="action" value="confcore_event_registration">'.wp_nonce_field('confcore_event_registration','confcore_event_registration_nonce',true,false).'<label>نام و نام خانوادگی</label><input name="reg_name" maxlength="120" value="'.esc_attr($user->display_name).'" required><label>دانشگاه یا سازمان</label><input name="reg_org" maxlength="180"><label>شماره موبایل تأییدشده</label><input value="'.esc_attr($phone).'" readonly><button class="btn btn-primary" type="submit">ثبت درخواست حضور</button></form></div>';
   }
   public function save_event_registration(){
     if(!is_user_logged_in())wp_die('ابتدا وارد حساب کاربری شوید.',403);
