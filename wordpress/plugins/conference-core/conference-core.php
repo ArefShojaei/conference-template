@@ -125,7 +125,7 @@ final class Conference_Core {
   public function allow_blank_profile_email($errors,$update,$user){ if(isset($_POST['email']) && trim((string)wp_unslash($_POST['email']))==='')$errors->remove('empty_email'); }
 
   private function find_user_by_phone($phone){
-    $user=$this->find_user_by_phone($phone);
+    $user=get_user_by('login',$phone);
     if($user)return $user;
     $ids=get_users(array('meta_key'=>'conference_phone','meta_value'=>$phone,'number'=>1,'fields'=>'ID'));
     return !empty($ids)?get_user_by('id',(int)$ids[0]):false;
