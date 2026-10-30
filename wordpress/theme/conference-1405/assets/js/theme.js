@@ -1,1 +1,0 @@
-document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-hm-confirm]').forEach(function(el){el.addEventListener('click',function(e){if(!window.confirm(el.getAttribute('data-hm-confirm')||'آیا مطمئن هستید؟'))e.preventDefault();});});});

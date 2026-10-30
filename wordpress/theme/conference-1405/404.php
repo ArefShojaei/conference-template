@@ -1,1 +1,0 @@
-<?php get_header(); ?><main class="hm-theme-notice"><h1>صفحه پیدا نشد</h1><p>نشانی واردشده معتبر نیست.</p><a href="<?php echo esc_url(home_url('/')); ?>">بازگشت به خانه</a></main><?php get_footer(); ?>
