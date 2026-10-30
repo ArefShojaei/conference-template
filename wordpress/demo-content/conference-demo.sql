@@ -5,6 +5,67 @@
 SET NAMES utf8mb4;
 START TRANSACTION;
 
+-- Public accepted-paper examples. They intentionally have no attached private file or demo user.
+INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
+SELECT 0,NOW(),UTC_TIMESTAMP(),'این پژوهش روشی ترکیبی برای بهبود دقت مدل‌های یادگیری عمیق در تحلیل تصاویر پزشکی ارائه می‌کند و عملکرد مدل را روی مجموعه داده ارزیابی می‌کند.','بهبود دقت مدل‌های یادگیری عمیق در تشخیص بیماری','این پژوهش روشی ترکیبی برای بهبود دقت مدل‌های یادگیری عمیق در تحلیل تصاویر پزشکی ارائه می‌کند و عملکرد مدل را روی مجموعه داده ارزیابی می‌کند.','publish','closed','closed','','demo-paper-deep-learning','','',NOW(),UTC_TIMESTAMP(),' ',0,'urn:conference-demo:conf_paper:demo-paper-deep-learning',0,'conf_paper','',0
+WHERE NOT EXISTS (SELECT 1 FROM wp_posts WHERE post_type='conf_paper' AND post_name='demo-paper-deep-learning');
+
+INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
+SELECT p.ID,'_conf_paper_abstract','این پژوهش روشی ترکیبی برای بهبود دقت مدل‌های یادگیری عمیق در تحلیل تصاویر پزشکی ارائه می‌کند و عملکرد مدل را روی مجموعه داده ارزیابی می‌کند.' FROM wp_posts p WHERE p.post_type='conf_paper' AND p.post_name='demo-paper-deep-learning'
+AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=p.ID AND m.meta_key='_conf_paper_abstract');
+
+INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
+SELECT p.ID,'_conf_paper_keywords','یادگیری عمیق، تصویربرداری پزشکی، طبقه‌بندی' FROM wp_posts p WHERE p.post_type='conf_paper' AND p.post_name='demo-paper-deep-learning'
+AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=p.ID AND m.meta_key='_conf_paper_keywords');
+
+INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
+SELECT p.ID,'_conf_paper_track','هوش مصنوعی و علم داده' FROM wp_posts p WHERE p.post_type='conf_paper' AND p.post_name='demo-paper-deep-learning'
+AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=p.ID AND m.meta_key='_conf_paper_track');
+
+INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
+SELECT p.ID,'_conf_demo_record','1' FROM wp_posts p WHERE p.post_type='conf_paper' AND p.post_name='demo-paper-deep-learning'
+AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=p.ID AND m.meta_key='_conf_demo_record');
+
+INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
+SELECT 0,NOW(),UTC_TIMESTAMP(),'این مقاله چارچوبی برای ارزیابی تهدیدها و بهبود کنترل دسترسی در زیرساخت‌های ابری توزیع‌شده بررسی می‌کند.','امنیت در سیستم‌های ابری توزیع‌شده','این مقاله چارچوبی برای ارزیابی تهدیدها و بهبود کنترل دسترسی در زیرساخت‌های ابری توزیع‌شده بررسی می‌کند.','publish','closed','closed','','demo-paper-cloud-security','','',NOW(),UTC_TIMESTAMP(),' ',0,'urn:conference-demo:conf_paper:demo-paper-cloud-security',0,'conf_paper','',0
+WHERE NOT EXISTS (SELECT 1 FROM wp_posts WHERE post_type='conf_paper' AND post_name='demo-paper-cloud-security');
+
+INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
+SELECT p.ID,'_conf_paper_abstract','این مقاله چارچوبی برای ارزیابی تهدیدها و بهبود کنترل دسترسی در زیرساخت‌های ابری توزیع‌شده بررسی می‌کند.' FROM wp_posts p WHERE p.post_type='conf_paper' AND p.post_name='demo-paper-cloud-security'
+AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=p.ID AND m.meta_key='_conf_paper_abstract');
+
+INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
+SELECT p.ID,'_conf_paper_keywords','رایانش ابری، امنیت، کنترل دسترسی' FROM wp_posts p WHERE p.post_type='conf_paper' AND p.post_name='demo-paper-cloud-security'
+AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=p.ID AND m.meta_key='_conf_paper_keywords');
+
+INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
+SELECT p.ID,'_conf_paper_track','امنیت و شبکه' FROM wp_posts p WHERE p.post_type='conf_paper' AND p.post_name='demo-paper-cloud-security'
+AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=p.ID AND m.meta_key='_conf_paper_track');
+
+INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
+SELECT p.ID,'_conf_demo_record','1' FROM wp_posts p WHERE p.post_type='conf_paper' AND p.post_name='demo-paper-cloud-security'
+AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=p.ID AND m.meta_key='_conf_demo_record');
+
+INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
+SELECT 0,NOW(),UTC_TIMESTAMP(),'این مطالعه معماری حسگرمحور برای پایش شرایط محیطی و بهینه‌سازی مصرف آب در سامانه‌های کشاورزی هوشمند معرفی می‌کند.','کاربرد اینترنت اشیا در کشاورزی هوشمند','این مطالعه معماری حسگرمحور برای پایش شرایط محیطی و بهینه‌سازی مصرف آب در سامانه‌های کشاورزی هوشمند معرفی می‌کند.','publish','closed','closed','','demo-paper-smart-agriculture','','',NOW(),UTC_TIMESTAMP(),' ',0,'urn:conference-demo:conf_paper:demo-paper-smart-agriculture',0,'conf_paper','',0
+WHERE NOT EXISTS (SELECT 1 FROM wp_posts WHERE post_type='conf_paper' AND post_name='demo-paper-smart-agriculture');
+
+INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
+SELECT p.ID,'_conf_paper_abstract','این مطالعه معماری حسگرمحور برای پایش شرایط محیطی و بهینه‌سازی مصرف آب در سامانه‌های کشاورزی هوشمند معرفی می‌کند.' FROM wp_posts p WHERE p.post_type='conf_paper' AND p.post_name='demo-paper-smart-agriculture'
+AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=p.ID AND m.meta_key='_conf_paper_abstract');
+
+INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
+SELECT p.ID,'_conf_paper_keywords','IoT، کشاورزی هوشمند، حسگر' FROM wp_posts p WHERE p.post_type='conf_paper' AND p.post_name='demo-paper-smart-agriculture'
+AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=p.ID AND m.meta_key='_conf_paper_keywords');
+
+INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
+SELECT p.ID,'_conf_paper_track','اینترنت اشیا' FROM wp_posts p WHERE p.post_type='conf_paper' AND p.post_name='demo-paper-smart-agriculture'
+AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=p.ID AND m.meta_key='_conf_paper_track');
+
+INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
+SELECT p.ID,'_conf_demo_record','1' FROM wp_posts p WHERE p.post_type='conf_paper' AND p.post_name='demo-paper-smart-agriculture'
+AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=p.ID AND m.meta_key='_conf_demo_record');
+
 INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
 SELECT COALESCE((SELECT ID FROM wp_users WHERE user_status=0 ORDER BY ID ASC LIMIT 1),1),NOW(),UTC_TIMESTAMP(),'استاد مهندسی کامپیوتر و پژوهشگر هوش مصنوعی؛ تمرکز بر مدل‌های زبانی و یادگیری عمیق.','دکتر علی محمدی','استاد مهندسی کامپیوتر و پژوهشگر هوش مصنوعی؛ تمرکز بر مدل‌های زبانی و یادگیری عمیق.','publish','closed','closed','','speaker-ali-mohammadi','','',NOW(),UTC_TIMESTAMP(),' ',0,'urn:conference-demo:conf_speaker:speaker-ali-mohammadi',0,'conf_speaker','',0
 WHERE NOT EXISTS (SELECT 1 FROM wp_posts WHERE post_type='conf_speaker' AND post_name='speaker-ali-mohammadi');
