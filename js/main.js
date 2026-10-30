@@ -247,26 +247,6 @@ function updateAuthUI(_user) {
   // Auth state is handled per-page for this static preview.
 }
 
-function loginDemo(email, role) {
-  const user = {
-    name: role === 'admin' ? 'مدیر سیستم (دمو)' : 'کاربر نمونه (دمو)',
-    email: email || 'user@example.com',
-    role: role || 'user',
-    demo: true
-  };
-  localStorage.setItem('conference_user', JSON.stringify(user));
-  showAlert('ورود نمایشی انجام شد؛ این ورود امن نیست و حساب واقعی ایجاد نمی‌کند.', 'info');
-  window.setTimeout(() => {
-    if (role === 'admin') {
-      window.location.href = 'admin-dashboard.html';
-    } else if (role === 'reviewer') {
-      window.location.href = 'reviewer-dashboard.html';
-    } else {
-      window.location.href = 'dashboard.html';
-    }
-  }, 1400);
-}
-
 function logout() {
   localStorage.removeItem('conference_user');
   showAlert('از حالت نمایشی خارج شدید.', 'info');
