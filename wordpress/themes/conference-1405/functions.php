@@ -34,7 +34,20 @@ function conf1405_customize($c){
    $c->add_control("conf1405_slide{$i}_{$key}",array('label'=>"اسلاید {$i} - {$label}",'section'=>'conf1405_slides','type'=>'text'));
   }
  }
- $c->add_section('conf1405_colors',array('title'=>'رنگ‌بندی قالب','priority'=>32));
+ $c->add_section('conf1405_features',array('title'=>'کارت‌های ویژگی صفحه اصلی','priority'=>32));
+ $feature_defaults=array(
+  array('📝','ارسال و داوری مقاله','سامانه ارسال مقاله و پیگیری وضعیت داوری به صورت آنلاین'),
+  array('🎤','سخنرانان برجسته','حضور استادان و متخصصان برجسته در حوزه‌های علمی'),
+  array('🤝','شبکه‌سازی حرفه‌ای','فرصت ارتباط با پژوهشگران و فعالان صنعت'),
+  array('🏆','جوایز و تقدیر','تقدیر از مقاله‌ها و ارائه‌های برتر'),
+  array('📚','انتشار مقالات','معرفی و انتشار آثار پذیرفته‌شده همایش'),
+  array('💻','پنل کاربری کامل','داشبورد اختصاصی برای نویسندگان و داوران')
+ );
+ foreach($feature_defaults as $i=>$item){$n=$i+1;foreach(array('icon'=>$item[0],'title'=>$item[1],'text'=>$item[2]) as $key=>$value){$c->add_setting("conf1405_feature{$n}_{$key}",array('default'=>$value,'sanitize_callback'=>'sanitize_text_field'));$c->add_control("conf1405_feature{$n}_{$key}",array('label'=>"ویژگی {$n} - {$key}",'section'=>'conf1405_features','type'=>'text'));}}
+ $c->add_section('conf1405_dates',array('title'=>'تاریخ‌های مهم صفحه اصلی','priority'=>33));
+ $date_defaults=array(array('مهلت ارسال مقاله','۳۰ مهر ۱۴۰۵'),array('اعلام نتایج داوری','۱۵ آبان ۱۴۰۵'),array('مهلت ثبت‌نام نهایی','۳۰ آبان ۱۴۰۵'),array('برگزاری همایش','۱۵ تا ۱۷ آذر ۱۴۰۵'));
+ foreach($date_defaults as $i=>$item){$n=$i+1;foreach(array('title'=>$item[0],'date'=>$item[1]) as $key=>$value){$c->add_setting("conf1405_date{$n}_{$key}",array('default'=>$value,'sanitize_callback'=>'sanitize_text_field'));$c->add_control("conf1405_date{$n}_{$key}",array('label'=>"تاریخ {$n} - {$key}",'section'=>'conf1405_dates','type'=>'text'));}}
+ $c->add_section('conf1405_colors',array('title'=>'رنگ‌بندی قالب','priority'=>34));
  $c->add_setting('conf1405_primary',array('default'=>'#123d38','sanitize_callback'=>'sanitize_hex_color'));
  $c->add_control(new WP_Customize_Color_Control($c,'conf1405_primary',array('label'=>'رنگ اصلی','section'=>'conf1405_colors')));
 }
