@@ -335,3 +335,26 @@ a:not(.btn):hover{color:#0f766e}
 .section[style*="#0f172a"],.section[style*="#1e3a5f"]{background:linear-gradient(135deg,#123d38,#0f766e)!important}
 [style*="#e9b765"]{background-color:#65b99b!important}
 [style*="#e9b765"][style*="linear-gradient"]{background:linear-gradient(135deg,#d8f1e8,#65b99b)!important}
+
+/* Production WordPress auth and workspace integration */
+.confcore-auth-content{width:100%;max-width:470px;margin:0 auto}
+.confcore-auth-content h2{font-size:2rem;margin:12px 0}
+.confcore-auth-content .auth-intro{color:#718078;line-height:1.9;margin-bottom:24px}
+.confcore-auth-content .auth-form{display:grid;gap:15px}
+.confcore-auth-content .form-group{margin:0}
+.confcore-auth-content .form-label{display:block;margin-bottom:8px;font-weight:700}
+.confcore-auth-content .form-control{width:100%;min-height:50px;border:1px solid #dce5df;border-radius:12px;padding:12px 14px;background:#fff}
+.confcore-auth-content .form-control:focus{outline:2px solid rgba(18,61,56,.18);border-color:var(--mvp-forest,#123d38)}
+.confcore-auth-content .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.confcore-auth-content .confcore-otp-step[hidden]{display:none}
+.confcore-auth-content .confcore-message{min-height:24px;color:var(--mvp-forest,#123d38)}
+.confcore-auth-content .auth-legal{font-size:.83rem;color:#7b8981;line-height:1.9;margin-top:22px}
+.confcore-workspace .admin-sidebar .is-active{background:rgba(255,255,255,.12);color:#fff}
+.confcore-workspace .admin-main{min-width:0}
+.confcore-workspace .table-wrapper{overflow-x:auto}
+.confcore-workspace table{width:100%;border-collapse:collapse}
+.confcore-workspace th,.confcore-workspace td{padding:12px;border-bottom:1px solid #e8eee9;text-align:right;vertical-align:middle}
+.confcore-workspace .stat-card{min-width:0}
+.confcore-review-paper{padding:24px}
+.confcore-review-paper textarea{width:100%;padding:12px;border:1px solid #dce5df;border-radius:10px}
+@media(max-width:680px){.confcore-auth-content .form-row{grid-template-columns:1fr}.confcore-review-paper{padding:16px}}
