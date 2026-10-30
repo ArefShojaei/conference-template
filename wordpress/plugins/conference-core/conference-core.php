@@ -23,11 +23,18 @@ final class Conference_Core {
     add_action('admin_head-profile.php',array($this,'hide_core_email_field'));
     add_filter('user_profile_update_errors',array($this,'allow_blank_profile_email'),10,3);
     add_action('admin_post_confcore_download',array($this,'download_paper'));
+    add_action('admin_post_confcore_contact',array($this,'save_contact'));
+    add_action('admin_post_nopriv_confcore_contact',array($this,'save_contact'));
     add_shortcode('conference_login',array($this,'login_shortcode'));
     add_shortcode('conference_register',array($this,'register_shortcode'));
     add_shortcode('conference_dashboard',array($this,'dashboard_shortcode'));
     add_shortcode('conference_submit_paper',array($this,'submit_shortcode'));
     add_shortcode('conference_papers',array($this,'papers_shortcode'));
+    add_shortcode('conference_speakers',array($this,'speakers_shortcode'));
+    add_shortcode('conference_schedule',array($this,'schedule_shortcode'));
+    add_shortcode('conference_team',array($this,'team_shortcode'));
+    add_shortcode('conference_news',array($this,'news_shortcode'));
+    add_shortcode('conference_contact',array($this,'contact_shortcode'));
     add_action('wp_enqueue_scripts',array($this,'assets'));
     add_filter('wp_insert_user_data',array($this,'allow_empty_email'),10,4);
   }
@@ -55,10 +62,24 @@ final class Conference_Core {
         wp_insert_post(array('post_title'=>$title,'post_name'=>$slug,'post_type'=>'page','post_status'=>'publish','post_content'=>$shortcode));
       }
     }
+    // Create editable public information pages and connect dynamic listings/forms.
+    $extra=array(
+      'about'=>array('درباره همایش','معرفی رویداد، اهداف و محورهای علمی همایش را از ویرایشگر برگه مدیریت کنید.'),
+      'contact'=>array('تماس با ما','[conference_contact]'),
+      'faq'=>array('سوالات متداول','پاسخ پرسش‌های متداول را از ویرایشگر برگه اضافه کنید.'),
+      'speakers'=>array('سخنرانان','[conference_speakers]'),
+      'schedule'=>array('برنامه زمانی','[conference_schedule]'),
+      'team'=>array('تیم برگزارکننده','[conference_team]'),
+      'news'=>array('اخبار و اطلاعیه‌ها','[conference_news]'),
+      'author-guidelines'=>array('راهنمای نویسندگان','راهنمای نگارش و ارسال مقاله را از ویرایشگر برگه تکمیل کنید.')
+    );
+    foreach($extra as $slug=>$item){if(!get_page_by_path($slug))wp_insert_post(array('post_type'=>'page','post_status'=>'publish','post_title'=>$item[0],'post_name'=>$slug,'post_content'=>$item[1]));}
   }
   public function register_types(){
     register_post_type('conf_speaker',array('labels'=>array('name'=>'سخنرانان','singular_name'=>'سخنران'),'public'=>true,'has_archive'=>true,'menu_icon'=>'dashicons-microphone','supports'=>array('title','editor','excerpt','thumbnail'),'show_in_rest'=>true));
     register_post_type('conf_session',array('labels'=>array('name'=>'برنامه همایش','singular_name'=>'جلسه'),'public'=>true,'has_archive'=>true,'menu_icon'=>'dashicons-calendar-alt','supports'=>array('title','editor','excerpt'),'show_in_rest'=>true));
+    register_post_type('conf_committee',array('labels'=>array('name'=>'تیم و کمیته‌ها','singular_name'=>'عضو تیم'),'public'=>true,'has_archive'=>true,'menu_icon'=>'dashicons-groups','supports'=>array('title','editor','excerpt','thumbnail'),'show_in_rest'=>true));
+    register_post_type('conf_message',array('labels'=>array('name'=>'پیام‌های تماس','singular_name'=>'پیام تماس'),'public'=>false,'show_ui'=>true,'show_in_menu'=>true,'menu_icon'=>'dashicons-email-alt','supports'=>array('title','editor','author'),'capability_type'=>'post','map_meta_cap'=>true));
     register_post_type('conf_paper',array('labels'=>array('name'=>'مقالات ارسالی','singular_name'=>'مقاله'),'public'=>false,'show_ui'=>true,'show_in_menu'=>true,'menu_icon'=>'dashicons-media-document','supports'=>array('title','author'),'capability_type'=>'post','map_meta_cap'=>true));
   }
   public function allow_empty_email($data,$update,$id,$userdata){ if(isset($data['user_email']) && $data['user_email']==='') $data['user_email']=''; return $data; }
@@ -224,6 +245,40 @@ final class Conference_Core {
     $q=new WP_Query(array('post_type'=>'conf_paper','post_status'=>'publish','posts_per_page'=>20));
     if(!$q->have_posts())return '<p>هنوز مقاله پذیرفته‌شده‌ای برای نمایش منتشر نشده است.</p>';
     ob_start(); echo '<div class="grid grid-2">'; while($q->have_posts()){$q->the_post();echo '<article class="card"><h3>'.esc_html(get_the_title()).'</h3></article>';} wp_reset_postdata(); echo '</div>'; return ob_get_clean();
+  }
+  public function speakers_shortcode(){
+    $q=new WP_Query(array('post_type'=>'conf_speaker','posts_per_page'=>24));
+    if(!$q->have_posts())return '<p>اطلاعات سخنرانان به‌زودی منتشر می‌شود.</p>';
+    ob_start(); echo '<div class="grid grid-4">'; while($q->have_posts()){$q->the_post();echo '<article class="card speaker-card">';if(has_post_thumbnail())the_post_thumbnail('medium');echo '<h3>'.esc_html(get_the_title()).'</h3><div>'.wp_kses_post(get_the_excerpt()).'</div></article>';} wp_reset_postdata();echo '</div>';return ob_get_clean();
+  }
+  public function schedule_shortcode(){
+    $q=new WP_Query(array('post_type'=>'conf_session','posts_per_page'=>50,'orderby'=>'menu_order date','order'=>'ASC'));
+    if(!$q->have_posts())return '<p>برنامه همایش هنوز منتشر نشده است.</p>';
+    ob_start();echo '<div class="grid grid-2">';while($q->have_posts()){$q->the_post();echo '<article class="card"><h3>'.esc_html(get_the_title()).'</h3><div>'.wp_kses_post(get_the_excerpt()).'</div></article>';}wp_reset_postdata();echo '</div>';return ob_get_clean();
+  }
+  public function team_shortcode(){
+    $q=new WP_Query(array('post_type'=>'conf_committee','posts_per_page'=>40));
+    if(!$q->have_posts())return '<p>اعضای تیم برگزارکننده را از پیشخوان اضافه کنید.</p>';
+    ob_start();echo '<div class="grid grid-3">';while($q->have_posts()){$q->the_post();echo '<article class="card">';if(has_post_thumbnail())the_post_thumbnail('medium');echo '<h3>'.esc_html(get_the_title()).'</h3><div>'.wp_kses_post(get_the_excerpt()).'</div></article>';}wp_reset_postdata();echo '</div>';return ob_get_clean();
+  }
+  public function news_shortcode(){
+    $q=new WP_Query(array('post_type'=>'post','posts_per_page'=>12));
+    if(!$q->have_posts())return '<p>هنوز اطلاعیه‌ای منتشر نشده است.</p>';
+    ob_start();echo '<div class="grid grid-3">';while($q->have_posts()){$q->the_post();echo '<article class="card"><h3><a href="'.esc_url(get_permalink()).'">'.esc_html(get_the_title()).'</a></h3><p>'.esc_html(get_the_excerpt()).'</p></article>';}wp_reset_postdata();echo '</div>';return ob_get_clean();
+  }
+  public function contact_shortcode(){
+    $this->form_script();
+    $notice=isset($_GET['contact']) && sanitize_key(wp_unslash($_GET['contact']))==='sent'?'<p class="confcore-message">پیام شما ثبت شد. از طریق شماره موبایل با شما تماس گرفته خواهد شد.</p>':'';
+    return $notice.'<div class="card confcore-form"><h2>ارسال پیام به دبیرخانه</h2><form method="post" action="'.esc_url(admin_url('admin-post.php')).'"><input type="hidden" name="action" value="confcore_contact">'.wp_nonce_field('confcore_contact','confcore_contact_nonce',true,false).'<label>نام و نام خانوادگی</label><input name="contact_name" maxlength="120" required><label>شماره موبایل</label><input name="contact_phone" type="tel" inputmode="numeric" placeholder="09123456789" required><label>موضوع</label><input name="contact_subject" maxlength="160" required><label>متن پیام</label><textarea name="contact_message" rows="5" maxlength="4000" required></textarea><button class="btn btn-primary" type="submit">ثبت پیام</button></form></div>';
+  }
+  public function save_contact(){
+    if(!isset($_POST['confcore_contact_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['confcore_contact_nonce'])),'confcore_contact'))wp_die('درخواست نامعتبر است.',403);
+    $name=sanitize_text_field(wp_unslash($_POST['contact_name']??''));$phone=$this->normalize_phone(wp_unslash($_POST['contact_phone']??''));$subject=sanitize_text_field(wp_unslash($_POST['contact_subject']??''));$message=sanitize_textarea_field(wp_unslash($_POST['contact_message']??''));
+    if(!$name || !$phone || !$subject || !$message)wp_die('لطفاً همه فیلدها را صحیح تکمیل کنید.',400);
+    $id=wp_insert_post(array('post_type'=>'conf_message','post_status'=>'private','post_title'=>$subject.' - '.$name,'post_content'=>$message,'post_author'=>get_current_user_id()),true);
+    if(is_wp_error($id))wp_die('ثبت پیام انجام نشد.',500);
+    update_post_meta($id,'_conf_contact_name',$name);update_post_meta($id,'_conf_contact_phone',$phone);
+    $back=wp_get_referer();wp_safe_redirect(add_query_arg('contact','sent',$back?:home_url('/contact/')));exit;
   }
   public function admin_menu(){
     add_menu_page('سامانه همایش','سامانه همایش','manage_conference','confcore',array($this,'admin_page'),'dashicons-groups',26);
