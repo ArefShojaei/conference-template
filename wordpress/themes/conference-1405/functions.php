@@ -7,6 +7,9 @@ function conf1405_setup(){
  add_theme_support('html5',array('search-form','comment-form','comment-list','gallery','caption','style','script'));
  add_theme_support('custom-logo',array('height'=>80,'width'=>260,'flex-height'=>true,'flex-width'=>true));
  register_nav_menus(array('primary'=>'فهرست اصلی','footer'=>'فهرست پایین صفحه'));
+ register_sidebar(array('name'=>'ابزارک ستون اول پاورقی','id'=>'footer-1','before_widget'=>'<section class="footer-widget">','after_widget'=>'</section>','before_title'=>'<h4>','after_title'=>'</h4>'));
+ register_sidebar(array('name'=>'ابزارک ستون دوم پاورقی','id'=>'footer-2','before_widget'=>'<section class="footer-widget">','after_widget'=>'</section>','before_title'=>'<h4>','after_title'=>'</h4>'));
+ register_sidebar(array('name'=>'ابزارک کناری صفحه اصلی','id'=>'homepage-rail','before_widget'=>'<section class="rail-widget">','after_widget'=>'</section>','before_title'=>'<h3>','after_title'=>'</h3>'));
 }
 add_action('after_setup_theme','conf1405_setup');
 function conf1405_assets(){
@@ -39,3 +42,18 @@ add_action('customize_register','conf1405_customize');
 function conf1405_custom_css(){ $color=get_theme_mod('conf1405_primary','#123d38');echo '<style>:root{--mvp-forest:'.esc_attr($color).';--primary:'.esc_attr($color).';}</style>'; }
 add_action('wp_head','conf1405_custom_css',30);
 function conf1405_excerpt_length($n){return 24;} add_filter('excerpt_length','conf1405_excerpt_length');
+
+function conf1405_meta_description(){
+ if(defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION')) return;
+ if(is_front_page()) $description=get_theme_mod('conf1405_event_description','وب‌سایت رسمی همایش؛ ثبت‌نام، ارسال مقاله و اطلاع‌رسانی.');
+ elseif(is_singular()) $description=get_the_excerpt();
+ else $description=get_bloginfo('description');
+ $description=wp_trim_words(wp_strip_all_tags($description),30,'');
+ if($description) echo '<meta name="description" content="'.esc_attr($description).'">'.PHP_EOL;
+}
+add_action('wp_head','conf1405_meta_description',2);
+function conf1405_private_page_robots($robots){
+ if(is_page(array('login','register','dashboard','submit-paper'))) $robots['noindex']=true;
+ return $robots;
+}
+add_filter('wp_robots','conf1405_private_page_robots');
