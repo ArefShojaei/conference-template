@@ -5,40 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>مقالات من | همایش فناوری ۱۴۰۵</title>
   <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/mvp-redesign.css">
+<link rel="stylesheet" href="css/responsive-fixes.css">
 </head>
-<body>
-  <header class="header">
-    <div class="container">
-      <nav class="navbar">
-        <a href="index.html" class="logo"><div class="logo-icon">هـ</div><span>همایش فناوری ۱۴۰۵</span></a>
-        <div class="nav-actions"><button class="btn btn-outline btn-sm" onclick="logout()">خروج</button></div>
-      </nav>
-    </div>
-  </header>
-
-  <div class="dashboard">
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="sidebar-user">
-          <div class="sidebar-avatar">ک</div>
-          <div class="sidebar-user-info"><h4>کاربر نمونه</h4><span>نویسنده</span></div>
-        </div>
-      </div>
-      <nav class="sidebar-nav">
-        <a href="dashboard.html"><span class="nav-icon">📊</span> داشبورد</a>
-        <a href="profile.html"><span class="nav-icon">👤</span> پروفایل</a>
-        <a href="my-papers.html" class="active"><span class="nav-icon">📄</span> مقالات من</a>
-        <a href="submit-paper.html"><span class="nav-icon">➕</span> ارسال مقاله</a>
-        <a href="my-registration.html"><span class="nav-icon">🎫</span> ثبت‌نام من</a>
-        <a href="certificates.html"><span class="nav-icon">🏆</span> گواهی‌ها</a>
-      </nav>
-    </aside>
-
-    <main class="main-content">
-      <div class="page-header">
-        <div>
-          <div class="breadcrumb"><a href="dashboard.html">داشبورد</a> / <span>مقالات من</span></div>
-          <h1>مقالات من</h1>
+<body class="admin-app">
+  <header class="admin-topbar"><a href="index.html" class="admin-brand"><span class="admin-brand-mark">هـ</span><span><strong>همایش‌یار</strong><small>فضای کاربری همایش</small></span></a><div class="admin-topbar-center"><span class="admin-live-dot"></span> فضای کاربری <span class="admin-topbar-divider"></span><span>دوره ۱۴۰۵</span></div><div class="admin-topbar-actions"><a href="index.html" class="admin-site-link">مشاهده وب‌سایت ↗</a><span class="admin-avatar">ک</span><span class="admin-user-label"><strong>کاربر نمونه</strong><small>شرکت‌کننده / نویسنده</small></span><button class="admin-logout" type="button" onclick="logout()">خروج</button></div></header><div class="admin-layout user-dashboard-layout"><aside class="admin-sidebar"><div class="admin-sidebar-intro"><span class="admin-sidebar-caption">فضای کاری</span><div class="admin-event-select"><span class="admin-event-icon">✳</span><span><strong>همایش فناوری و نوآوری</strong><small>دوره جاری · ۱۴۰۵</small></span></div></div><nav class="admin-nav" aria-label="منوی کاربری"><span class="admin-nav-label">فضای کاربری</span><a href="dashboard.html" class=""><span class="admin-nav-icon">▦</span>داشبورد</a><a href="profile.html" class=""><span class="admin-nav-icon">♙</span>پروفایل</a><span class="admin-nav-label">مقالات</span><a href="my-papers.html" class="is-current"><span class="admin-nav-icon">▤</span>مقالات من</a><a href="submit-paper.html" class=""><span class="admin-nav-icon">＋</span>ارسال مقاله</a><span class="admin-nav-label">همایش</span><a href="my-registration.html" class=""><span class="admin-nav-icon">♧</span>ثبت‌نام من</a><a href="certificates.html" class=""><span class="admin-nav-icon">✧</span>گواهی‌ها</a><a href="schedule.html" class=""><span class="admin-nav-icon">◷</span>برنامه زمانی</a><span class="admin-nav-label">ارتباط</span><a href="messages.html" class=""><span class="admin-nav-icon">✉</span>پیام‌ها</a><a href="contact.html" class=""><span class="admin-nav-icon">؟</span>پشتیبانی</a></nav><div class="admin-sidebar-footer"><span class="admin-status-dot"></span> رابط نمایشی · داده‌ها نمونه‌اند</div></aside><main class="admin-main"><div class="admin-page-heading"><div><div class="admin-breadcrumb">حساب کاربری <span>/</span> مقالات من</div><h1>مقالات من</h1><p>پیگیری ثبت‌نام، مقالات و اطلاعیه‌های همایش از یک فضای یکپارچه.</p></div><span class="admin-date-chip">دوره پاییز ۱۴۰۵</span></div>
+      <h1>مقالات من</h1>
         </div>
         <a href="submit-paper.html" class="btn btn-primary">+ مقاله جدید</a>
       </div>
@@ -91,8 +63,7 @@
           </tbody>
         </table>
       </div>
-    </main>
-  </div>
+    <footer class="admin-main-footer"><span>همایش‌یار · فضای کاربری</span><span>نسخه رابط کاربری HTML</span></footer></main></div>
   <script src="js/main.js"></script>
 </body>
 </html>
