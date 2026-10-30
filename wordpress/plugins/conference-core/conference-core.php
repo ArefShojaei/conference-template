@@ -263,6 +263,26 @@ final class Conference_Core {
     wp_set_current_user($user->ID); wp_set_auth_cookie($user->ID,true,is_ssl()); do_action('wp_login',$user->user_login,$user);
     return rest_ensure_response(array('success'=>true,'message'=>'ورود با موفقیت انجام شد.','redirect'=>home_url('/dashboard/')));
   }
+  private function private_storage_dir(){
+    if(defined('CONFERENCE_PRIVATE_STORAGE_DIR') && CONFERENCE_PRIVATE_STORAGE_DIR){
+      $candidate=untrailingslashit(CONFERENCE_PRIVATE_STORAGE_DIR);
+    } else {
+      $document_root=isset($_SERVER['DOCUMENT_ROOT'])?realpath(wp_normalize_path(wp_unslash($_SERVER['DOCUMENT_ROOT']))):false;
+      $candidate=dirname(rtrim(ABSPATH,'/\\')).DIRECTORY_SEPARATOR.'conference-private';
+      $parent=dirname($candidate);
+      if($document_root && strpos(wp_normalize_path($candidate),wp_normalize_path($document_root).DIRECTORY_SEPARATOR)===0){
+        $candidate=wp_upload_dir()['basedir'].DIRECTORY_SEPARATOR.'conference-private';
+      }
+    }
+    if(!is_dir($candidate) && !wp_mkdir_p($candidate))return false;
+    $real=realpath($candidate);
+    if(!$real || !is_writable($real))return false;
+    @chmod($real,0700);
+    if(!file_exists($real.DIRECTORY_SEPARATOR.'index.php'))file_put_contents($real.DIRECTORY_SEPARATOR.'index.php',"<?php http_response_code(404); exit;");
+    if(!file_exists($real.DIRECTORY_SEPARATOR.'.htaccess'))file_put_contents($real.DIRECTORY_SEPARATOR.'.htaccess',"Require all denied\n<IfModule !mod_authz_core.c> Deny from all </IfModule>\n");
+    if(!file_exists($real.DIRECTORY_SEPARATOR.'web.config'))file_put_contents($real.DIRECTORY_SEPARATOR.'web.config','<?xml version="1.0" encoding="UTF-8"?><configuration><system.webServer><authorization><deny users="*" /></authorization></system.webServer></configuration>');
+    return $real;
+  }
   public function upload_paper($request){
     if($this->rate_limited('conf_upload_user_'.get_current_user_id(),10,3600))return new WP_Error('upload_rate_limit','سقف ارسال فایل در این ساعت پر شده است.',array('status'=>429));
     if(empty($_FILES['paper']) || !isset($_FILES['paper']['tmp_name']))return new WP_Error('missing_file','فایل مقاله انتخاب نشده است.',array('status'=>400));
@@ -270,16 +290,26 @@ final class Conference_Core {
     if((int)$f['size']<1 || (int)$f['size']>20*1024*1024)return new WP_Error('file_size','حداکثر حجم فایل ۲۰ مگابایت است.',array('status'=>413));
     $name=sanitize_file_name($f['name']); $ext=strtolower(pathinfo($name,PATHINFO_EXTENSION));
     if(!in_array($ext,array('pdf','doc','docx'),true))return new WP_Error('file_type','فقط فایل PDF، DOC یا DOCX مجاز است.',array('status'=>415));
-    $handle=fopen($f['tmp_name'],'rb'); $magic=$handle?fread($handle,8):''; if($handle)fclose($handle);
+    $handle=fopen($f['tmp_name'],'rb'); if(!$handle)return new WP_Error('file_read','خواندن فایل بارگذاری‌شده ممکن نیست.',array('status'=>400)); $magic=fread($handle,8); fclose($handle);
     $valid=($ext==='pdf' && strpos($magic,'%PDF-')===0) || ($ext==='doc' && substr($magic,0,8)==="\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1");
-    if($ext==='docx' && class_exists('ZipArchive')){ $zip=new ZipArchive(); if($zip->open($f['tmp_name'])===true){$valid=$zip->locateName('[Content_Types].xml')!==false && $zip->locateName('word/document.xml')!==false;$zip->close();} }
+    if($ext==='docx'){
+      if(!class_exists('ZipArchive'))return new WP_Error('docx_unavailable','برای اعتبارسنجی DOCX، افزونه ZipArchive باید روی هاست فعال باشد.',array('status'=>503));
+      $zip=new ZipArchive();
+      if($zip->open($f['tmp_name'])===true){
+        $valid=$zip->locateName('[Content_Types].xml')!==false && $zip->locateName('word/document.xml')!==false && $zip->numFiles<=2000;
+        $uncompressed=0;
+        for($z=0;$valid && $z<$zip->numFiles;$z++){
+          $stat=$zip->statIndex($z);
+          if(!$stat || strpos($stat['name'],'../')!==false || strpos($stat['name'],'\\')===0 || (isset($stat['size']) && (int)$stat['size']>25*1024*1024)){$valid=false;break;}
+          $uncompressed+=(int)$stat['size'];
+          if($uncompressed>50*1024*1024){$valid=false;break;}
+        }
+        $zip->close();
+      }
+    }
     if(!$valid)return new WP_Error('file_signature','محتوای فایل با پسوند آن مطابقت ندارد یا فایل DOCX معتبر نیست.',array('status'=>415));
-    $dir=wp_upload_dir(); $private=$dir['basedir'].'/conference-private';
-    if(!wp_mkdir_p($private))return new WP_Error('storage_error','فضای ذخیره‌سازی آماده نیست.',array('status'=>500));
-    @chmod($private,0700);
-    $deny=file_put_contents($private.'/.htaccess',"Require all denied\n<IfModule !mod_authz_core.c> Deny from all </IfModule>\n");
-    if($deny===false)return new WP_Error('storage_protection','امکان محافظت از پوشه فایل‌ها وجود ندارد.',array('status'=>500));
-    if(!file_exists($private.'/index.php'))file_put_contents($private.'/index.php',"<?php http_response_code(404); exit;");
+    $private=$this->private_storage_dir();
+    if(!$private)return new WP_Error('storage_error','فضای ذخیره‌سازی خصوصی و خارج از مسیر عمومی وب آماده نیست؛ مسیر دسترسی هاست را بررسی کنید.',array('status'=>500));
     $stored=wp_generate_password(24,false,false).'.'.$ext; $target=$private.'/'.$stored;
     if(!move_uploaded_file($f['tmp_name'],$target))return new WP_Error('storage_error','ذخیره فایل انجام نشد.',array('status'=>500));
     @chmod($target,0600);
@@ -313,8 +343,8 @@ final class Conference_Core {
     $is_assigned_reviewer=current_user_can('review_conference_papers') && (int)get_post_meta($id,'_conf_assigned_reviewer',true)===get_current_user_id();
     if(!$is_owner && !$is_manager && !$is_assigned_reviewer)wp_die('دسترسی غیرمجاز.',403);
     $path=get_post_meta($id,'_conf_private_path',true);
-    $private_base=realpath(wp_upload_dir()['basedir'].'/conference-private');$real_path=$path?realpath($path):false;
-    if(!$private_base || !$real_path || strpos($real_path,$private_base.DIRECTORY_SEPARATOR)!==0 || !is_file($real_path))wp_die('فایل موجود نیست.',404);
+    $private_base=$this->private_storage_dir();$legacy_base=realpath(wp_upload_dir()['basedir'].'/conference-private');$real_path=$path?realpath($path):false;$inside_new=$private_base && $real_path && strpos($real_path,$private_base.DIRECTORY_SEPARATOR)===0;$inside_legacy=$legacy_base && $real_path && strpos($real_path,$legacy_base.DIRECTORY_SEPARATOR)===0;
+    if((!$inside_new && !$inside_legacy) || !$real_path || !is_file($real_path))wp_die('فایل موجود نیست.',404);
     $path=$real_path;
     $ext=strtolower(pathinfo($path,PATHINFO_EXTENSION)); $mime=$ext==='pdf'?'application/pdf':($ext==='doc'?'application/msword':'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     nocache_headers(); header('X-Content-Type-Options: nosniff'); header('Content-Type: '.$mime); header('Content-Length: '.filesize($path)); header('Content-Disposition: attachment; filename="paper-'.$id.'.'.$ext.'"; filename*=UTF-8\'\''.rawurlencode(get_post_meta($id,'_conf_original_name',true))); readfile($path); exit;
