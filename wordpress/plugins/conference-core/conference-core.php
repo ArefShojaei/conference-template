@@ -108,8 +108,8 @@ final class Conference_Core {
     $phone=$this->normalize_phone($request->get_param('phone')); $mode=sanitize_key($request->get_param('mode'));
     if(!$phone || !in_array($mode,array('login','register'),true))return new WP_Error('invalid_input','شماره موبایل معتبر نیست.',array('status'=>400));
     $user=get_user_by('login',$phone);
-    if($mode==='login' && !$user)return new WP_Error('not_found','حسابی با این شماره پیدا نشد. ابتدا ثبت‌نام کنید.',array('status'=>404));
-    if($mode==='register' && $user)return new WP_Error('already_registered','این شماره قبلاً ثبت‌نام کرده است؛ وارد شوید.',array('status'=>409));
+    // Do not disclose whether a phone number already has an account.
+    if(($mode==='login' && !$user) || ($mode==='register' && $user))return rest_ensure_response(array('success'=>true,'message'=>'اگر شماره برای این مسیر قابل استفاده باشد، کد تأیید ارسال می‌شود. در غیر این صورت مسیر ورود یا ثبت‌نام مناسب را انتخاب کنید.'));
     $ip=isset($_SERVER['REMOTE_ADDR'])?sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])):'unknown';
     if($this->rate_limited('conf_otp_phone_'.md5($phone),3,900) || $this->rate_limited('conf_otp_ip_'.md5($ip),12,900))return new WP_Error('rate_limit','تعداد درخواست‌ها زیاد است. کمی بعد تلاش کنید.',array('status'=>429));
     $code=(string)random_int(100000,999999); $hash=hash_hmac('sha256',$code,wp_salt('auth'));
