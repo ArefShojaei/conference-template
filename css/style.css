@@ -1432,3 +1432,36 @@ img,video,iframe{max-width:100%}.container,.container-fluid{min-width:0}.table-w
 @media(max-width:680px){.container{padding-inline:14px}.navbar{gap:10px;flex-wrap:wrap}.logo{font-size:1rem}.logo-icon{width:40px;height:40px}.nav-actions{gap:6px}.nav-actions .btn{padding:6px 9px;font-size:.72rem}.grid-2,.grid-3,.grid-4,.form-row{grid-template-columns:minmax(0,1fr)}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.footer-grid{grid-template-columns:minmax(0,1fr);gap:22px}.table-wrapper table{min-width:620px}.sidebar-nav{display:flex;overflow-x:auto;gap:5px}.sidebar-nav a{white-space:nowrap}.main-content{padding:18px 12px}.page-header{align-items:flex-start;flex-direction:column}}
 @media(max-width:380px){.stats-grid{grid-template-columns:minmax(0,1fr)}.btn-lg{width:100%;white-space:normal}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+
+/* Unified emerald/forest theme across every public, user and admin page. */
+:root{
+  --primary:#0f766e!important;--primary-dark:#115e59!important;--primary-light:#ccfbf1!important;
+  --secondary:#0d9488!important;--accent:#34a38a!important;
+  --mvp-ink:#142b2a;--mvp-forest:#123d38;--mvp-teal:#0f766e;
+  --mvp-gold:#65b99b;--mvp-mint:#d8f1e8;
+}
+.btn-primary,.btn-success,.auth-submit{background:linear-gradient(135deg,#0f766e,#115e59)!important;border-color:#0f766e!important;color:#fff!important}
+.btn-primary:hover,.btn-success:hover,.auth-submit:hover{background:linear-gradient(135deg,#0d9488,#0f766e)!important}
+.btn-outline{border-color:#0f766e;color:#0f766e}
+.btn-outline:hover{background:#0f766e;color:#fff}
+.sidebar,.admin-app .sidebar{background:linear-gradient(180deg,#164b42,#103b35)!important}
+.sidebar-nav a.active,.admin-app .sidebar-nav a.active{background:#b9e5d4!important;color:#123d38!important}
+.sidebar-nav a:hover,.admin-app .sidebar-nav a:hover{background:#ffffff18;color:#fff}
+.badge-primary,.badge-info{background:#d8f1e8!important;color:#115e59!important}
+.alert-info{background:#e5f5ee!important;color:#155e50!important;border-color:#b9e5d4!important}
+a:not(.btn):hover{color:#0f766e}
+.auth-step,.auth-panel-top a,.auth-legal a,.terms-line a,.breadcrumb a{color:#0f766e}
+.auth-brand-mark{background:#65b99b!important;color:#123d38!important}
+.auth-submit{box-shadow:0 10px 22px #0f766e22!important}
+.event-slide .btn-accent,.rail-cta{background:#65b99b!important;color:#123d38!important}
+.event-slide .btn-accent:hover,.rail-cta:hover{background:#8bd6b8!important}
+.carousel-dot.is-active{background:#65b99b!important}
+.carousel-arrows button:hover{background:#65b99b!important;border-color:#65b99b!important;color:#123d38!important}
+.proof-strip-inner>div strong,.proof-strip-inner>a,.rail-mini-arrow{color:#0f766e!important}
+.rail-mini-icon{background:#d8f1e8!important;color:#0f766e!important}
+.stat-card-icon.blue,.stat-card-icon.purple,.stat-card-icon.teal{background:linear-gradient(135deg,#0f766e,#15803d)!important}
+.tab-btn:hover,.tab-btn.active{color:#0f766e!important;border-bottom-color:#0f766e!important}
+.file-upload:hover{background:#eaf7f1!important}
+.progress-bar{background:linear-gradient(90deg,#0f766e,#34a38a)!important}
+:where(a,button,input,select,textarea,[tabindex]):focus-visible{outline-color:#34a38a!important}
