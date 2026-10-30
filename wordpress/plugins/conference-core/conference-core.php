@@ -157,7 +157,7 @@ final class Conference_Core {
     register_post_type('conf_paper',array('labels'=>array('name'=>'مقالات ارسالی','singular_name'=>'مقاله'),'public'=>false,'show_ui'=>true,'show_in_menu'=>true,'menu_icon'=>'dashicons-media-document','supports'=>array('title','author'),'capability_type'=>'post','map_meta_cap'=>true));
   }
   public function remove_email_user_column($columns){unset($columns['email']);return $columns;}
-  public function hide_core_email_field(){ echo '<style>#email,.user-email-wrap,#email-description,label[for="email"]{display:none!important}</style><script>document.addEventListener("DOMContentLoaded",function(){var e=document.getElementById("email");if(e&&e.closest("tr"))e.closest("tr").style.display="none";});</script>'; }
+  public function hide_core_email_field(){ echo '<style>#email,.user-email-wrap,#email-description,label[for="email"]{display:none!important}</style><script>document.addEventListener("DOMContentLoaded",function(){var e=document.getElementById("email");if(e){e.removeAttribute("required");e.value="";e.setAttribute("aria-hidden","true");if(e.closest("tr"))e.closest("tr").style.display="none";}});</script>'; }
   public function allow_blank_profile_email($errors,$update,$user){ if(isset($_POST['email']) && trim((string)wp_unslash($_POST['email']))==='')$errors->remove('empty_email'); }
 
   private function find_user_by_phone($phone){
