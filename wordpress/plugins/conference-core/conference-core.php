@@ -21,7 +21,8 @@ final class Conference_Core {
     add_action('admin_menu',array($this,'admin_menu'));
     add_action('admin_init',array($this,'settings'));
     add_action('add_meta_boxes',array($this,'contact_meta_box'));
-    add_action('add_meta_boxes',array($this,'session_meta_box'));\n    add_action('save_post_conf_session',array($this,'save_session_meta'));
+    add_action('add_meta_boxes',array($this,'session_meta_box'));
+    add_action('save_post_conf_session',array($this,'save_session_meta'));
     add_action('save_post_conf_paper',array($this,'save_paper_assignment'));
     add_action('admin_head-user-edit.php',array($this,'hide_core_email_field'));
     add_action('admin_head-profile.php',array($this,'hide_core_email_field'));
