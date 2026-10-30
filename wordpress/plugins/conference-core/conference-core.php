@@ -29,6 +29,7 @@ final class Conference_Core {
     add_action('transition_post_status',array($this,'paper_status_notification'),10,3);
     add_action('admin_post_confcore_contact',array($this,'save_contact'));
     add_action('admin_post_nopriv_confcore_contact',array($this,'save_contact'));
+    add_action('admin_post_confcore_event_registration',array($this,'save_event_registration'));
     add_shortcode('conference_login',array($this,'login_shortcode'));
     add_shortcode('conference_register',array($this,'register_shortcode'));
     add_shortcode('conference_dashboard',array($this,'dashboard_shortcode'));
@@ -39,6 +40,7 @@ final class Conference_Core {
     add_shortcode('conference_team',array($this,'team_shortcode'));
     add_shortcode('conference_news',array($this,'news_shortcode'));
     add_shortcode('conference_contact',array($this,'contact_shortcode'));
+    add_shortcode('conference_event_registration',array($this,'event_registration_shortcode'));
     add_action('wp_enqueue_scripts',array($this,'assets'));
   }
   public static function activate(){
@@ -74,6 +76,7 @@ final class Conference_Core {
       'schedule'=>array('برنامه زمانی','[conference_schedule]'),
       'team'=>array('تیم برگزارکننده','[conference_team]'),
       'news'=>array('اخبار و اطلاعیه‌ها','[conference_news]'),
+      'event-registration'=>array('ثبت‌نام در همایش','[conference_event_registration]'),
       'author-guidelines'=>array('راهنمای نویسندگان','راهنمای نگارش و ارسال مقاله را از ویرایشگر برگه تکمیل کنید.')
     );
     foreach($extra as $slug=>$item){if(!get_page_by_path($slug))wp_insert_post(array('post_type'=>'page','post_status'=>'publish','post_title'=>$item[0],'post_name'=>$slug,'post_content'=>$item[1]));}
@@ -83,6 +86,7 @@ final class Conference_Core {
     register_post_type('conf_session',array('labels'=>array('name'=>'برنامه همایش','singular_name'=>'جلسه'),'public'=>true,'has_archive'=>true,'menu_icon'=>'dashicons-calendar-alt','supports'=>array('title','editor','excerpt'),'show_in_rest'=>true));
     register_post_type('conf_committee',array('labels'=>array('name'=>'تیم و کمیته‌ها','singular_name'=>'عضو تیم'),'public'=>true,'has_archive'=>true,'menu_icon'=>'dashicons-groups','supports'=>array('title','editor','excerpt','thumbnail'),'show_in_rest'=>true));
     register_post_type('conf_message',array('labels'=>array('name'=>'پیام‌های تماس','singular_name'=>'پیام تماس'),'public'=>false,'show_ui'=>true,'show_in_menu'=>true,'menu_icon'=>'dashicons-email-alt','supports'=>array('title','editor','author'),'capability_type'=>'post','map_meta_cap'=>true));
+    register_post_type('conf_registration',array('labels'=>array('name'=>'ثبت‌نام شرکت‌کنندگان','singular_name'=>'ثبت‌نام همایش'),'public'=>false,'show_ui'=>true,'show_in_menu'=>true,'menu_icon'=>'dashicons-clipboard','supports'=>array('title','author'),'capability_type'=>'post','map_meta_cap'=>true));
     register_post_type('conf_paper',array('labels'=>array('name'=>'مقالات ارسالی','singular_name'=>'مقاله'),'public'=>false,'show_ui'=>true,'show_in_menu'=>true,'menu_icon'=>'dashicons-media-document','supports'=>array('title','author'),'capability_type'=>'post','map_meta_cap'=>true));
   }
   public function remove_email_user_column($columns){unset($columns['email']);return $columns;}
@@ -206,6 +210,7 @@ final class Conference_Core {
   }
   public function paper_status_notification($new_status,$old_status,$post){
     if($post instanceof WP_Post && $post->post_type==='conf_paper' && $old_status==='pending' && in_array($new_status,array('publish','draft'),true))$this->send_status_sms($post->ID,$new_status);
+    if($post instanceof WP_Post && $post->post_type==='conf_registration' && $old_status==='pending' && in_array($new_status,array('publish','draft'),true))$this->send_registration_sms($post->ID,$new_status==='publish'?'ثبت‌نام تأیید شد':'نیازمند پیگیری');
   }
   public function paper_decision($request){
     $id=absint($request['id']); $decision=sanitize_key($request->get_param('decision')); $note=sanitize_textarea_field($request->get_param('note'));
@@ -274,6 +279,33 @@ final class Conference_Core {
     if(!$q->have_posts())return '<p>هنوز اطلاعیه‌ای منتشر نشده است.</p>';
     ob_start();echo '<div class="grid grid-3">';while($q->have_posts()){$q->the_post();echo '<article class="card"><h3><a href="'.esc_url(get_permalink()).'">'.esc_html(get_the_title()).'</a></h3><p>'.esc_html(get_the_excerpt()).'</p></article>';}wp_reset_postdata();echo '</div>';return ob_get_clean();
   }
+  public function event_registration_shortcode(){
+    if(!is_user_logged_in())return '<p>برای ثبت‌نام در همایش ابتدا <a href="'.esc_url(home_url('/login/')).'">وارد حساب کاربری</a> شوید.</p>';
+    $user=wp_get_current_user();$phone=get_user_meta($user->ID,'conference_phone',true);
+    $existing=get_posts(array('post_type'=>'conf_registration','author'=>$user->ID,'posts_per_page'=>1,'post_status'=>array('pending','publish','draft','private')));
+    if($existing){$reg=$existing[0];$status=$reg->post_status==='pending'?'در انتظار تأیید':($reg->post_status==='publish'?'تأیید شده':'نیازمند پیگیری');return '<div class="card confcore-form"><h2>وضعیت ثبت‌نام همایش</h2><p>وضعیت: <strong>'.esc_html($status).'</strong></p><p>نام: '.esc_html(get_post_meta($reg->ID,'_conf_reg_name',true)).'</p><p>سازمان: '.esc_html(get_post_meta($reg->ID,'_conf_reg_org',true)).'</p><p>شماره موبایل: '.esc_html($phone).'</p></div>';}
+    return '<div class="card confcore-form"><h2>ثبت‌نام در همایش</h2><p>این فرم فقط درخواست حضور را ثبت می‌کند؛ هیچ نوع ثبت‌نام پولی یا انتخاب نوع ثبت‌نامی وجود ندارد.</p><form method="post" action="'.esc_url(admin_url('admin-post.php')).'"><input type="hidden" name="action" value="confcore_event_registration">'.wp_nonce_field('confcore_event_registration','confcore_event_registration_nonce',true,false).'<label>نام و نام خانوادگی</label><input name="reg_name" maxlength="120" value="'.esc_attr($user->display_name).'" required><label>دانشگاه یا سازمان</label><input name="reg_org" maxlength="180"><label>شماره موبایل تأییدشده</label><input value="'.esc_attr($phone).'" readonly><button class="btn btn-primary" type="submit">ثبت درخواست حضور</button></form></div>';
+  }
+  public function save_event_registration(){
+    if(!is_user_logged_in())wp_die('ابتدا وارد حساب کاربری شوید.',403);
+    if(!isset($_POST['confcore_event_registration_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['confcore_event_registration_nonce'])),'confcore_event_registration'))wp_die('درخواست نامعتبر است.',403);
+    $user=wp_get_current_user();$phone=get_user_meta($user->ID,'conference_phone',true);$name=sanitize_text_field(wp_unslash($_POST['reg_name']??''));$org=sanitize_text_field(wp_unslash($_POST['reg_org']??''));
+    if(!$phone || !$name)wp_die('اطلاعات ثبت‌نام کامل نیست.',400);
+    $existing=get_posts(array('post_type'=>'conf_registration','author'=>$user->ID,'posts_per_page'=>1,'post_status'=>array('pending','publish','draft','private')));
+    if($existing)wp_die('برای حساب شما قبلاً درخواست ثبت‌نام ثبت شده است.',409);
+    $id=wp_insert_post(array('post_type'=>'conf_registration','post_status'=>'pending','post_title'=>'ثبت‌نام همایش - '.$name,'post_author'=>$user->ID),true);
+    if(is_wp_error($id))wp_die('ثبت درخواست انجام نشد.',500);
+    update_post_meta($id,'_conf_reg_name',$name);update_post_meta($id,'_conf_reg_org',$org);update_post_meta($id,'_conf_reg_phone',$phone);
+    $this->send_registration_sms($id,'درخواست ثبت شد');
+    wp_safe_redirect(home_url('/event-registration/?registered=1'));exit;
+  }
+  private function send_registration_sms($id,$token){
+    $phone=get_post_meta($id,'_conf_reg_phone',true);$api=defined('CONFERENCE_KAVENEGAR_API_KEY')?CONFERENCE_KAVENEGAR_API_KEY:get_option('confcore_kavenegar_key','');$template=get_option('confcore_kavenegar_registration_template','');
+    if(!$phone || !$api || !$template)return false;
+    $url='https://api.kavenegar.com/v1/'.rawurlencode($api).'/verify/lookup.json';
+    $response=wp_remote_post($url,array('timeout'=>15,'redirection'=>0,'body'=>array('receptor'=>$phone,'token'=>$token,'token2'=>(string)$id,'template'=>$template,'type'=>'sms')));
+    return !is_wp_error($response) && wp_remote_retrieve_response_code($response)===200;
+  }
   public function contact_shortcode(){
     $this->form_script();
     $notice=isset($_GET['contact']) && sanitize_key(wp_unslash($_GET['contact']))==='sent'?'<p class="confcore-message">پیام شما ثبت شد. از طریق شماره موبایل با شما تماس گرفته خواهد شد.</p>':'';
@@ -308,15 +340,16 @@ final class Conference_Core {
     register_setting('confcore_settings','confcore_kavenegar_sender',array('sanitize_callback'=>'sanitize_text_field'));
     register_setting('confcore_settings','confcore_kavenegar_result_template',array('sanitize_callback'=>'sanitize_text_field'));
     register_setting('confcore_settings','confcore_kavenegar_submission_template',array('sanitize_callback'=>'sanitize_text_field'));
+    register_setting('confcore_settings','confcore_kavenegar_registration_template',array('sanitize_callback'=>'sanitize_text_field'));
   }
   public function admin_page(){
     if(!current_user_can('manage_conference'))return;
     echo '<div class="wrap"><h1>سامانه همایش</h1><p>مدیریت بخش‌های اصلی سامانه از اینجا انجام می‌شود. تخصیص نقش کاربران فقط توسط مدیر سایت انجام می‌شود.</p><p>';
-    $links=array('مدیریت مقالات'=>admin_url('edit.php?post_type=conf_paper'),'پیام‌های تماس'=>admin_url('edit.php?post_type=conf_message'),'کاربران و نقش‌ها'=>admin_url('users.php'),'سخنرانان'=>admin_url('edit.php?post_type=conf_speaker'),'برنامه همایش'=>admin_url('edit.php?post_type=conf_session'),'تیم و کمیته‌ها'=>admin_url('edit.php?post_type=conf_committee'));
+    $links=array('مدیریت مقالات'=>admin_url('edit.php?post_type=conf_paper'),'پیام‌های تماس'=>admin_url('edit.php?post_type=conf_message'),'ثبت‌نام‌ها'=>admin_url('edit.php?post_type=conf_registration'),'کاربران و نقش‌ها'=>admin_url('users.php'),'سخنرانان'=>admin_url('edit.php?post_type=conf_speaker'),'برنامه همایش'=>admin_url('edit.php?post_type=conf_session'),'تیم و کمیته‌ها'=>admin_url('edit.php?post_type=conf_committee'));
     foreach($links as $label=>$url)echo '<a class="button button-primary" style="margin:4px" href="'.esc_url($url).'">'.esc_html($label).'</a>';
     echo '</p><p>برای تنظیم سرویس پیامک، از منوی تنظیمات پیامک استفاده کنید. داده‌های نمونه از بخش ابزارها قابل ورود است.</p></div>';
   }
-  public function settings_page(){if(!current_user_can('manage_options'))return; ?><div class="wrap"><h1>تنظیمات پیامک همایش</h1><p>از Kavenegar VerifyLookup استفاده کنید. API Key در مرورگر یا کد جاوااسکریپت قرار نمی‌گیرد.</p><form method="post" action="options.php"><?php settings_fields('confcore_settings'); ?><table class="form-table"><tr><th>API Key</th><td><input type="password" autocomplete="new-password" name="confcore_kavenegar_key" value="" placeholder="کلید فعلی محفوظ است؛ برای تغییر کلید جدید وارد کنید" class="regular-text" <?php disabled(defined('CONFERENCE_KAVENEGAR_API_KEY')); ?>><p class="description"><?php echo defined('CONFERENCE_KAVENEGAR_API_KEY')?'کلید از wp-config.php خوانده می‌شود.':'کلید را از پنل کاوه‌نگار وارد کنید یا در wp-config.php ثابت CONFERENCE_KAVENEGAR_API_KEY تعریف کنید.'; ?></p></td></tr><tr><th>نام قالب VerifyLookup</th><td><input name="confcore_kavenegar_template" value="<?php echo esc_attr(get_option('confcore_kavenegar_template','')); ?>" class="regular-text"></td></tr><tr><th>شماره فرستنده (اختیاری)</th><td><input name="confcore_kavenegar_sender" value="<?php echo esc_attr(get_option('confcore_kavenegar_sender','')); ?>" class="regular-text"></td></tr><tr><th>قالب پیامک نتیجه داوری</th><td><input name="confcore_kavenegar_result_template" value="<?php echo esc_attr(get_option('confcore_kavenegar_result_template','')); ?>" class="regular-text"><p class="description">قالب جداگانه VerifyLookup؛ متغیر token وضعیت و token2 شناسه مقاله است.</p></td></tr><tr><th>قالب پیامک ثبت مقاله</th><td><input name="confcore_kavenegar_submission_template" value="<?php echo esc_attr(get_option('confcore_kavenegar_submission_template','')); ?>" class="regular-text"><p class="description">قالب VerifyLookup جداگانه؛ token متن «ثبت شد» و token2 شناسه مقاله است.</p></td></tr></table><?php submit_button('ذخیره تنظیمات'); ?></form></div><?php }
+  public function settings_page(){if(!current_user_can('manage_options'))return; ?><div class="wrap"><h1>تنظیمات پیامک همایش</h1><p>از Kavenegar VerifyLookup استفاده کنید. API Key در مرورگر یا کد جاوااسکریپت قرار نمی‌گیرد.</p><form method="post" action="options.php"><?php settings_fields('confcore_settings'); ?><table class="form-table"><tr><th>API Key</th><td><input type="password" autocomplete="new-password" name="confcore_kavenegar_key" value="" placeholder="کلید فعلی محفوظ است؛ برای تغییر کلید جدید وارد کنید" class="regular-text" <?php disabled(defined('CONFERENCE_KAVENEGAR_API_KEY')); ?>><p class="description"><?php echo defined('CONFERENCE_KAVENEGAR_API_KEY')?'کلید از wp-config.php خوانده می‌شود.':'کلید را از پنل کاوه‌نگار وارد کنید یا در wp-config.php ثابت CONFERENCE_KAVENEGAR_API_KEY تعریف کنید.'; ?></p></td></tr><tr><th>نام قالب VerifyLookup</th><td><input name="confcore_kavenegar_template" value="<?php echo esc_attr(get_option('confcore_kavenegar_template','')); ?>" class="regular-text"></td></tr><tr><th>شماره فرستنده (اختیاری)</th><td><input name="confcore_kavenegar_sender" value="<?php echo esc_attr(get_option('confcore_kavenegar_sender','')); ?>" class="regular-text"></td></tr><tr><th>قالب پیامک نتیجه داوری</th><td><input name="confcore_kavenegar_result_template" value="<?php echo esc_attr(get_option('confcore_kavenegar_result_template','')); ?>" class="regular-text"><p class="description">قالب جداگانه VerifyLookup؛ متغیر token وضعیت و token2 شناسه مقاله است.</p></td></tr><tr><th>قالب پیامک ثبت مقاله</th><td><input name="confcore_kavenegar_submission_template" value="<?php echo esc_attr(get_option('confcore_kavenegar_submission_template','')); ?>" class="regular-text"><p class="description">قالب VerifyLookup جداگانه؛ token متن «ثبت شد» و token2 شناسه مقاله است.</p></td></tr><tr><th>قالب پیامک ثبت‌نام شرکت‌کننده</th><td><input name="confcore_kavenegar_registration_template" value="<?php echo esc_attr(get_option('confcore_kavenegar_registration_template','')); ?>" class="regular-text"><p class="description">قالب VerifyLookup؛ token متن وضعیت و token2 شناسه ثبت‌نام است.</p></td></tr></table><?php submit_button('ذخیره تنظیمات'); ?></form></div><?php }
   public function tools_page(){
     if(!current_user_can('manage_options'))return;
     if(isset($_POST['confcore_seed']) && check_admin_referer('confcore_seed_demo')){$this->seed_demo();echo '<div class="notice notice-success"><p>محتوای نمونه ایجاد شد. اجرای دوباره، موارد تکراری را نادیده می‌گیرد.</p></div>';}
