@@ -177,6 +177,7 @@ final class Conference_Core {
     return rest_ensure_response(array('success'=>true,'message'=>'ورود با موفقیت انجام شد.','redirect'=>home_url('/dashboard/')));
   }
   public function upload_paper($request){
+    if($this->rate_limited('conf_upload_user_'.get_current_user_id(),10,3600))return new WP_Error('upload_rate_limit','سقف ارسال فایل در این ساعت پر شده است.',array('status'=>429));
     if(empty($_FILES['paper']) || !isset($_FILES['paper']['tmp_name']))return new WP_Error('missing_file','فایل مقاله انتخاب نشده است.',array('status'=>400));
     $f=$_FILES['paper']; if((int)$f['error']!==UPLOAD_ERR_OK)return new WP_Error('upload_error','بارگذاری فایل با خطا مواجه شد.',array('status'=>400));
     if((int)$f['size']<1 || (int)$f['size']>20*1024*1024)return new WP_Error('file_size','حداکثر حجم فایل ۲۰ مگابایت است.',array('status'=>413));
@@ -188,10 +189,12 @@ final class Conference_Core {
     if(!$valid)return new WP_Error('file_signature','محتوای فایل با پسوند آن مطابقت ندارد یا فایل DOCX معتبر نیست.',array('status'=>415));
     $dir=wp_upload_dir(); $private=$dir['basedir'].'/conference-private';
     if(!wp_mkdir_p($private))return new WP_Error('storage_error','فضای ذخیره‌سازی آماده نیست.',array('status'=>500));
-    if(!file_exists($private.'/.htaccess'))file_put_contents($private.'/.htaccess',"Require all denied\n<IfModule !mod_authz_core.c> Deny from all </IfModule>\n");
+    @chmod($private,0700);
+    if(!file_exists($private.'/.htaccess')){ $deny=file_put_contents($private.'/.htaccess',"Require all denied\n<IfModule !mod_authz_core.c> Deny from all </IfModule>\n"); if($deny===false)return new WP_Error('storage_protection','امکان محافظت از پوشه فایل‌ها وجود ندارد.',array('status'=>500)); }
     if(!file_exists($private.'/index.php'))file_put_contents($private.'/index.php',"<?php http_response_code(404); exit;");
     $stored=wp_generate_password(24,false,false).'.'.$ext; $target=$private.'/'.$stored;
     if(!move_uploaded_file($f['tmp_name'],$target))return new WP_Error('storage_error','ذخیره فایل انجام نشد.',array('status'=>500));
+    @chmod($target,0600);
     $title=sanitize_text_field($request->get_param('title')); if($title==='')$title=pathinfo($name,PATHINFO_FILENAME);
     $post_id=wp_insert_post(array('post_type'=>'conf_paper','post_status'=>'pending','post_title'=>$title,'post_author'=>get_current_user_id()),true);
     if(is_wp_error($post_id)){@unlink($target);return new WP_Error('save_error','ثبت اطلاعات مقاله ناموفق بود.',array('status'=>500));}
@@ -218,7 +221,7 @@ final class Conference_Core {
     if((int)$post->post_author!==get_current_user_id() && !current_user_can('review_conference_papers') && !current_user_can('manage_options'))wp_die('دسترسی غیرمجاز.',403);
     $path=get_post_meta($id,'_conf_private_path',true); if(!$path || !is_file($path))wp_die('فایل موجود نیست.',404);
     $ext=strtolower(pathinfo($path,PATHINFO_EXTENSION)); $mime=$ext==='pdf'?'application/pdf':($ext==='doc'?'application/msword':'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-    nocache_headers(); header('Content-Type: '.$mime); header('Content-Length: '.filesize($path)); header('Content-Disposition: attachment; filename="paper-'.$id.'.'.$ext.'"; filename*=UTF-8\'\''.rawurlencode(get_post_meta($id,'_conf_original_name',true))); readfile($path); exit;
+    nocache_headers(); header('X-Content-Type-Options: nosniff'); header('Content-Type: '.$mime); header('Content-Length: '.filesize($path)); header('Content-Disposition: attachment; filename="paper-'.$id.'.'.$ext.'"; filename*=UTF-8\'\''.rawurlencode(get_post_meta($id,'_conf_original_name',true))); readfile($path); exit;
   }
   public function assets(){
     wp_enqueue_style('confcore-front',plugins_url('assets/css/frontend.css',__FILE__),array(),CONFCORE_VERSION);
