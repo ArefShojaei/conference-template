@@ -18,6 +18,7 @@ final class Conference_Core {
     add_action('init',array($this,'ensure_role_caps'),1);
     add_action('init',array($this,'register_types'));
     add_action('rest_api_init',array($this,'routes'));
+    add_action('template_redirect',array($this,'private_page_headers'),0);
     add_action('admin_menu',array($this,'admin_menu'));
     add_action('admin_init',array($this,'settings'));
     add_action('admin_init',array($this,'ensure_default_pages'));
@@ -187,6 +188,13 @@ final class Conference_Core {
     if(strpos($phone,'0098')===0)$phone='0'.substr($phone,4);
     if(strpos($phone,'98')===0 && strlen($phone)===12)$phone='0'.substr($phone,2);
     return preg_match('/^09[0-9]{9}$/',$phone)?$phone:false;
+  }
+  public function private_page_headers(){
+    $private_pages=array('login','register','dashboard','submit-paper','event-registration','my-papers','my-registration','certificates','messages','profile','reviewer-dashboard','review-queue','review-paper','my-reviews','admin-dashboard','admin-users','admin-papers','admin-registrations','admin-reviews','admin-reviewers','admin-settings','admin-sms','admin-team','admin-posts');
+    if(is_page($private_pages)){
+      nocache_headers();
+      if(!headers_sent())header('X-Robots-Tag: noindex, nofollow, noarchive',true);
+    }
   }
   public function routes(){
     register_rest_route('conference/v1','/otp/request',array('methods'=>'POST','callback'=>array($this,'request_otp'),'permission_callback'=>'__return_true'));
