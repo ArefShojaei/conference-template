@@ -245,8 +245,8 @@ final class Conference_Core {
     return !is_wp_error($response) && wp_remote_retrieve_response_code($response)===200;
   }
   public function verify_otp($request){
-    $phone=$this->normalize_phone($request->get_param('phone')); $code=strtr((string)$request->get_param('code'),array('۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9','٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9')); $code=preg_replace('/[^0-9]/','',$code); $mode=sanitize_key($request->get_param('mode'));
-    if(!$phone || !preg_match('/^[0-9]{6}$/',$code) || !in_array($mode,array('login','register'),true))return new WP_Error('invalid_input','اطلاعات واردشده معتبر نیست.',array('status'=>400));
+    $phone=$this->normalize_phone($request->get_param('phone')); $first_name=sanitize_text_field($request->get_param('first_name')); $last_name=sanitize_text_field($request->get_param('last_name')); $code=strtr((string)$request->get_param('code'),array('۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9','٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9')); $code=preg_replace('/[^0-9]/','',$code); $mode=sanitize_key($request->get_param('mode'));
+    if(!$phone || !preg_match('/^[0-9]{6}$/',$code) || !in_array($mode,array('login','register'),true) || ($mode==='register' && ($first_name==='' || $last_name==='')))return new WP_Error('invalid_input','اطلاعات واردشده معتبر نیست. نام، نام خانوادگی، شماره و کد تأیید را بررسی کنید.',array('status'=>400));
     global $wpdb; $table=$wpdb->prefix.'confcore_otp'; $row=$wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE phone=%s",$phone));
     if(!$row || strtotime($row->expires_at.' UTC')<time())return new WP_Error('expired','کد منقضی شده است؛ دوباره درخواست دهید.',array('status'=>400));
     if((int)$row->attempts>=5){$wpdb->delete($table,array('phone'=>$phone),array('%s'));return new WP_Error('locked','تعداد تلاش مجاز تمام شده است.',array('status'=>429));}
@@ -254,7 +254,7 @@ final class Conference_Core {
     if(!hash_equals($row->code_hash,$hash)){ $wpdb->update($table,array('attempts'=>(int)$row->attempts+1),array('phone'=>$phone),array('%d'),array('%s'));return new WP_Error('wrong_code','کد تأیید اشتباه است.',array('status'=>400));}
     $user=$this->find_user_by_phone($phone);
     if($mode==='register' && !$user){
-      $user_id=wp_insert_user(array('user_login'=>$phone,'user_pass'=>wp_generate_password(48,true,true),'user_email'=>'','display_name'=>$phone,'role'=>'conference_author'));
+      $display_name=trim($first_name.' '.$last_name); $user_id=wp_insert_user(array('user_login'=>$phone,'user_pass'=>wp_generate_password(48,true,true),'user_email'=>'','first_name'=>$first_name,'last_name'=>$last_name,'display_name'=>$display_name,'role'=>'conference_author'));
       if(is_wp_error($user_id))return new WP_Error('register_failed','ساخت حساب کاربری انجام نشد.',array('status'=>500));
       update_user_meta($user_id,'conference_phone',$phone); $user=get_user_by('id',$user_id);
     }
@@ -328,8 +328,20 @@ final class Conference_Core {
   private function auth_form($mode){
     if(is_user_logged_in())return '<p>شما وارد شده‌اید. <a href="'.esc_url(home_url('/dashboard/')).'">رفتن به پنل</a></p>';
     $this->form_script(); ob_start(); ?>
-    <div class="card confcore-form"><h2><?php echo $mode==='register'?'ثبت‌نام با شماره موبایل':'ورود با شماره موبایل'; ?></h2>
-    <form class="confcore-otp-form" data-mode="<?php echo esc_attr($mode); ?>"><label>شماره موبایل</label><input type="tel" name="phone" inputmode="numeric" autocomplete="tel" placeholder="09123456789" required><button class="btn btn-primary" type="submit">دریافت کد تأیید</button><div class="confcore-otp-step" hidden><label>کد پیامک‌شده</label><input type="text" name="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code"><button class="btn btn-primary" type="button" data-verify>تأیید و ادامه</button></div><p class="confcore-message" role="status"></p></form></div><?php return ob_get_clean();
+    <div class="confcore-auth-content">
+      <div class="auth-step"><?php echo $mode==='register'?'ثبت‌نام با شماره موبایل':'ورود با شماره همراه'; ?></div>
+      <h2><?php echo $mode==='register'?'ثبت‌نام رایگان':'خوش برگشتید'; ?> <span aria-hidden="true">👋</span></h2>
+      <p class="auth-intro"><?php echo $mode==='register'?'نام و نام خانوادگی و شماره همراه خود را وارد کنید. پس از تأیید شماره، حساب اولیه ساخته می‌شود.':'شماره موبایل خود را وارد کنید تا کد یک‌بارمصرف دریافت کنید.'; ?></p>
+      <form class="confcore-otp-form auth-form" data-mode="<?php echo esc_attr($mode); ?>" novalidate>
+        <?php if($mode==='register'): ?><div class="form-row"><div class="form-group"><label class="form-label" for="conf-first-name">نام</label><input class="form-control" id="conf-first-name" name="first_name" type="text" maxlength="60" autocomplete="given-name" required placeholder="نام شما"></div><div class="form-group"><label class="form-label" for="conf-last-name">نام خانوادگی</label><input class="form-control" id="conf-last-name" name="last_name" type="text" maxlength="80" autocomplete="family-name" required placeholder="نام خانوادگی"></div></div><?php endif; ?>
+        <div class="form-group"><label class="form-label" for="conf-phone">شماره تلفن همراه</label><div class="field-with-icon"><input class="form-control" id="conf-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" maxlength="14" placeholder="09123456789" required></div><small class="form-hint">شماره موبایل ایران را با ۰۹ وارد کنید.</small></div>
+        <button class="btn btn-primary btn-lg btn-block auth-submit" type="submit">دریافت کد تأیید <span>←</span></button>
+        <div class="form-group confcore-otp-step" data-otp-step hidden><label class="form-label" for="conf-otp">کد تأیید شش‌رقمی</label><input class="form-control" id="conf-otp" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="کد پیامک‌شده"><small class="form-hint">کد پیامک‌شده را وارد کنید. اعتبار کد پنج دقیقه است.</small><button class="btn btn-primary btn-lg btn-block auth-submit mt-3" type="button" data-verify>تأیید و ادامه</button></div>
+        <p class="confcore-message" role="status" aria-live="polite"></p>
+      </form>
+      <p class="auth-legal"><?php echo $mode==='register'?'با ثبت‌نام، مالکیت شماره تلفن همراه خود را تأیید می‌کنید. نقش و سطح دسترسی پس از ثبت‌نام توسط مدیر سامانه تعیین می‌شود.':'با ادامه، قوانین و راهنمای همایش را می‌پذیرید.'; ?></p>
+    </div>
+    <?php return ob_get_clean();
   }
   public function login_shortcode(){return $this->auth_form('login');}
   public function register_shortcode(){return $this->auth_form('register');}
