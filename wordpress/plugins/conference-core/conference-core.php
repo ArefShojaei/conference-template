@@ -2,13 +2,13 @@
 /**
  * Plugin Name: Conference Core
  * Description: Core conference workflows: mobile OTP, papers, roles, dashboards and demo content.
- * Version: 1.2.0
+ * Version: 1.3.0
  * Requires at least: 6.2
  * Requires PHP: 7.4
  * Text Domain: conference-core
  */
 if (!defined('ABSPATH')) exit;
-define('CONFCORE_VERSION','1.2.0');
+define('CONFCORE_VERSION','1.3.0');
 define('CONFCORE_DIR',plugin_dir_path(__FILE__));
 
 final class Conference_Core {
