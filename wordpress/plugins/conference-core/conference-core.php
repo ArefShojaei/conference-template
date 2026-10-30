@@ -129,8 +129,8 @@ final class Conference_Core {
     }
     $home=get_page_by_path('home');
     $posts=get_page_by_path('posts');
-    if($home){update_option('show_on_front','page');update_option('page_on_front',(int)$home->ID);}
-    if($posts)update_option('page_for_posts',(int)$posts->ID);
+    if($home && (get_option('show_on_front')!=='page' || !get_option('page_on_front'))){update_option('show_on_front','page');update_option('page_on_front',(int)$home->ID);}
+    if($posts && !get_option('page_for_posts'))update_option('page_for_posts',(int)$posts->ID);
   }
   public function ensure_default_pages(){
     if(get_option('confcore_site_structure_version')==='2')return;
