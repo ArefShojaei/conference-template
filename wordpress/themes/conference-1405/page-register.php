@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) exit;
   <section class="auth-visual auth-visual-register">
     <a href="<?php echo esc_url(home_url('/')); ?>" class="auth-brand"><span class="auth-brand-mark">هـ</span><span><?php echo esc_html(get_theme_mod('conf1405_event_name','همایش')); ?><span class="auth-brand-light"> <?php echo esc_html(get_theme_mod('conf1405_event_date','۱۴۰۵')); ?></span></span></a>
     <div class="auth-visual-content">
-      <span class="auth-overline"><span></span><?php echo قدم اول برای ارتباط‌های بزرگ; ?></span>
+      <span class="auth-overline"><span></span><?php echo 'قدم اول برای ارتباط‌های بزرگ'; ?></span>
       <h1><?php echo "با شماره‌ات<br><em>به ما بپیوند.</em>"; ?></h1>
       <p><?php echo "ثبت‌نام اولیه با شماره موبایل انجام می‌شود. نقش و سطح دسترسی پس از ثبت‌نام توسط مدیر سامانه تعیین خواهد شد."; ?></p>
       <?php if(true): ?>
