@@ -292,11 +292,11 @@ final class Conference_Core {
     nocache_headers(); header('X-Content-Type-Options: nosniff'); header('Content-Type: '.$mime); header('Content-Length: '.filesize($path)); header('Content-Disposition: attachment; filename="paper-'.$id.'.'.$ext.'"; filename*=UTF-8\'\''.rawurlencode(get_post_meta($id,'_conf_original_name',true))); readfile($path); exit;
   }
   public function assets(){
-    wp_enqueue_style('confcore-front',plugins_url('assets/css/frontend.css',__FILE__),array(),CONFCORE_VERSION);
+    wp_register_style('confcore-front',plugins_url('assets/css/frontend.css',__FILE__),array(),CONFCORE_VERSION);
     wp_register_script('confcore-front',plugins_url('assets/js/frontend.js',__FILE__),array(),CONFCORE_VERSION,true);
     wp_localize_script('confcore-front','ConfCore',array('rest'=>esc_url_raw(rest_url('conference/v1/')),'nonce'=>wp_create_nonce('wp_rest'),'login'=>home_url('/login/'),'dashboard'=>home_url('/dashboard/')));
   }
-  private function form_script(){wp_enqueue_script('confcore-front');}
+  private function form_script(){wp_enqueue_style('confcore-front');wp_enqueue_script('confcore-front');}
   private function auth_form($mode){
     if(is_user_logged_in())return '<p>شما وارد شده‌اید. <a href="'.esc_url(home_url('/dashboard/')).'">رفتن به پنل</a></p>';
     $this->form_script(); ob_start(); ?>
@@ -350,6 +350,7 @@ final class Conference_Core {
     echo '</div>';return ob_get_clean();
   }
   public function profile_shortcode(){
+    $this->form_script();
     if(!is_user_logged_in())return '<p>برای مشاهده پروفایل وارد شوید.</p>';
     $u=wp_get_current_user();$phone=get_user_meta($u->ID,'conference_phone',true);
     return '<div class="card confcore-form"><h2>پروفایل کاربری</h2><form method="post" action="'.esc_url(admin_url('admin-post.php')).'"><input type="hidden" name="action" value="confcore_profile">'.wp_nonce_field('confcore_profile','confcore_profile_nonce',true,false).'<label>نام نمایشی</label><input name="display_name" maxlength="100" value="'.esc_attr($u->display_name).'" required><label>شماره موبایل تأییدشده</label><input value="'.esc_attr($phone).'" readonly><button class="btn btn-primary" type="submit">ذخیره پروفایل</button></form></div>';
@@ -392,6 +393,7 @@ final class Conference_Core {
     ob_start();echo '<div class="grid grid-3">';while($q->have_posts()){$q->the_post();echo '<article class="card"><h3><a href="'.esc_url(get_permalink()).'">'.esc_html(get_the_title()).'</a></h3><p>'.esc_html(get_the_excerpt()).'</p></article>';}wp_reset_postdata();echo '</div>';return ob_get_clean();
   }
   public function event_registration_shortcode(){
+    $this->form_script();
     if(!is_user_logged_in())return '<p>برای ثبت‌نام در همایش ابتدا <a href="'.esc_url(home_url('/login/')).'">وارد حساب کاربری</a> شوید.</p>';
     $user=wp_get_current_user();$phone=get_user_meta($user->ID,'conference_phone',true);
     $existing=get_posts(array('post_type'=>'conf_registration','author'=>$user->ID,'posts_per_page'=>1,'post_status'=>array('pending','publish','draft','private')));
