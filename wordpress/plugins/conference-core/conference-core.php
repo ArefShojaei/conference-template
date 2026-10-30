@@ -189,7 +189,8 @@ final class Conference_Core {
   public function save_new_user_phone($user_id){
     if(!current_user_can('manage_options') || !isset($_POST['confcore_new_user_phone_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['confcore_new_user_phone_nonce'])),'confcore_new_user_phone'))return;
     $phone=$this->normalize_phone(wp_unslash($_POST['conference_phone_new']??''));
-    if($phone && !$this->find_user_by_phone($phone))update_user_meta($user_id,'conference_phone',$phone);
+    $existing=$phone?$this->find_user_by_phone($phone):false;
+    if($phone && (!$existing || (int)$existing->ID===(int)$user_id))update_user_meta($user_id,'conference_phone',$phone);
   }
   public function admin_phone_profile_field($user){
     if(!current_user_can('manage_options'))return;
