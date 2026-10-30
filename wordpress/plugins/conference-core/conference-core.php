@@ -235,7 +235,7 @@ final class Conference_Core {
     if(is_user_logged_in())return '<p>شما وارد شده‌اید. <a href="'.esc_url(home_url('/dashboard/')).'">رفتن به پنل</a></p>';
     $this->form_script(); ob_start(); ?>
     <div class="card confcore-form"><h2><?php echo $mode==='register'?'ثبت‌نام با شماره موبایل':'ورود با شماره موبایل'; ?></h2>
-    <form class="confcore-otp-form" data-mode="<?php echo esc_attr($mode); ?>"><label>شماره موبایل</label><input type="tel" name="phone" inputmode="numeric" autocomplete="tel" placeholder="09123456789" pattern="09[0-9]{9}" required><button class="btn btn-primary" type="submit">دریافت کد تأیید</button><div class="confcore-otp-step" hidden><label>کد پیامک‌شده</label><input type="text" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code"><button class="btn btn-primary" type="button" data-verify>تأیید و ادامه</button></div><p class="confcore-message" role="status"></p></form></div><?php return ob_get_clean();
+    <form class="confcore-otp-form" data-mode="<?php echo esc_attr($mode); ?>"><label>شماره موبایل</label><input type="tel" name="phone" inputmode="numeric" autocomplete="tel" placeholder="09123456789" required><button class="btn btn-primary" type="submit">دریافت کد تأیید</button><div class="confcore-otp-step" hidden><label>کد پیامک‌شده</label><input type="text" name="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code"><button class="btn btn-primary" type="button" data-verify>تأیید و ادامه</button></div><p class="confcore-message" role="status"></p></form></div><?php return ob_get_clean();
   }
   public function login_shortcode(){return $this->auth_form('login');}
   public function register_shortcode(){return $this->auth_form('register');}
