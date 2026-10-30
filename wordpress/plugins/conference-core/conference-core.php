@@ -271,19 +271,19 @@ final class Conference_Core {
     return rest_ensure_response(array('success'=>true,'message'=>'ورود با موفقیت انجام شد.','redirect'=>home_url('/dashboard/')));
   }
   private function private_storage_dir(){
+    $document_root=isset($_SERVER['DOCUMENT_ROOT'])?realpath(wp_normalize_path(wp_unslash($_SERVER['DOCUMENT_ROOT']))):false;
     if(defined('CONFERENCE_PRIVATE_STORAGE_DIR') && CONFERENCE_PRIVATE_STORAGE_DIR){
       $candidate=untrailingslashit(CONFERENCE_PRIVATE_STORAGE_DIR);
     } else {
-      $document_root=isset($_SERVER['DOCUMENT_ROOT'])?realpath(wp_normalize_path(wp_unslash($_SERVER['DOCUMENT_ROOT']))):false;
       $candidate=dirname(rtrim(ABSPATH,'/\\')).DIRECTORY_SEPARATOR.'conference-private';
-      $parent=dirname($candidate);
       if($document_root && strpos(wp_normalize_path($candidate),wp_normalize_path($document_root).DIRECTORY_SEPARATOR)===0){
-        $candidate=wp_upload_dir()['basedir'].DIRECTORY_SEPARATOR.'conference-private';
+        $candidate=dirname($document_root).DIRECTORY_SEPARATOR.'conference-private';
       }
     }
     if(!is_dir($candidate) && !wp_mkdir_p($candidate))return false;
     $real=realpath($candidate);
     if(!$real || !is_writable($real))return false;
+    if($document_root && strpos(wp_normalize_path($real),wp_normalize_path($document_root).DIRECTORY_SEPARATOR)===0)return false;
     @chmod($real,0700);
     if(!file_exists($real.DIRECTORY_SEPARATOR.'index.php'))file_put_contents($real.DIRECTORY_SEPARATOR.'index.php',"<?php http_response_code(404); exit;");
     if(!file_exists($real.DIRECTORY_SEPARATOR.'.htaccess'))file_put_contents($real.DIRECTORY_SEPARATOR.'.htaccess',"Require all denied\n<IfModule !mod_authz_core.c> Deny from all </IfModule>\n");
