@@ -321,9 +321,14 @@ final class Conference_Core {
     if(!move_uploaded_file($f['tmp_name'],$target))return new WP_Error('storage_error','ذخیره فایل انجام نشد.',array('status'=>500));
     @chmod($target,0600);
     $title=sanitize_text_field($request->get_param('title')); if($title==='')$title=pathinfo($name,PATHINFO_FILENAME);
-    $post_id=wp_insert_post(array('post_type'=>'conf_paper','post_status'=>'pending','post_title'=>$title,'post_author'=>get_current_user_id()),true);
+    $abstract=sanitize_textarea_field($request->get_param('abstract'));
+    $keywords=sanitize_text_field($request->get_param('keywords'));
+    $track=sanitize_text_field($request->get_param('track'));
+    if($abstract==='' || strlen($abstract)>20000 || strlen($title)>720 || strlen($keywords)>1200 || strlen($track)>240){@unlink($target);return new WP_Error('paper_metadata','عنوان و چکیده مقاله معتبر نیستند یا از سقف مجاز بیشترند.',array('status'=>400));}
+    $post_id=wp_insert_post(array('post_type'=>'conf_paper','post_status'=>'pending','post_title'=>$title,'post_excerpt'=>wp_trim_words($abstract,45,'…'),'post_author'=>get_current_user_id()),true);
     if(is_wp_error($post_id)){@unlink($target);return new WP_Error('save_error','ثبت اطلاعات مقاله ناموفق بود.',array('status'=>500));}
     update_post_meta($post_id,'_conf_private_path',$target); update_post_meta($post_id,'_conf_original_name',$name); update_post_meta($post_id,'_conf_file_size',(int)$f['size']);
+    update_post_meta($post_id,'_conf_paper_abstract',$abstract);update_post_meta($post_id,'_conf_paper_keywords',$keywords);update_post_meta($post_id,'_conf_paper_track',$track);
     $this->send_submission_sms($post_id);
     return rest_ensure_response(array('success'=>true,'message'=>'مقاله با موفقیت ثبت شد و در انتظار بررسی است.','paper_id'=>$post_id));
   }
@@ -384,9 +389,17 @@ final class Conference_Core {
   public function login_shortcode(){return $this->auth_form('login');}
   public function register_shortcode(){return $this->auth_form('register');}
   public function submit_shortcode(){
-    if(!is_user_logged_in())return '<p>برای ارسال مقاله ابتدا <a href="'.esc_url(home_url('/login/')).'">وارد شوید</a>.</p>';
-    if(!current_user_can('submit_conference_papers'))return '<p>دسترسی ارسال مقاله برای حساب شما فعال نیست. با مدیر همایش تماس بگیرید.</p>';
-    $this->form_script(); ob_start(); ?><div class="card confcore-form"><h2>ارسال مقاله</h2><form class="confcore-paper-form"><label>عنوان مقاله</label><input type="text" name="title" maxlength="180" required><label>فایل مقاله (PDF، DOC، DOCX - حداکثر ۲۰ مگابایت)</label><input type="file" name="paper" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required><button class="btn btn-primary" type="submit">ارسال برای بررسی</button><p class="confcore-message" role="status"></p></form></div><?php return ob_get_clean();
+    if(!is_user_logged_in())return '<div class="card confcore-form"><p>برای ارسال مقاله ابتدا <a href="'.esc_url(home_url('/login/')).'">وارد شوید</a>.</p></div>';
+    if(!current_user_can('submit_conference_papers'))return '<div class="card confcore-form"><p>دسترسی ارسال مقاله برای حساب شما فعال نیست. با مدیر همایش تماس بگیرید.</p></div>';
+    $this->form_script(); ob_start(); ?>
+    <div class="card confcore-form"><h2>ارسال مقاله</h2><p>اطلاعات مقاله را کامل کنید. فایل فقط در فضای خصوصی سرور ذخیره می‌شود و از طریق لینک عمومی قابل دریافت نیست.</p>
+    <form class="confcore-paper-form"><label for="conf-paper-title">عنوان مقاله</label><input id="conf-paper-title" type="text" name="title" maxlength="180" required>
+    <label for="conf-paper-abstract">چکیده مقاله</label><textarea id="conf-paper-abstract" name="abstract" rows="6" maxlength="5000" required></textarea>
+    <label for="conf-paper-keywords">کلیدواژه‌ها</label><input id="conf-paper-keywords" type="text" name="keywords" maxlength="300" placeholder="هوش مصنوعی، یادگیری ماشین">
+    <label for="conf-paper-track">محور علمی</label><select id="conf-paper-track" name="track"><option value="">انتخاب محور</option><option value="هوش مصنوعی و علم داده">هوش مصنوعی و علم داده</option><option value="امنیت و شبکه">امنیت و شبکه</option><option value="اینترنت اشیا">اینترنت اشیا</option><option value="سلامت دیجیتال">سلامت دیجیتال</option><option value="فناوری و تحول دیجیتال">فناوری و تحول دیجیتال</option></select>
+    <label for="conf-paper-file">فایل مقاله (PDF، DOC، DOCX - حداکثر ۲۰ مگابایت)</label><input id="conf-paper-file" type="file" name="paper" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required>
+    <button class="btn btn-primary" type="submit">ارسال برای بررسی</button><p class="confcore-message" role="status" aria-live="polite"></p></form></div>
+    <?php return ob_get_clean();
   }
   public function dashboard_shortcode(){
     if(!is_user_logged_in())return '<p>برای مشاهده پنل ابتدا <a href="'.esc_url(home_url('/login/')).'">وارد شوید</a>.</p>';
@@ -448,7 +461,7 @@ final class Conference_Core {
   public function papers_shortcode(){
     $q=new WP_Query(array('post_type'=>'conf_paper','post_status'=>'publish','posts_per_page'=>20));
     if(!$q->have_posts())return '<p>هنوز مقاله پذیرفته‌شده‌ای برای نمایش منتشر نشده است.</p>';
-    ob_start(); echo '<div class="grid grid-2">'; while($q->have_posts()){$q->the_post();echo '<article class="card"><h3>'.esc_html(get_the_title()).'</h3></article>';} wp_reset_postdata(); echo '</div>'; return ob_get_clean();
+    ob_start(); echo '<div class="grid grid-2">'; while($q->have_posts()){$q->the_post();$abstract=get_post_meta(get_the_ID(),'_conf_paper_abstract',true);$track=get_post_meta(get_the_ID(),'_conf_paper_track',true);$author=get_the_author();echo '<article class="card"><h3>'.esc_html(get_the_title()).'</h3>';if($track)echo '<p class="confcore-speaker-role">'.esc_html($track).'</p>';if($abstract)echo '<p>'.esc_html(wp_trim_words($abstract,45,'…')).'</p>';echo '<p class="text-muted">نویسنده: '.esc_html($author).' | '.esc_html(get_the_date()).'</p></article>';} wp_reset_postdata(); echo '</div>'; return ob_get_clean();
   }
   public function speakers_shortcode(){
     $q=new WP_Query(array('post_type'=>'conf_speaker','posts_per_page'=>24,'orderby'=>'menu_order title','order'=>'ASC'));
