@@ -1,0 +1,35 @@
+name: WordPress install packages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'wordpress/**'
+      - '.github/workflows/wordpress-release-package.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build installable theme and plugin archives
+        run: |
+          mkdir -p dist
+          cd wordpress/themes
+          zip -qr ../../dist/conference-1405-theme.zip conference-1405
+          cd ../plugins
+          zip -qr ../../dist/conference-core-plugin.zip conference-core
+          cd ../../
+          cp wordpress/demo-content/conference-demo.sql dist/
+          cp wordpress/INSTALLATION-CHECKLIST.md dist/
+          cp wordpress/demo-content/SQL-IMPORT.md dist/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: conference-wordpress-install-package
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 30
