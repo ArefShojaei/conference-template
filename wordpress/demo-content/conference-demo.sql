@@ -524,24 +524,24 @@ AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=p.ID AND m.meta_key=
 -- Create the primary demo navigation menu and attach existing page records.
 INSERT INTO wp_terms (name,slug,term_group)
 SELECT 'منوی اصلی همایش','conference-main-menu',0
-WHERE NOT EXISTS (SELECT 1 FROM wp_terms WHERE slug='conference-main-menu');
-SET @conf_menu_term_id=(SELECT term_id FROM wp_terms WHERE slug='conference-main-menu' LIMIT 1);
+WHERE NOT EXISTS (SELECT 1 FROM wp_terms t JOIN wp_term_taxonomy tt ON tt.term_id=t.term_id WHERE tt.taxonomy='nav_menu' AND t.name='منوی اصلی همایش');
+SET @conf_menu_term_id=(SELECT t.term_id FROM wp_terms t JOIN wp_term_taxonomy tt ON tt.term_id=t.term_id WHERE tt.taxonomy='nav_menu' AND t.name='منوی اصلی همایش' ORDER BY t.term_id ASC LIMIT 1);
 INSERT INTO wp_term_taxonomy (term_id,taxonomy,description,parent,count)
 SELECT @conf_menu_term_id,'nav_menu','منوی اصلی همایش',0,0
 WHERE NOT EXISTS (SELECT 1 FROM wp_term_taxonomy WHERE term_id=@conf_menu_term_id AND taxonomy='nav_menu');
 SET @conf_menu_taxonomy_id=(SELECT term_taxonomy_id FROM wp_term_taxonomy WHERE term_id=@conf_menu_term_id AND taxonomy='nav_menu' LIMIT 1);
 
 INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
-SELECT COALESCE((SELECT ID FROM wp_users WHERE user_status=0 ORDER BY ID ASC LIMIT 1),1),NOW(),UTC_TIMESTAMP(),' ',p.post_title,'', 'publish','closed','closed','',CONCAT('menu-item-',p.ID),'','',NOW(),UTC_TIMESTAMP(),' ',0,CONCAT('urn:conference-menu-item:',p.ID),
+SELECT COALESCE((SELECT ID FROM wp_users WHERE user_status=0 ORDER BY ID ASC LIMIT 1),1),NOW(),UTC_TIMESTAMP(),' ',p.post_title,'', 'publish','closed','closed','',CONCAT('conference-page-menu-item-',p.ID),'','',NOW(),UTC_TIMESTAMP(),' ',0,CONCAT('urn:conference-menu-item:',p.ID),
 CASE p.post_name WHEN 'about' THEN 1 WHEN 'speakers' THEN 2 WHEN 'team' THEN 3 WHEN 'schedule' THEN 4 WHEN 'papers' THEN 5 WHEN 'news' THEN 6 WHEN 'event-registration' THEN 7 WHEN 'author-guidelines' THEN 8 WHEN 'faq' THEN 9 WHEN 'contact' THEN 10 ELSE 99 END,
 'nav_menu_item','',0
 FROM wp_posts p
 WHERE p.post_type='page' AND p.post_name IN ('about','speakers','team','schedule','papers','news','event-registration','author-guidelines','faq','contact')
-AND NOT EXISTS (SELECT 1 FROM wp_posts mi WHERE mi.post_type='nav_menu_item' AND mi.post_name=CONCAT('menu-item-',p.ID));
+AND NOT EXISTS (SELECT 1 FROM wp_posts mi WHERE mi.post_type='nav_menu_item' AND mi.post_name=CONCAT('conference-page-menu-item-',p.ID));
 
 INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
 SELECT mi.ID,'_menu_item_type','post_type' FROM wp_posts mi
-WHERE mi.post_type='nav_menu_item' AND mi.post_name LIKE 'menu-item-%'
+WHERE mi.post_type='nav_menu_item' AND mi.post_name LIKE 'conference-page-menu-item-%'
 AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=mi.ID AND m.meta_key='_menu_item_type');
 INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
 SELECT mi.ID,'_menu_item_object','page' FROM wp_posts mi
