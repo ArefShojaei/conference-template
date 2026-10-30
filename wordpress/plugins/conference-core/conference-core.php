@@ -19,6 +19,9 @@ final class Conference_Core {
     add_action('rest_api_init',array($this,'routes'));
     add_action('admin_menu',array($this,'admin_menu'));
     add_action('admin_init',array($this,'settings'));
+    add_action('admin_head-user-edit.php',array($this,'hide_core_email_field'));
+    add_action('admin_head-profile.php',array($this,'hide_core_email_field'));
+    add_filter('user_profile_update_errors',array($this,'allow_blank_profile_email'),10,3);
     add_action('admin_post_confcore_download',array($this,'download_paper'));
     add_shortcode('conference_login',array($this,'login_shortcode'));
     add_shortcode('conference_register',array($this,'register_shortcode'));
@@ -59,6 +62,9 @@ final class Conference_Core {
     register_post_type('conf_paper',array('labels'=>array('name'=>'مقالات ارسالی','singular_name'=>'مقاله'),'public'=>false,'show_ui'=>true,'show_in_menu'=>true,'menu_icon'=>'dashicons-media-document','supports'=>array('title','author'),'capability_type'=>'post','map_meta_cap'=>true));
   }
   public function allow_empty_email($data,$update,$id,$userdata){ if(isset($data['user_email']) && $data['user_email']==='') $data['user_email']=''; return $data; }
+  public function hide_core_email_field(){ echo '<style>#email{display:none!important}#email-description{display:none!important}label[for="email"]{display:none!important}#email:closest(tr){display:none!important}</style><script>document.addEventListener("DOMContentLoaded",function(){var e=document.getElementById("email");if(e&&e.closest("tr"))e.closest("tr").style.display="none";});</script>'; }
+  public function allow_blank_profile_email($errors,$update,$user){ if(isset($_POST['email']) && trim((string)wp_unslash($_POST['email']))==='')$errors->remove('empty_email'); }
+
   private function normalize_phone($phone){
     $digits=array('۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9','٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9');
     $phone=strtr((string)$phone,$digits); $phone=preg_replace('/[^0-9+]/','',$phone);
