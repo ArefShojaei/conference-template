@@ -165,7 +165,7 @@ final class Conference_Core {
   public function request_otp($request){
     $phone=$this->normalize_phone($request->get_param('phone')); $mode=sanitize_key($request->get_param('mode'));
     if(!$phone || !in_array($mode,array('login','register'),true))return new WP_Error('invalid_input','شماره موبایل معتبر نیست.',array('status'=>400));
-    $user=get_user_by('login',$phone);
+    $user=$this->find_user_by_phone($phone);
     // Do not disclose whether a phone number already has an account.
     if(($mode==='login' && !$user) || ($mode==='register' && $user))return rest_ensure_response(array('success'=>true,'message'=>'اگر شماره برای این مسیر قابل استفاده باشد، کد تأیید ارسال می‌شود. در غیر این صورت مسیر ورود یا ثبت‌نام مناسب را انتخاب کنید.'));
     $ip=isset($_SERVER['REMOTE_ADDR'])?sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])):'unknown';
@@ -224,7 +224,7 @@ final class Conference_Core {
     if((int)$row->attempts>=5){$wpdb->delete($table,array('phone'=>$phone),array('%s'));return new WP_Error('locked','تعداد تلاش مجاز تمام شده است.',array('status'=>429));}
     $hash=hash_hmac('sha256',$code,wp_salt('auth'));
     if(!hash_equals($row->code_hash,$hash)){ $wpdb->update($table,array('attempts'=>(int)$row->attempts+1),array('phone'=>$phone),array('%d'),array('%s'));return new WP_Error('wrong_code','کد تأیید اشتباه است.',array('status'=>400));}
-    $user=get_user_by('login',$phone);
+    $user=$this->find_user_by_phone($phone);
     if($mode==='register' && !$user){
       $user_id=wp_insert_user(array('user_login'=>$phone,'user_pass'=>wp_generate_password(48,true,true),'user_email'=>'','display_name'=>$phone,'role'=>'conference_author'));
       if(is_wp_error($user_id))return new WP_Error('register_failed','ساخت حساب کاربری انجام نشد.',array('status'=>500));
