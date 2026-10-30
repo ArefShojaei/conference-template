@@ -280,6 +280,7 @@ final class Conference_Core {
   }
   private function private_storage_dir(){
     $document_root=isset($_SERVER['DOCUMENT_ROOT'])?realpath(wp_normalize_path(wp_unslash($_SERVER['DOCUMENT_ROOT']))):false;
+    if(!$document_root)return false;
     $document_root_normalized=$document_root?untrailingslashit(wp_normalize_path($document_root)):'';
     if(defined('CONFERENCE_PRIVATE_STORAGE_DIR') && CONFERENCE_PRIVATE_STORAGE_DIR){
       $candidate=untrailingslashit(CONFERENCE_PRIVATE_STORAGE_DIR);
