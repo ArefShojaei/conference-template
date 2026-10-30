@@ -9,6 +9,9 @@ on:
     paths:
       - 'wordpress/**'
       - '.github/workflows/wordpress-php-lint.yml'
+concurrency:
+  group: wordpress-checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   lint:
     runs-on: ubuntu-latest
