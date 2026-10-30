@@ -68,7 +68,7 @@ function conf1405_meta_description(){
 }
 add_action('wp_head','conf1405_meta_description',2);
 function conf1405_private_page_robots($robots){
- if(is_page(array('login','register','dashboard','submit-paper'))) $robots['noindex']=true;
+ if(is_page(array('login','register','dashboard','submit-paper','event-registration','my-papers','my-registration','certificates','messages','profile','reviewer-dashboard','review-queue','review-paper','my-reviews','admin-dashboard','admin-users','admin-papers','admin-registrations','admin-reviews','admin-reviewers','admin-settings','admin-sms','admin-team','admin-posts'))) { $robots['noindex']=true; $robots['nofollow']=true; }
  return $robots;
 }
 add_filter('wp_robots','conf1405_private_page_robots');
