@@ -82,6 +82,7 @@ function conf1405_create_default_menu(){
   $slugs=array('about','speakers','team','schedule','papers','news','event-registration','contact');
   $items=wp_get_nav_menu_items($menu_id);
   if(!$items)$items=array();
+  if(count($items)>=count($slugs))return;
   foreach($slugs as $slug){
     $page=get_page_by_path($slug);
     if($page){
