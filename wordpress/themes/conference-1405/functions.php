@@ -149,7 +149,7 @@ function conf1405_seed_default_widgets(){
   update_option('sidebars_widgets',$sidebars);
 }
 add_action('after_switch_theme','conf1405_create_default_menu');
-add_action('admin_init','conf1405_create_default_menu');
+add_action('init','conf1405_create_default_menu',30);
 add_action('after_switch_theme','conf1405_seed_theme_defaults',5);
 add_action('admin_init','conf1405_seed_theme_defaults',5);
 add_action('after_switch_theme','conf1405_seed_default_widgets',10);
