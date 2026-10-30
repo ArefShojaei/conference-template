@@ -62,7 +62,7 @@
 
 - فرمت PDF، DOC و DOCX، حداکثر ۲۰ مگابایت.
 - پسوند و امضای فایل بررسی می‌شود؛ DOCX با ZipArchive و ساختار داخلی ZIP بررسی می‌شود.
-- فایل‌های جدید در پوشه خصوصی خارج از Document Root ذخیره می‌شوند. در صورت نیاز مسیر مطلق را با `CONFERENCE_PRIVATE_STORAGE_DIR` در `wp-config.php` تعیین کن.
+- فایل‌های جدید در پوشه خصوصی خارج از Document Root ذخیره می‌شوند. در صورت نیاز مسیر مطلق را با `CONFERENCE_PRIVATE_STORAGE_DIR` در `wp-config.php` تعیین کن؛ متغیر PHP یعنی `DOCUMENT_ROOT` باید در هاست قابل تشخیص باشد و در غیر این صورت افزونه آپلود را fail-closed متوقف می‌کند.
 - دانلود فقط از endpoint احراز هویت‌شده و پس از بررسی مالکیت/تخصیص داور انجام می‌شود.
 - برای DOCX باید `ZipArchive` فعال باشد. محدودیت `upload_max_filesize` و `post_max_size` را حداقل 24M قرار بده.
 
