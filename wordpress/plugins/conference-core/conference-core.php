@@ -21,6 +21,8 @@ final class Conference_Core {
     add_action('admin_init',array($this,'settings'));
     add_action('admin_head-user-edit.php',array($this,'hide_core_email_field'));
     add_action('admin_head-profile.php',array($this,'hide_core_email_field'));
+    add_action('admin_head-user-new.php',array($this,'hide_core_email_field'));
+    add_filter('manage_users_columns',array($this,'remove_email_user_column'));
     add_filter('user_profile_update_errors',array($this,'allow_blank_profile_email'),10,3);
     add_action('admin_post_confcore_download',array($this,'download_paper'));
     add_action('transition_post_status',array($this,'paper_status_notification'),10,3);
@@ -37,7 +39,6 @@ final class Conference_Core {
     add_shortcode('conference_news',array($this,'news_shortcode'));
     add_shortcode('conference_contact',array($this,'contact_shortcode'));
     add_action('wp_enqueue_scripts',array($this,'assets'));
-    add_filter('wp_insert_user_data',array($this,'allow_empty_email'),10,4);
   }
   public static function activate(){
     add_role('conference_author','نویسنده همایش',array('read'=>true,'upload_files'=>true,'submit_conference_papers'=>true));
@@ -83,8 +84,8 @@ final class Conference_Core {
     register_post_type('conf_message',array('labels'=>array('name'=>'پیام‌های تماس','singular_name'=>'پیام تماس'),'public'=>false,'show_ui'=>true,'show_in_menu'=>true,'menu_icon'=>'dashicons-email-alt','supports'=>array('title','editor','author'),'capability_type'=>'post','map_meta_cap'=>true));
     register_post_type('conf_paper',array('labels'=>array('name'=>'مقالات ارسالی','singular_name'=>'مقاله'),'public'=>false,'show_ui'=>true,'show_in_menu'=>true,'menu_icon'=>'dashicons-media-document','supports'=>array('title','author'),'capability_type'=>'post','map_meta_cap'=>true));
   }
-  public function allow_empty_email($data,$update,$id,$userdata){ if(isset($data['user_email']) && $data['user_email']==='') $data['user_email']=''; return $data; }
-  public function hide_core_email_field(){ echo '<style>#email{display:none!important}#email-description{display:none!important}label[for="email"]{display:none!important}#email:closest(tr){display:none!important}</style><script>document.addEventListener("DOMContentLoaded",function(){var e=document.getElementById("email");if(e&&e.closest("tr"))e.closest("tr").style.display="none";});</script>'; }
+  public function remove_email_user_column($columns){unset($columns['email']);return $columns;}
+  public function hide_core_email_field(){ echo '<style>#email,.user-email-wrap,#email-description,label[for="email"]{display:none!important}</style><script>document.addEventListener("DOMContentLoaded",function(){var e=document.getElementById("email");if(e&&e.closest("tr"))e.closest("tr").style.display="none";});</script>'; }
   public function allow_blank_profile_email($errors,$update,$user){ if(isset($_POST['email']) && trim((string)wp_unslash($_POST['email']))==='')$errors->remove('empty_email'); }
 
   private function normalize_phone($phone){
