@@ -332,7 +332,7 @@ final class Conference_Core {
       array('conf_committee','کمیته اجرایی','هماهنگی اجرایی، ثبت‌نام و پشتیبانی شرکت‌کنندگان.')
     );
     foreach($items as $item){$exists=get_page_by_title($item[1],OBJECT,$item[0]);if(!$exists)wp_insert_post(array('post_type'=>$item[0],'post_status'=>'publish','post_title'=>$item[1],'post_content'=>$item[2],'post_excerpt'=>$item[2]));}
-    if(!get_page_by_title('اطلاعیه نمونه همایش'))wp_insert_post(array('post_type'=>'post','post_status'=>'publish','post_title'=>'اطلاعیه نمونه همایش','post_content'=>'این یک نوشته آزمایشی برای نمایش امکانات مدیریت نوشته‌هاست.'));
+    if(!get_page_by_title('اطلاعیه نمونه همایش',OBJECT,'post'))wp_insert_post(array('post_type'=>'post','post_status'=>'publish','post_title'=>'اطلاعیه نمونه همایش','post_content'=>'این یک نوشته آزمایشی برای نمایش امکانات مدیریت نوشته‌هاست.'));
     self::create_default_pages();
   }
 }
