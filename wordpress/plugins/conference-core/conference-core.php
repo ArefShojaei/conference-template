@@ -413,7 +413,7 @@ final class Conference_Core {
   public function admin_page(){
     if(!current_user_can('manage_conference'))return;
     echo '<div class="wrap"><h1>سامانه همایش</h1><p>مدیریت بخش‌های اصلی سامانه از اینجا انجام می‌شود. تخصیص نقش کاربران فقط توسط مدیر سایت انجام می‌شود.</p><p>';
-    $links=array('مدیریت مقالات'=>admin_url('edit.php?post_type=conf_paper'),'پیام‌های تماس'=>admin_url('edit.php?post_type=conf_message'),'ثبت‌نام‌ها'=>admin_url('edit.php?post_type=conf_registration'),'کاربران و نقش‌ها'=>admin_url('users.php'),'سخنرانان'=>admin_url('edit.php?post_type=conf_speaker'),'برنامه همایش'=>admin_url('edit.php?post_type=conf_session'),'تیم و کمیته‌ها'=>admin_url('edit.php?post_type=conf_committee'));
+    $links=array('مدیریت مقالات'=>admin_url('edit.php?post_type=conf_paper'),'پیام‌های تماس'=>admin_url('edit.php?post_type=conf_message'),'ثبت‌نام‌ها'=>admin_url('edit.php?post_type=conf_registration'),'گواهی‌ها'=>admin_url('edit.php?post_type=conf_certificate'),'کاربران و نقش‌ها'=>admin_url('users.php'),'سخنرانان'=>admin_url('edit.php?post_type=conf_speaker'),'برنامه همایش'=>admin_url('edit.php?post_type=conf_session'),'تیم و کمیته‌ها'=>admin_url('edit.php?post_type=conf_committee'));
     foreach($links as $label=>$url)echo '<a class="button button-primary" style="margin:4px" href="'.esc_url($url).'">'.esc_html($label).'</a>';
     echo '</p><p>برای تنظیم سرویس پیامک، از منوی تنظیمات پیامک استفاده کنید. داده‌های نمونه از بخش ابزارها قابل ورود است.</p></div>';
   }
