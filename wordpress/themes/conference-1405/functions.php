@@ -39,7 +39,7 @@ function conf1405_customize($c){
  $c->add_control(new WP_Customize_Color_Control($c,'conf1405_primary',array('label'=>'رنگ اصلی','section'=>'conf1405_colors')));
 }
 add_action('customize_register','conf1405_customize');
-function conf1405_custom_css(){ $color=get_theme_mod('conf1405_primary','#123d38');echo '<style>:root{--mvp-forest:'.esc_attr($color).';--primary:'.esc_attr($color).';}</style>'; }
+function conf1405_custom_css(){ $color=get_theme_mod('conf1405_primary','#123d38');echo '<style>:root{--mvp-forest:'.esc_attr($color).';--primary:'.esc_attr($color).';}.nav-menu .current-menu-item>a,.nav-menu .current_page_item>a{background:var(--gray-100);color:var(--primary)}.footer .menu{display:grid;gap:8px}.footer .menu a:hover{color:var(--mvp-gold)}</style>'; }
 add_action('wp_head','conf1405_custom_css',30);
 function conf1405_excerpt_length($n){return 24;} add_filter('excerpt_length','conf1405_excerpt_length');
 
