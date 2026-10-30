@@ -1,0 +1,41 @@
+<?php
+if (!defined('ABSPATH')) exit;
+define('CONF1405_VERSION','1.0.0');
+function conf1405_setup(){
+ load_theme_textdomain('conference-1405',get_template_directory().'/languages');
+ add_theme_support('title-tag'); add_theme_support('post-thumbnails');
+ add_theme_support('html5',array('search-form','comment-form','comment-list','gallery','caption','style','script'));
+ add_theme_support('custom-logo',array('height'=>80,'width'=>260,'flex-height'=>true,'flex-width'=>true));
+ register_nav_menus(array('primary'=>'فهرست اصلی','footer'=>'فهرست پایین صفحه'));
+}
+add_action('after_setup_theme','conf1405_setup');
+function conf1405_assets(){
+ wp_enqueue_style('conf1405-base',get_template_directory_uri().'/assets/css/style.css',array(),CONF1405_VERSION);
+ wp_enqueue_style('conf1405-redesign',get_template_directory_uri().'/assets/css/mvp-redesign.css',array('conf1405-base'),CONF1405_VERSION);
+ wp_enqueue_style('conf1405-responsive',get_template_directory_uri().'/assets/css/responsive-fixes.css',array('conf1405-redesign'),CONF1405_VERSION);
+ wp_enqueue_style('conf1405-theme',get_stylesheet_uri(),array('conf1405-responsive'),CONF1405_VERSION);
+ wp_enqueue_script('conf1405-main',get_template_directory_uri().'/assets/js/main.js',array(),CONF1405_VERSION,true);
+}
+add_action('wp_enqueue_scripts','conf1405_assets');
+function conf1405_customize($c){
+ $c->add_section('conf1405_event',array('title'=>'اطلاعات همایش','priority'=>30));
+ $fields=array('event_name'=>array('عنوان همایش','همایش بین‌المللی فناوری و نوآوری ۱۴۰۵'),'event_date'=>array('تاریخ همایش','۱۵ تا ۱۷ آذر ۱۴۰۵'),'event_location'=>array('محل برگزاری','تهران، مرکز همایش‌های بین‌المللی'),'event_deadline'=>array('مهلت ارسال مقاله','۳۰ مهر ۱۴۰۵'),'event_description'=>array('توضیح کوتاه','جایی برای ارائه پژوهش‌های تازه و ساختن همکاری‌های علمی.'));
+ foreach($fields as $id=>$f){$c->add_setting('conf1405_'.$id,array('default'=>$f[1],'sanitize_callback'=>'sanitize_text_field'));$c->add_control('conf1405_'.$id,array('label'=>$f[0],'section'=>'conf1405_event','type'=>'text'));}
+ $c->add_section('conf1405_slides',array('title'=>'اسلایدر صفحه اصلی','priority'=>31));
+ for($i=1;$i<=3;$i++){
+  $c->add_setting("conf1405_slide{$i}_image",array('default'=>'','sanitize_callback'=>'esc_url_raw'));
+  $c->add_control(new WP_Customize_Image_Control($c,"conf1405_slide{$i}_image",array('label'=>"تصویر پس‌زمینه اسلاید {$i}",'section'=>'conf1405_slides')));
+  foreach(array('title'=>'عنوان','subtitle'=>'متن کوتاه','link'=>'پیوند دکمه') as $key=>$label){
+   $default=$key==='link'?home_url('/submit-paper/'):($key==='title'?'ایده‌های بزرگ، آینده‌های روشن':'پژوهش خود را با جامعه علمی به اشتراک بگذارید');
+   $c->add_setting("conf1405_slide{$i}_{$key}",array('default'=>$default,'sanitize_callback'=>$key==='link'?'esc_url_raw':'sanitize_text_field'));
+   $c->add_control("conf1405_slide{$i}_{$key}",array('label'=>"اسلاید {$i} - {$label}",'section'=>'conf1405_slides','type'=>'text'));
+  }
+ }
+ $c->add_section('conf1405_colors',array('title'=>'رنگ‌بندی قالب','priority'=>32));
+ $c->add_setting('conf1405_primary',array('default'=>'#123d38','sanitize_callback'=>'sanitize_hex_color'));
+ $c->add_control(new WP_Customize_Color_Control($c,'conf1405_primary',array('label'=>'رنگ اصلی','section'=>'conf1405_colors')));
+}
+add_action('customize_register','conf1405_customize');
+function conf1405_custom_css(){ $color=get_theme_mod('conf1405_primary','#123d38');echo '<style>:root{--mvp-forest:'.esc_attr($color).';--primary:'.esc_attr($color).';}</style>'; }
+add_action('wp_head','conf1405_custom_css',30);
+function conf1405_excerpt_length($n){return 24;} add_filter('excerpt_length','conf1405_excerpt_length');
