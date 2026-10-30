@@ -2,13 +2,13 @@
 /**
  * Plugin Name: Conference Core
  * Description: Core conference workflows: mobile OTP, papers, roles, dashboards and demo content.
- * Version: 1.0.0
+ * Version: 1.3.0
  * Requires at least: 6.2
  * Requires PHP: 7.4
  * Text Domain: conference-core
  */
 if (!defined('ABSPATH')) exit;
-define('CONFCORE_VERSION','1.0.0');
+define('CONFCORE_VERSION','1.3.0');
 define('CONFCORE_DIR',plugin_dir_path(__FILE__));
 
 final class Conference_Core {
@@ -18,8 +18,10 @@ final class Conference_Core {
     add_action('init',array($this,'ensure_role_caps'),1);
     add_action('init',array($this,'register_types'));
     add_action('rest_api_init',array($this,'routes'));
+    add_action('template_redirect',array($this,'private_page_headers'),0);
     add_action('admin_menu',array($this,'admin_menu'));
     add_action('admin_init',array($this,'settings'));
+    add_action('admin_init',array($this,'ensure_default_pages'));
     add_action('add_meta_boxes',array($this,'contact_meta_box'));
     add_action('add_meta_boxes',array($this,'session_meta_box'));
     add_action('save_post_conf_session',array($this,'save_session_meta'));
@@ -28,11 +30,14 @@ final class Conference_Core {
     add_action('admin_head-profile.php',array($this,'hide_core_email_field'));
     add_action('admin_head-user-new.php',array($this,'hide_core_email_field'));
     add_filter('manage_users_columns',array($this,'remove_email_user_column'));
+    add_action('user_new_form',array($this,'admin_new_user_phone_field'));
+    add_action('user_register',array($this,'save_new_user_phone'));
     add_action('show_user_profile',array($this,'admin_phone_profile_field'));
     add_action('edit_user_profile',array($this,'admin_phone_profile_field'));
     add_action('personal_options_update',array($this,'save_admin_phone_profile'));
     add_action('edit_user_profile_update',array($this,'save_admin_phone_profile'));
     add_filter('user_profile_update_errors',array($this,'allow_blank_profile_email'),10,3);
+    add_filter('user_profile_update_errors',array($this,'validate_admin_new_user_phone'),20,3);
     add_action('admin_post_confcore_download',array($this,'download_paper'));
     add_action('transition_post_status',array($this,'paper_status_notification'),10,3);
     add_action('admin_post_confcore_contact',array($this,'save_contact'));
@@ -56,6 +61,9 @@ final class Conference_Core {
     add_shortcode('conference_messages',array($this,'messages_shortcode'));
     add_shortcode('conference_profile',array($this,'profile_shortcode'));
     add_shortcode('conference_certificates',array($this,'certificates_shortcode'));
+    add_shortcode('conference_admin_workspace',array($this,'admin_workspace_shortcode'));
+    add_shortcode('conference_reviewer_dashboard',array($this,'reviewer_dashboard_shortcode'));
+    add_shortcode('conference_review_paper',array($this,'review_paper_shortcode'));
     add_action('wp_enqueue_scripts',array($this,'assets'));
   }
   public static function activate(){
@@ -71,37 +79,66 @@ final class Conference_Core {
     dbDelta("CREATE TABLE {$table} (phone varchar(20) NOT NULL, code_hash varchar(255) NOT NULL, expires_at datetime NOT NULL, attempts tinyint unsigned NOT NULL DEFAULT 0, created_at datetime NOT NULL, PRIMARY KEY  (phone), KEY expires_at (expires_at)) {$charset};");
     self::instance()->register_types();
     self::create_default_pages();
+    update_option('confcore_site_structure_version','2');
     flush_rewrite_rules();
   }
   public static function deactivate(){ flush_rewrite_rules(); }
   private static function create_default_pages(){
-    $pages=array('ورود'=>'login','ثبت‌نام'=>'register','داشبورد'=>'dashboard','ارسال مقاله'=>'submit-paper','مقالات'=>'papers');
-    foreach($pages as $title=>$slug){
-      if(!get_page_by_path($slug)){
-        $shortcode=$slug==='login'?'[conference_login]':($slug==='register'?'[conference_register]':($slug==='dashboard'?'[conference_dashboard]':($slug==='submit-paper'?'[conference_submit_paper]':'[conference_papers]')));
-        wp_insert_post(array('post_title'=>$title,'post_name'=>$slug,'post_type'=>'page','post_status'=>'publish','post_content'=>$shortcode));
-      }
-    }
-    // Create editable public information pages and connect dynamic listings/forms.
-    $extra=array(
-      'about'=>array('درباره همایش','معرفی رویداد، اهداف و محورهای علمی همایش را از ویرایشگر برگه مدیریت کنید.'),
+    $pages=array(
+      'home'=>array('صفحه اصلی',''),
+      'login'=>array('ورود','[conference_login]'),
+      'register'=>array('ثبت‌نام','[conference_register]'),
+      'dashboard'=>array('داشبورد کاربری','[conference_dashboard]'),
+      'submit-paper'=>array('ارسال مقاله','[conference_submit_paper]'),
+      'papers'=>array('مقالات پذیرفته‌شده','[conference_papers]'),
+      'about'=>array('درباره همایش','<h2>درباره همایش فناوری و نوآوری</h2><p>این رویداد بستری برای ارائه پژوهش‌های نو، تبادل تجربه میان دانشگاه و صنعت و توسعه همکاری‌های علمی است. اهداف، محورهای علمی و اخبار رویداد از همین برگه قابل ویرایش هستند.</p><h3>اهداف همایش</h3><ul><li>ارائه دستاوردهای پژوهشی و کاربردی</li><li>تقویت همکاری میان پژوهشگران و صنعت</li><li>معرفی راهکارهای نوآورانه در فناوری‌های نوظهور</li></ul>'),
       'contact'=>array('تماس با ما','[conference_contact]'),
-      'faq'=>array('سوالات متداول','پاسخ پرسش‌های متداول را از ویرایشگر برگه اضافه کنید.'),
+      'faq'=>array('سوالات متداول','<h2>سوالات متداول</h2><h3>چگونه ثبت‌نام کنم؟</h3><p>با شماره موبایل خود وارد شوید و درخواست حضور را از صفحه ثبت‌نام همایش ثبت کنید.</p><h3>چگونه مقاله ارسال کنم؟</h3><p>پس از ورود به پنل، فایل PDF، DOC یا DOCX خود را با حجم حداکثر ۲۰ مگابایت ارسال کنید.</p><h3>نتیجه داوری کجا نمایش داده می‌شود؟</h3><p>وضعیت مقاله در پنل کاربری و در صورت تنظیم سرویس پیامک، از طریق پیامک اطلاع‌رسانی می‌شود.</p>'),
       'speakers'=>array('سخنرانان','[conference_speakers]'),
-      'schedule'=>array('برنامه زمانی','[conference_schedule]'),
-      'team'=>array('تیم برگزارکننده','[conference_team]'),
+      'schedule'=>array('برنامه همایش','[conference_schedule]'),
+      'team'=>array('تیم و کمیته‌ها','[conference_team]'),
       'news'=>array('اخبار و اطلاعیه‌ها','[conference_news]'),
+      'posts'=>array('اخبار و نوشته‌ها','[conference_news]'),
       'event-registration'=>array('ثبت‌نام در همایش','[conference_event_registration]'),
       'my-papers'=>array('مقالات من','[conference_my_papers]'),
       'my-registration'=>array('ثبت‌نام من','[conference_event_registration]'),
       'certificates'=>array('گواهی‌های من','[conference_certificates]'),
       'messages'=>array('پیام‌ها و اعلان‌ها','[conference_messages]'),
       'profile'=>array('پروفایل من','[conference_profile]'),
+      'reviewer-dashboard'=>array('پنل داوری','[conference_reviewer_dashboard]'),
       'review-queue'=>array('صف داوری','[conference_review_queue]'),
+      'review-paper'=>array('داوری مقاله','[conference_review_paper]'),
       'my-reviews'=>array('داوری‌های من','[conference_my_reviews]'),
-      'author-guidelines'=>array('راهنمای نویسندگان','راهنمای نگارش و ارسال مقاله را از ویرایشگر برگه تکمیل کنید.')
+      'author-guidelines'=>array('راهنمای نویسندگان','<h2>راهنمای ارسال مقاله</h2><ol><li>عنوان و مشخصات نویسندگان را کامل وارد کنید.</li><li>فایل نهایی را با فرمت PDF، DOC یا DOCX آماده کنید.</li><li>حجم فایل نباید بیشتر از ۲۰ مگابایت باشد.</li><li>پس از ارسال، شناسه مقاله را برای پیگیری نگه دارید.</li></ol>'),
+      'admin-dashboard'=>array('مرکز مدیریت','[conference_admin_workspace section="dashboard"]'),
+      'admin-users'=>array('مدیریت کاربران','[conference_admin_workspace section="users"]'),
+      'admin-papers'=>array('مدیریت مقالات','[conference_admin_workspace section="papers"]'),
+      'admin-registrations'=>array('مدیریت ثبت‌نام‌ها','[conference_admin_workspace section="registrations"]'),
+      'admin-reviews'=>array('مدیریت داوری‌ها','[conference_admin_workspace section="reviews"]'),
+      'admin-reviewers'=>array('مدیریت داوران','[conference_admin_workspace section="reviewers"]'),
+      'admin-settings'=>array('تنظیمات همایش','[conference_admin_workspace section="settings"]'),
+      'admin-sms'=>array('تنظیمات پیامک','[conference_admin_workspace section="sms"]'),
+      'admin-team'=>array('مدیریت تیم و کمیته‌ها','[conference_admin_workspace section="team"]'),
+      'admin-posts'=>array('مدیریت نوشته‌ها','[conference_admin_workspace section="posts"]')
     );
-    foreach($extra as $slug=>$item){if(!get_page_by_path($slug))wp_insert_post(array('post_type'=>'page','post_status'=>'publish','post_title'=>$item[0],'post_name'=>$slug,'post_content'=>$item[1]));}
+    foreach($pages as $slug=>$item){
+      $existing=get_page_by_path($slug);
+      if(!$existing){
+        $id=wp_insert_post(array('post_type'=>'page','post_status'=>'publish','post_title'=>$item[0],'post_name'=>$slug,'post_content'=>$item[1]),true);
+        if(is_wp_error($id))continue;
+      } elseif(trim((string)$existing->post_content)===''){
+        wp_update_post(array('ID'=>$existing->ID,'post_content'=>$item[1]));
+      }
+    }
+    $home=get_page_by_path('home');
+    $posts=get_page_by_path('posts');
+    if($home && (get_option('show_on_front')!=='page' || !get_option('page_on_front'))){update_option('show_on_front','page');update_option('page_on_front',(int)$home->ID);}
+    if($posts && !get_option('page_for_posts'))update_option('page_for_posts',(int)$posts->ID);
+  }
+  public function ensure_default_pages(){
+    if(get_option('confcore_site_structure_version')==='2')return;
+    self::create_default_pages();
+    update_option('confcore_site_structure_version','2');
   }
   public function ensure_role_caps(){
     $admin=get_role('administrator');
@@ -123,7 +160,7 @@ final class Conference_Core {
     register_post_type('conf_paper',array('labels'=>array('name'=>'مقالات ارسالی','singular_name'=>'مقاله'),'public'=>false,'show_ui'=>true,'show_in_menu'=>true,'menu_icon'=>'dashicons-media-document','supports'=>array('title','author'),'capability_type'=>'post','map_meta_cap'=>true));
   }
   public function remove_email_user_column($columns){unset($columns['email']);return $columns;}
-  public function hide_core_email_field(){ echo '<style>#email,.user-email-wrap,#email-description,label[for="email"]{display:none!important}</style><script>document.addEventListener("DOMContentLoaded",function(){var e=document.getElementById("email");if(e&&e.closest("tr"))e.closest("tr").style.display="none";});</script>'; }
+  public function hide_core_email_field(){ echo '<style>#email,.user-email-wrap,#email-description,label[for="email"]{display:none!important}</style><script>document.addEventListener("DOMContentLoaded",function(){var e=document.getElementById("email");if(e){e.removeAttribute("required");e.value="";e.setAttribute("aria-hidden","true");if(e.closest("tr"))e.closest("tr").style.display="none";}});</script>'; }
   public function allow_blank_profile_email($errors,$update,$user){ if(isset($_POST['email']) && trim((string)wp_unslash($_POST['email']))==='')$errors->remove('empty_email'); }
 
   private function find_user_by_phone($phone){
@@ -131,6 +168,29 @@ final class Conference_Core {
     if($user)return $user;
     $ids=get_users(array('meta_key'=>'conference_phone','meta_value'=>$phone,'number'=>1,'fields'=>'ID'));
     return !empty($ids)?get_user_by('id',(int)$ids[0]):false;
+  }
+  public function admin_new_user_phone_field($operation){
+    if(!current_user_can('manage_options'))return;
+    echo '<h2>ورود با شماره موبایل</h2><table class="form-table"><tr><th><label for="conference_phone_new">شماره موبایل</label></th><td><input type="tel" id="conference_phone_new" name="conference_phone_new" class="regular-text" placeholder="09123456789"><p class="description">برای حساب‌های نویسنده، داور و مدیر همایش الزامی است.</p>';
+    wp_nonce_field('confcore_new_user_phone','confcore_new_user_phone_nonce');
+    echo '</td></tr></table>';
+  }
+  public function validate_admin_new_user_phone($errors,$update,$user){
+    if($update || !current_user_can('manage_options'))return;
+    $role=isset($_POST['role'])?sanitize_key(wp_unslash($_POST['role'])):'';
+    if(!in_array($role,array('conference_author','conference_reviewer','conference_manager'),true))return;
+    $nonce=isset($_POST['confcore_new_user_phone_nonce'])?sanitize_text_field(wp_unslash($_POST['confcore_new_user_phone_nonce'])):'';
+    if(!$nonce || !wp_verify_nonce($nonce,'confcore_new_user_phone')){$errors->add('conference_phone_nonce','اعتبارسنجی فیلد شماره موبایل انجام نشد.');return;}
+    $phone=$this->normalize_phone(wp_unslash($_POST['conference_phone_new']??''));
+    if(!$phone){$errors->add('conference_phone_invalid','برای این نقش، شماره موبایل معتبر الزامی است.');return;}
+    $existing=$this->find_user_by_phone($phone);
+    if($existing)$errors->add('conference_phone_duplicate','این شماره موبایل قبلاً به حساب دیگری اختصاص یافته است.');
+  }
+  public function save_new_user_phone($user_id){
+    if(!current_user_can('manage_options') || !isset($_POST['confcore_new_user_phone_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['confcore_new_user_phone_nonce'])),'confcore_new_user_phone'))return;
+    $phone=$this->normalize_phone(wp_unslash($_POST['conference_phone_new']??''));
+    $existing=$phone?$this->find_user_by_phone($phone):false;
+    if($phone && (!$existing || (int)$existing->ID===(int)$user_id))update_user_meta($user_id,'conference_phone',$phone);
   }
   public function admin_phone_profile_field($user){
     if(!current_user_can('manage_options'))return;
@@ -155,6 +215,13 @@ final class Conference_Core {
     if(strpos($phone,'98')===0 && strlen($phone)===12)$phone='0'.substr($phone,2);
     return preg_match('/^09[0-9]{9}$/',$phone)?$phone:false;
   }
+  public function private_page_headers(){
+    $private_pages=array('login','register','dashboard','submit-paper','event-registration','my-papers','my-registration','certificates','messages','profile','reviewer-dashboard','review-queue','review-paper','my-reviews','admin-dashboard','admin-users','admin-papers','admin-registrations','admin-reviews','admin-reviewers','admin-settings','admin-sms','admin-team','admin-posts');
+    if(is_page($private_pages)){
+      nocache_headers();
+      if(!headers_sent())header('X-Robots-Tag: noindex, nofollow, noarchive',true);
+    }
+  }
   public function routes(){
     register_rest_route('conference/v1','/otp/request',array('methods'=>'POST','callback'=>array($this,'request_otp'),'permission_callback'=>'__return_true'));
     register_rest_route('conference/v1','/otp/verify',array('methods'=>'POST','callback'=>array($this,'verify_otp'),'permission_callback'=>'__return_true'));
@@ -166,7 +233,8 @@ final class Conference_Core {
   }
   public function request_otp($request){
     $phone=$this->normalize_phone($request->get_param('phone')); $mode=sanitize_key($request->get_param('mode'));
-    if(!$phone || !in_array($mode,array('login','register'),true))return new WP_Error('invalid_input','شماره موبایل معتبر نیست.',array('status'=>400));
+    $first_name=sanitize_text_field($request->get_param('first_name'));$last_name=sanitize_text_field($request->get_param('last_name'));$terms=(string)$request->get_param('terms')==='1';
+    if(!$phone || !in_array($mode,array('login','register'),true) || ($mode==='register' && (!$terms || $first_name==='' || $last_name==='' || strlen($first_name)>240 || strlen($last_name)>320)))return new WP_Error('invalid_input','برای ثبت‌نام، نام، نام خانوادگی و پذیرش قوانین الزامی است.',array('status'=>400));
     $user=$this->find_user_by_phone($phone);
     // Do not disclose whether a phone number already has an account.
     if(($mode==='login' && !$user) || ($mode==='register' && $user))return rest_ensure_response(array('success'=>true,'message'=>'اگر شماره برای این مسیر قابل استفاده باشد، کد تأیید ارسال می‌شود. در غیر این صورت مسیر ورود یا ثبت‌نام مناسب را انتخاب کنید.'));
@@ -219,8 +287,8 @@ final class Conference_Core {
     return !is_wp_error($response) && wp_remote_retrieve_response_code($response)===200;
   }
   public function verify_otp($request){
-    $phone=$this->normalize_phone($request->get_param('phone')); $code=strtr((string)$request->get_param('code'),array('۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9','٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9')); $code=preg_replace('/[^0-9]/','',$code); $mode=sanitize_key($request->get_param('mode'));
-    if(!$phone || !preg_match('/^[0-9]{6}$/',$code) || !in_array($mode,array('login','register'),true))return new WP_Error('invalid_input','اطلاعات واردشده معتبر نیست.',array('status'=>400));
+    $phone=$this->normalize_phone($request->get_param('phone')); $first_name=sanitize_text_field($request->get_param('first_name')); $last_name=sanitize_text_field($request->get_param('last_name')); $terms=(string)$request->get_param('terms')==='1'; $code=strtr((string)$request->get_param('code'),array('۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9','٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9')); $code=preg_replace('/[^0-9]/','',$code); $mode=sanitize_key($request->get_param('mode'));
+    if(!$phone || !preg_match('/^[0-9]{6}$/',$code) || !in_array($mode,array('login','register'),true) || ($mode==='register' && (!$terms || $first_name==='' || $last_name==='' || strlen($first_name)>240 || strlen($last_name)>320)))return new WP_Error('invalid_input','اطلاعات واردشده معتبر نیست. نام، نام خانوادگی، شماره و کد تأیید را بررسی کنید.',array('status'=>400));
     global $wpdb; $table=$wpdb->prefix.'confcore_otp'; $row=$wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE phone=%s",$phone));
     if(!$row || strtotime($row->expires_at.' UTC')<time())return new WP_Error('expired','کد منقضی شده است؛ دوباره درخواست دهید.',array('status'=>400));
     if((int)$row->attempts>=5){$wpdb->delete($table,array('phone'=>$phone),array('%s'));return new WP_Error('locked','تعداد تلاش مجاز تمام شده است.',array('status'=>429));}
@@ -228,14 +296,38 @@ final class Conference_Core {
     if(!hash_equals($row->code_hash,$hash)){ $wpdb->update($table,array('attempts'=>(int)$row->attempts+1),array('phone'=>$phone),array('%d'),array('%s'));return new WP_Error('wrong_code','کد تأیید اشتباه است.',array('status'=>400));}
     $user=$this->find_user_by_phone($phone);
     if($mode==='register' && !$user){
-      $user_id=wp_insert_user(array('user_login'=>$phone,'user_pass'=>wp_generate_password(48,true,true),'user_email'=>'','display_name'=>$phone,'role'=>'conference_author'));
+      $display_name=trim($first_name.' '.$last_name); $user_id=wp_insert_user(array('user_login'=>$phone,'user_pass'=>wp_generate_password(48,true,true),'user_email'=>'','first_name'=>$first_name,'last_name'=>$last_name,'display_name'=>$display_name,'role'=>'conference_author'));
       if(is_wp_error($user_id))return new WP_Error('register_failed','ساخت حساب کاربری انجام نشد.',array('status'=>500));
-      update_user_meta($user_id,'conference_phone',$phone); $user=get_user_by('id',$user_id);
+      update_user_meta($user_id,'conference_phone',$phone);update_user_meta($user_id,'conference_terms_accepted_at',current_time('mysql',true));update_user_meta($user_id,'conference_terms_version','2026-10-30'); $user=get_user_by('id',$user_id);
     }
     if(!$user)return new WP_Error('account_missing','حساب کاربری پیدا نشد.',array('status'=>404));
     $wpdb->delete($table,array('phone'=>$phone),array('%s'));
     wp_set_current_user($user->ID); wp_set_auth_cookie($user->ID,true,is_ssl()); do_action('wp_login',$user->user_login,$user);
     return rest_ensure_response(array('success'=>true,'message'=>'ورود با موفقیت انجام شد.','redirect'=>home_url('/dashboard/')));
+  }
+  private function private_storage_dir(){
+    $document_root=isset($_SERVER['DOCUMENT_ROOT'])?realpath(wp_normalize_path(wp_unslash($_SERVER['DOCUMENT_ROOT']))):false;
+    if(!$document_root)return false;
+    $document_root_normalized=$document_root?untrailingslashit(wp_normalize_path($document_root)):'';
+    if(defined('CONFERENCE_PRIVATE_STORAGE_DIR') && CONFERENCE_PRIVATE_STORAGE_DIR){
+      $candidate=untrailingslashit(CONFERENCE_PRIVATE_STORAGE_DIR);
+    } else {
+      $candidate=dirname(rtrim(ABSPATH,'/\\')).DIRECTORY_SEPARATOR.'conference-private';
+      $candidate_normalized=untrailingslashit(wp_normalize_path($candidate));
+      if($document_root_normalized && ($candidate_normalized===$document_root_normalized || strpos($candidate_normalized,$document_root_normalized.'/')===0)){
+        $candidate=dirname($document_root_normalized).DIRECTORY_SEPARATOR.'conference-private';
+      }
+    }
+    if(!is_dir($candidate) && !wp_mkdir_p($candidate))return false;
+    $real=realpath($candidate);
+    if(!$real || !is_writable($real))return false;
+    $real_normalized=untrailingslashit(wp_normalize_path($real));
+    if($document_root_normalized && ($real_normalized===$document_root_normalized || strpos($real_normalized,$document_root_normalized.'/')===0))return false;
+    @chmod($real,0700);
+    if(!file_exists($real.DIRECTORY_SEPARATOR.'index.php'))file_put_contents($real.DIRECTORY_SEPARATOR.'index.php',"<?php http_response_code(404); exit;");
+    if(!file_exists($real.DIRECTORY_SEPARATOR.'.htaccess'))file_put_contents($real.DIRECTORY_SEPARATOR.'.htaccess',"Require all denied\n<IfModule !mod_authz_core.c> Deny from all </IfModule>\n");
+    if(!file_exists($real.DIRECTORY_SEPARATOR.'web.config'))file_put_contents($real.DIRECTORY_SEPARATOR.'web.config','<?xml version="1.0" encoding="UTF-8"?><configuration><system.webServer><authorization><deny users="*" /></authorization></system.webServer></configuration>');
+    return $real;
   }
   public function upload_paper($request){
     if($this->rate_limited('conf_upload_user_'.get_current_user_id(),10,3600))return new WP_Error('upload_rate_limit','سقف ارسال فایل در این ساعت پر شده است.',array('status'=>429));
@@ -244,23 +336,38 @@ final class Conference_Core {
     if((int)$f['size']<1 || (int)$f['size']>20*1024*1024)return new WP_Error('file_size','حداکثر حجم فایل ۲۰ مگابایت است.',array('status'=>413));
     $name=sanitize_file_name($f['name']); $ext=strtolower(pathinfo($name,PATHINFO_EXTENSION));
     if(!in_array($ext,array('pdf','doc','docx'),true))return new WP_Error('file_type','فقط فایل PDF، DOC یا DOCX مجاز است.',array('status'=>415));
-    $handle=fopen($f['tmp_name'],'rb'); $magic=$handle?fread($handle,8):''; if($handle)fclose($handle);
+    $handle=fopen($f['tmp_name'],'rb'); if(!$handle)return new WP_Error('file_read','خواندن فایل بارگذاری‌شده ممکن نیست.',array('status'=>400)); $magic=fread($handle,8); fclose($handle);
     $valid=($ext==='pdf' && strpos($magic,'%PDF-')===0) || ($ext==='doc' && substr($magic,0,8)==="\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1");
-    if($ext==='docx' && class_exists('ZipArchive')){ $zip=new ZipArchive(); if($zip->open($f['tmp_name'])===true){$valid=$zip->locateName('[Content_Types].xml')!==false && $zip->locateName('word/document.xml')!==false;$zip->close();} }
+    if($ext==='docx'){
+      if(!class_exists('ZipArchive'))return new WP_Error('docx_unavailable','برای اعتبارسنجی DOCX، افزونه ZipArchive باید روی هاست فعال باشد.',array('status'=>503));
+      $zip=new ZipArchive();
+      if($zip->open($f['tmp_name'])===true){
+        $valid=$zip->locateName('[Content_Types].xml')!==false && $zip->locateName('word/document.xml')!==false && $zip->numFiles<=2000;
+        $uncompressed=0;
+        for($z=0;$valid && $z<$zip->numFiles;$z++){
+          $stat=$zip->statIndex($z);
+          if(!$stat || strpos($stat['name'],'../')!==false || strpos($stat['name'],'\\')===0 || (isset($stat['size']) && (int)$stat['size']>25*1024*1024)){$valid=false;break;}
+          $uncompressed+=(int)$stat['size'];
+          if($uncompressed>50*1024*1024){$valid=false;break;}
+        }
+        $zip->close();
+      }
+    }
     if(!$valid)return new WP_Error('file_signature','محتوای فایل با پسوند آن مطابقت ندارد یا فایل DOCX معتبر نیست.',array('status'=>415));
-    $dir=wp_upload_dir(); $private=$dir['basedir'].'/conference-private';
-    if(!wp_mkdir_p($private))return new WP_Error('storage_error','فضای ذخیره‌سازی آماده نیست.',array('status'=>500));
-    @chmod($private,0700);
-    $deny=file_put_contents($private.'/.htaccess',"Require all denied\n<IfModule !mod_authz_core.c> Deny from all </IfModule>\n");
-    if($deny===false)return new WP_Error('storage_protection','امکان محافظت از پوشه فایل‌ها وجود ندارد.',array('status'=>500));
-    if(!file_exists($private.'/index.php'))file_put_contents($private.'/index.php',"<?php http_response_code(404); exit;");
+    $private=$this->private_storage_dir();
+    if(!$private)return new WP_Error('storage_error','فضای ذخیره‌سازی خصوصی و خارج از مسیر عمومی وب آماده نیست؛ مسیر دسترسی هاست را بررسی کنید.',array('status'=>500));
     $stored=wp_generate_password(24,false,false).'.'.$ext; $target=$private.'/'.$stored;
     if(!move_uploaded_file($f['tmp_name'],$target))return new WP_Error('storage_error','ذخیره فایل انجام نشد.',array('status'=>500));
     @chmod($target,0600);
     $title=sanitize_text_field($request->get_param('title')); if($title==='')$title=pathinfo($name,PATHINFO_FILENAME);
-    $post_id=wp_insert_post(array('post_type'=>'conf_paper','post_status'=>'pending','post_title'=>$title,'post_author'=>get_current_user_id()),true);
+    $abstract=sanitize_textarea_field($request->get_param('abstract'));
+    $keywords=sanitize_text_field($request->get_param('keywords'));
+    $track=sanitize_text_field($request->get_param('track'));
+    if($abstract==='' || strlen($abstract)>20000 || strlen($title)>720 || strlen($keywords)>1200 || strlen($track)>240){@unlink($target);return new WP_Error('paper_metadata','عنوان و چکیده مقاله معتبر نیستند یا از سقف مجاز بیشترند.',array('status'=>400));}
+    $post_id=wp_insert_post(array('post_type'=>'conf_paper','post_status'=>'pending','post_title'=>$title,'post_excerpt'=>wp_trim_words($abstract,45,'…'),'post_author'=>get_current_user_id()),true);
     if(is_wp_error($post_id)){@unlink($target);return new WP_Error('save_error','ثبت اطلاعات مقاله ناموفق بود.',array('status'=>500));}
     update_post_meta($post_id,'_conf_private_path',$target); update_post_meta($post_id,'_conf_original_name',$name); update_post_meta($post_id,'_conf_file_size',(int)$f['size']);
+    update_post_meta($post_id,'_conf_paper_abstract',$abstract);update_post_meta($post_id,'_conf_paper_keywords',$keywords);update_post_meta($post_id,'_conf_paper_track',$track);
     $this->send_submission_sms($post_id);
     return rest_ensure_response(array('success'=>true,'message'=>'مقاله با موفقیت ثبت شد و در انتظار بررسی است.','paper_id'=>$post_id));
   }
@@ -282,13 +389,13 @@ final class Conference_Core {
   public function download_paper(){
     $id=isset($_GET['paper'])?absint($_GET['paper']):0; if(!$id || !wp_verify_nonce(isset($_GET['_wpnonce'])?sanitize_text_field(wp_unslash($_GET['_wpnonce'])):'','confcore_download_'.$id))wp_die('درخواست نامعتبر است.',403);
     $post=get_post($id); if(!$post || $post->post_type!=='conf_paper')wp_die('مقاله پیدا نشد.',404);
-    $is_owner=(int)$post->post_author===get_current_user_id();
+    $is_owner=is_user_logged_in() && (int)$post->post_author===get_current_user_id();
     $is_manager=current_user_can('manage_conference') || current_user_can('manage_options');
     $is_assigned_reviewer=current_user_can('review_conference_papers') && (int)get_post_meta($id,'_conf_assigned_reviewer',true)===get_current_user_id();
     if(!$is_owner && !$is_manager && !$is_assigned_reviewer)wp_die('دسترسی غیرمجاز.',403);
     $path=get_post_meta($id,'_conf_private_path',true);
-    $private_base=realpath(wp_upload_dir()['basedir'].'/conference-private');$real_path=$path?realpath($path):false;
-    if(!$private_base || !$real_path || strpos($real_path,$private_base.DIRECTORY_SEPARATOR)!==0 || !is_file($real_path))wp_die('فایل موجود نیست.',404);
+    $private_base=$this->private_storage_dir();$legacy_base=realpath(wp_upload_dir()['basedir'].'/conference-private');$real_path=$path?realpath($path):false;$inside_new=$private_base && $real_path && strpos($real_path,$private_base.DIRECTORY_SEPARATOR)===0;$inside_legacy=$legacy_base && $real_path && strpos($real_path,$legacy_base.DIRECTORY_SEPARATOR)===0;
+    if((!$inside_new && !$inside_legacy) || !$real_path || !is_file($real_path))wp_die('فایل موجود نیست.',404);
     $path=$real_path;
     $ext=strtolower(pathinfo($path,PATHINFO_EXTENSION)); $mime=$ext==='pdf'?'application/pdf':($ext==='doc'?'application/msword':'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     nocache_headers(); header('X-Content-Type-Options: nosniff'); header('Content-Type: '.$mime); header('Content-Length: '.filesize($path)); header('Content-Disposition: attachment; filename="paper-'.$id.'.'.$ext.'"; filename*=UTF-8\'\''.rawurlencode(get_post_meta($id,'_conf_original_name',true))); readfile($path); exit;
@@ -300,23 +407,47 @@ final class Conference_Core {
   }
   private function form_script(){wp_enqueue_style('confcore-front');wp_enqueue_script('confcore-front');}
   private function auth_form($mode){
-    if(is_user_logged_in())return '<p>شما وارد شده‌اید. <a href="'.esc_url(home_url('/dashboard/')).'">رفتن به پنل</a></p>';
+    if(is_user_logged_in()){$target=current_user_can('manage_conference')||current_user_can('manage_options')?home_url('/admin-dashboard/'):(current_user_can('review_conference_papers')?home_url('/reviewer-dashboard/'):home_url('/dashboard/'));return '<p>شما وارد شده‌اید. <a href="'.esc_url($target).'">رفتن به پنل</a></p>';}
     $this->form_script(); ob_start(); ?>
-    <div class="card confcore-form"><h2><?php echo $mode==='register'?'ثبت‌نام با شماره موبایل':'ورود با شماره موبایل'; ?></h2>
-    <form class="confcore-otp-form" data-mode="<?php echo esc_attr($mode); ?>"><label>شماره موبایل</label><input type="tel" name="phone" inputmode="numeric" autocomplete="tel" placeholder="09123456789" required><button class="btn btn-primary" type="submit">دریافت کد تأیید</button><div class="confcore-otp-step" hidden><label>کد پیامک‌شده</label><input type="text" name="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code"><button class="btn btn-primary" type="button" data-verify>تأیید و ادامه</button></div><p class="confcore-message" role="status"></p></form></div><?php return ob_get_clean();
+    <div class="confcore-auth-content">
+      <div class="auth-step"><?php echo $mode==='register'?'ثبت‌نام با شماره موبایل':'ورود با شماره همراه'; ?></div>
+      <h2><?php echo $mode==='register'?'ثبت‌نام رایگان':'خوش برگشتید'; ?> <span aria-hidden="true">👋</span></h2>
+      <p class="auth-intro"><?php echo $mode==='register'?'نام و نام خانوادگی و شماره همراه خود را وارد کنید. پس از تأیید شماره، حساب اولیه ساخته می‌شود.':'شماره موبایل خود را وارد کنید تا کد یک‌بارمصرف دریافت کنید.'; ?></p>
+      <form class="confcore-otp-form auth-form" data-mode="<?php echo esc_attr($mode); ?>" novalidate>
+        <?php if($mode==='register'): ?><div class="form-row"><div class="form-group"><label class="form-label" for="conf-first-name">نام</label><input class="form-control" id="conf-first-name" name="first_name" type="text" maxlength="60" autocomplete="given-name" required placeholder="نام شما"></div><div class="form-group"><label class="form-label" for="conf-last-name">نام خانوادگی</label><input class="form-control" id="conf-last-name" name="last_name" type="text" maxlength="80" autocomplete="family-name" required placeholder="نام خانوادگی"></div></div><?php endif; ?>
+        <?php if($mode==='register'): ?><label class="check-line terms-line"><input type="checkbox" name="terms" value="1" required><span>با <a href="<?php echo esc_url(home_url('/faq/')); ?>">قوانین همایش</a> موافقم و مالک شماره تلفن واردشده هستم.</span></label><?php endif; ?>
+        <div class="form-group"><label class="form-label" for="conf-phone">شماره تلفن همراه</label><div class="field-with-icon"><input class="form-control" id="conf-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" maxlength="14" placeholder="09123456789" required></div><small class="form-hint">شماره موبایل ایران را با ۰۹ وارد کنید.</small></div>
+        <button class="btn btn-primary btn-lg btn-block auth-submit" type="submit">دریافت کد تأیید <span>←</span></button>
+        <div class="form-group confcore-otp-step" data-otp-step hidden><label class="form-label" for="conf-otp">کد تأیید شش‌رقمی</label><input class="form-control" id="conf-otp" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9۰-۹٠-٩]{6}" maxlength="6" placeholder="کد پیامک‌شده"><small class="form-hint">کد پیامک‌شده را وارد کنید. اعتبار کد پنج دقیقه است.</small><button class="btn btn-primary btn-lg btn-block auth-submit mt-3" type="button" data-verify>تأیید و ادامه</button></div>
+        <p class="confcore-message" role="status" aria-live="polite"></p>
+      </form>
+      <p class="auth-legal"><?php echo $mode==='register'?'با ثبت‌نام، مالکیت شماره تلفن همراه خود را تأیید می‌کنید. نقش و سطح دسترسی پس از ثبت‌نام توسط مدیر سامانه تعیین می‌شود.':'با ادامه، قوانین و راهنمای همایش را می‌پذیرید.'; ?></p>
+    </div>
+    <?php return ob_get_clean();
   }
   public function login_shortcode(){return $this->auth_form('login');}
   public function register_shortcode(){return $this->auth_form('register');}
   public function submit_shortcode(){
-    if(!is_user_logged_in())return '<p>برای ارسال مقاله ابتدا <a href="'.esc_url(home_url('/login/')).'">وارد شوید</a>.</p>';
-    if(!current_user_can('submit_conference_papers'))return '<p>دسترسی ارسال مقاله برای حساب شما فعال نیست. با مدیر همایش تماس بگیرید.</p>';
-    $this->form_script(); ob_start(); ?><div class="card confcore-form"><h2>ارسال مقاله</h2><form class="confcore-paper-form"><label>عنوان مقاله</label><input type="text" name="title" maxlength="180" required><label>فایل مقاله (PDF، DOC، DOCX - حداکثر ۲۰ مگابایت)</label><input type="file" name="paper" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required><button class="btn btn-primary" type="submit">ارسال برای بررسی</button><p class="confcore-message" role="status"></p></form></div><?php return ob_get_clean();
+    if(!is_user_logged_in())return '<div class="card confcore-form"><p>برای ارسال مقاله ابتدا <a href="'.esc_url(home_url('/login/')).'">وارد شوید</a>.</p></div>';
+    if(!current_user_can('submit_conference_papers'))return '<div class="card confcore-form"><p>دسترسی ارسال مقاله برای حساب شما فعال نیست. با مدیر همایش تماس بگیرید.</p></div>';
+    $this->form_script(); ob_start(); ?>
+    <div class="card confcore-form"><p>اطلاعات مقاله را کامل کنید. فایل فقط در فضای خصوصی سرور ذخیره می‌شود و از طریق لینک عمومی قابل دریافت نیست.</p>
+    <form class="confcore-paper-form"><label for="conf-paper-title">عنوان مقاله</label><input id="conf-paper-title" type="text" name="title" maxlength="180" required>
+    <label for="conf-paper-abstract">چکیده مقاله</label><textarea id="conf-paper-abstract" name="abstract" rows="6" maxlength="5000" required></textarea>
+    <label for="conf-paper-keywords">کلیدواژه‌ها</label><input id="conf-paper-keywords" type="text" name="keywords" maxlength="300" placeholder="هوش مصنوعی، یادگیری ماشین">
+    <label for="conf-paper-track">محور علمی</label><select id="conf-paper-track" name="track"><option value="">انتخاب محور</option><option value="هوش مصنوعی و علم داده">هوش مصنوعی و علم داده</option><option value="امنیت و شبکه">امنیت و شبکه</option><option value="اینترنت اشیا">اینترنت اشیا</option><option value="سلامت دیجیتال">سلامت دیجیتال</option><option value="فناوری و تحول دیجیتال">فناوری و تحول دیجیتال</option></select>
+    <label for="conf-paper-file">فایل مقاله (PDF، DOC، DOCX - حداکثر ۲۰ مگابایت)</label><input id="conf-paper-file" type="file" name="paper" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required>
+    <button class="btn btn-primary" type="submit">ارسال برای بررسی</button><p class="confcore-message" role="status" aria-live="polite"></p></form></div>
+    <?php return ob_get_clean();
   }
   public function dashboard_shortcode(){
     if(!is_user_logged_in())return '<p>برای مشاهده پنل ابتدا <a href="'.esc_url(home_url('/login/')).'">وارد شوید</a>.</p>';
     $this->form_script();
     $u=wp_get_current_user(); $papers=get_posts(array('post_type'=>'conf_paper','author'=>$u->ID,'posts_per_page'=>50,'post_status'=>array('pending','publish','draft','private')));
-    ob_start(); ?><div class="admin-layout"><aside class="admin-sidebar"><h3>پنل کاربری</h3><nav class="admin-nav"><a href="<?php echo esc_url(home_url('/dashboard/')); ?>">داشبورد</a><a href="<?php echo esc_url(home_url('/my-papers/')); ?>">مقالات من</a><a href="<?php echo esc_url(home_url('/submit-paper/')); ?>">ارسال مقاله</a><a href="<?php echo esc_url(home_url('/my-registration/')); ?>">ثبت‌نام من</a><a href="<?php echo esc_url(home_url('/certificates/')); ?>">گواهی‌ها</a><a href="<?php echo esc_url(home_url('/messages/')); ?>">پیام‌ها</a><a href="<?php echo esc_url(home_url('/profile/')); ?>">پروفایل</a><?php if(current_user_can('review_conference_papers')): ?><a href="<?php echo esc_url(home_url('/review-queue/')); ?>">صف داوری</a><a href="<?php echo esc_url(home_url('/my-reviews/')); ?>">داوری‌های من</a><?php endif; ?><a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">خروج</a></nav></aside><section class="admin-main"><header class="admin-page-header"><h1>سلام، <?php echo esc_html($u->display_name); ?></h1><p>وضعیت مقالات و فعالیت‌های حساب کاربری شما</p></header><div class="admin-content-grid"><div class="admin-panel"><h2>مقالات من</h2><?php if($papers): ?><div class="table-wrapper"><table><thead><tr><th>عنوان</th><th>وضعیت</th><th>نظر داور</th><th>فایل</th></tr></thead><tbody><?php foreach($papers as $p): ?><tr><td><?php echo esc_html($p->post_title); ?></td><td><?php echo esc_html($p->post_status==='pending'?'در انتظار بررسی':($p->post_status==='publish'?'پذیرفته/منتشرشده':($p->post_status==='draft'?'نیازمند اصلاح':$p->post_status))); ?></td><td><?php echo esc_html(get_post_meta($p->ID,'_conf_review_note',true)); ?></td><td><a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=confcore_download&paper='.$p->ID),'confcore_download_'.$p->ID)); ?>">دریافت فایل</a></td></tr><?php endforeach; ?></tbody></table></div><?php else: ?><p>هنوز مقاله‌ای ارسال نکرده‌اید.</p><?php endif; ?><a class="btn btn-primary" href="<?php echo esc_url(home_url('/submit-paper/')); ?>">ارسال مقاله جدید</a></div><?php if(current_user_can('review_conference_papers')): $queue_args=array('post_type'=>'conf_paper','post_status'=>'pending','posts_per_page'=>50);if(!current_user_can('manage_conference') && !current_user_can('manage_options')){$queue_args['meta_key']='_conf_assigned_reviewer';$queue_args['meta_value']=get_current_user_id();}$queue=get_posts($queue_args); ?><div class="admin-panel"><h2>صف داوری مقالات</h2><?php if($queue): ?><div class="table-wrapper"><table><thead><tr><th>عنوان مقاله</th><th>شناسه</th><th>فایل</th></tr></thead><tbody><?php foreach($queue as $item): ?><tr><td><?php echo esc_html($item->post_title); ?></td><td><?php echo esc_html($item->ID); ?></td><td><a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=confcore_download&paper='.$item->ID),'confcore_download_'.$item->ID)); ?>">دریافت فایل</a> <button type="button" class="button" data-paper-decision="<?php echo esc_attr($item->ID); ?>" data-decision="accept">پذیرش</button> <button type="button" class="button" data-paper-decision="<?php echo esc_attr($item->ID); ?>" data-decision="reject">بازگشت برای اصلاح</button></td></tr><?php endforeach; ?></tbody></table></div><?php else: ?><p>مقاله‌ای در صف داوری نیست.</p><?php endif; ?></div><?php endif; ?></div></section></div><?php return ob_get_clean();
+    $paper_counts=array('pending'=>0,'publish'=>0,'draft'=>0);foreach($papers as $paper_item){if(isset($paper_counts[$paper_item->post_status]))$paper_counts[$paper_item->post_status]++;}
+    $registrations=get_posts(array('post_type'=>'conf_registration','author'=>$u->ID,'posts_per_page'=>1,'post_status'=>array('pending','publish','draft','private')));
+    $registration_label=$registrations?($registrations[0]->post_status==='publish'?'تأیید شده':($registrations[0]->post_status==='pending'?'در انتظار تأیید':'نیازمند پیگیری')):'ثبت نشده';
+    ob_start(); ?><div class="admin-layout"><aside class="admin-sidebar"><h3>پنل کاربری</h3><nav class="admin-nav"><a href="<?php echo esc_url(home_url('/dashboard/')); ?>">داشبورد</a><a href="<?php echo esc_url(home_url('/my-papers/')); ?>">مقالات من</a><a href="<?php echo esc_url(home_url('/submit-paper/')); ?>">ارسال مقاله</a><a href="<?php echo esc_url(home_url('/my-registration/')); ?>">ثبت‌نام من</a><a href="<?php echo esc_url(home_url('/certificates/')); ?>">گواهی‌ها</a><a href="<?php echo esc_url(home_url('/messages/')); ?>">پیام‌ها</a><a href="<?php echo esc_url(home_url('/profile/')); ?>">پروفایل</a><?php if(current_user_can('review_conference_papers')): ?><a href="<?php echo esc_url(home_url('/reviewer-dashboard/')); ?>">پنل داوری</a><a href="<?php echo esc_url(home_url('/review-queue/')); ?>">صف داوری</a><a href="<?php echo esc_url(home_url('/my-reviews/')); ?>">داوری‌های من</a><?php endif; ?><?php if(current_user_can('manage_conference') || current_user_can('manage_options')): ?><a href="<?php echo esc_url(home_url('/admin-dashboard/')); ?>">پنل مدیریت</a><?php endif; ?><a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">خروج</a></nav></aside><section class="admin-main"><header class="admin-page-header"><h1>سلام، <?php echo esc_html($u->display_name); ?></h1><p>وضعیت مقالات و فعالیت‌های حساب کاربری شما</p></header><div class="stats-grid"><div class="stat-card"><div class="stat-card-info"><h3><?php echo esc_html(count($papers)); ?></h3><p>کل مقالات</p></div></div><div class="stat-card"><div class="stat-card-info"><h3><?php echo esc_html($paper_counts['pending']); ?></h3><p>در انتظار داوری</p></div></div><div class="stat-card"><div class="stat-card-info"><h3><?php echo esc_html($paper_counts['publish']); ?></h3><p>پذیرفته‌شده</p></div></div><div class="stat-card"><div class="stat-card-info"><h3><?php echo esc_html($registration_label); ?></h3><p>وضعیت ثبت‌نام همایش</p></div></div></div><div class="admin-content-grid"><div class="admin-panel"><h2>مقالات من</h2><?php if($papers): ?><div class="table-wrapper"><table><thead><tr><th>عنوان</th><th>وضعیت</th><th>نظر داور</th><th>فایل</th></tr></thead><tbody><?php foreach($papers as $p): ?><tr><td><?php echo esc_html($p->post_title); ?></td><td><?php echo esc_html($p->post_status==='pending'?'در انتظار بررسی':($p->post_status==='publish'?'پذیرفته/منتشرشده':($p->post_status==='draft'?'نیازمند اصلاح':$p->post_status))); ?></td><td><?php echo esc_html(get_post_meta($p->ID,'_conf_review_note',true)); ?></td><td><a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=confcore_download&paper='.$p->ID),'confcore_download_'.$p->ID)); ?>">دریافت فایل</a></td></tr><?php endforeach; ?></tbody></table></div><?php else: ?><p>هنوز مقاله‌ای ارسال نکرده‌اید.</p><?php endif; ?><a class="btn btn-primary" href="<?php echo esc_url(home_url('/submit-paper/')); ?>">ارسال مقاله جدید</a></div><?php if(current_user_can('review_conference_papers')): $queue_args=array('post_type'=>'conf_paper','post_status'=>'pending','posts_per_page'=>50);if(!current_user_can('manage_conference') && !current_user_can('manage_options')){$queue_args['meta_key']='_conf_assigned_reviewer';$queue_args['meta_value']=get_current_user_id();}$queue=get_posts($queue_args); ?><div class="admin-panel"><h2>صف داوری مقالات</h2><?php if($queue): ?><div class="table-wrapper"><table><thead><tr><th>عنوان مقاله</th><th>شناسه</th><th>فایل</th></tr></thead><tbody><?php foreach($queue as $item): ?><tr><td><?php echo esc_html($item->post_title); ?></td><td><?php echo esc_html($item->ID); ?></td><td><a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=confcore_download&paper='.$item->ID),'confcore_download_'.$item->ID)); ?>">دریافت فایل</a> <button type="button" class="button" data-paper-decision="<?php echo esc_attr($item->ID); ?>" data-decision="accept">پذیرش</button> <button type="button" class="button" data-paper-decision="<?php echo esc_attr($item->ID); ?>" data-decision="reject">بازگشت برای اصلاح</button></td></tr><?php endforeach; ?></tbody></table></div><?php else: ?><p>مقاله‌ای در صف داوری نیست.</p><?php endif; ?></div><?php endif; ?></div></section></div><?php return ob_get_clean();
   }
   public function my_papers_shortcode(){
     if(!is_user_logged_in())return '<p>برای مشاهده مقالات وارد شوید.</p>';
@@ -333,7 +464,7 @@ final class Conference_Core {
     $items=get_posts($queue_args);
     if(!$items)return '<p>مقاله‌ای در صف داوری نیست.</p>';
     $this->form_script();ob_start();echo '<div class="table-wrapper"><table><thead><tr><th>عنوان مقاله</th><th>شناسه</th><th>فایل و تصمیم</th></tr></thead><tbody>';
-    foreach($items as $p){echo '<tr><td>'.esc_html($p->post_title).'</td><td>'.esc_html($p->ID).'</td><td><a href="'.esc_url(wp_nonce_url(admin_url('admin-post.php?action=confcore_download&paper='.$p->ID),'confcore_download_'.$p->ID)).'">دریافت فایل</a> <button type="button" data-paper-decision="'.esc_attr($p->ID).'" data-decision="accept">پذیرش</button> <button type="button" data-paper-decision="'.esc_attr($p->ID).'" data-decision="reject">بازگشت برای اصلاح</button></td></tr>';}
+    foreach($items as $p){echo '<tr><td>'.esc_html($p->post_title).'</td><td>'.esc_html($p->ID).'</td><td><a href="'.esc_url(home_url('/review-paper/?paper_id='.$p->ID)).'">جزئیات و داوری</a> | <a href="'.esc_url(wp_nonce_url(admin_url('admin-post.php?action=confcore_download&paper='.$p->ID),'confcore_download_'.$p->ID)).'">دریافت فایل</a> <button type="button" data-paper-decision="'.esc_attr($p->ID).'" data-decision="accept">پذیرش</button> <button type="button" data-paper-decision="'.esc_attr($p->ID).'" data-decision="reject">بازگشت برای اصلاح</button></td></tr>';}
     echo '</tbody></table></div>';return ob_get_clean();
   }
   public function my_reviews_shortcode(){
@@ -355,7 +486,7 @@ final class Conference_Core {
     $this->form_script();
     if(!is_user_logged_in())return '<p>برای مشاهده پروفایل وارد شوید.</p>';
     $u=wp_get_current_user();$phone=get_user_meta($u->ID,'conference_phone',true);
-    return '<div class="card confcore-form"><h2>پروفایل کاربری</h2><form method="post" action="'.esc_url(admin_url('admin-post.php')).'"><input type="hidden" name="action" value="confcore_profile">'.wp_nonce_field('confcore_profile','confcore_profile_nonce',true,false).'<label>نام نمایشی</label><input name="display_name" maxlength="100" value="'.esc_attr($u->display_name).'" required><label>شماره موبایل تأییدشده</label><input value="'.esc_attr($phone).'" readonly><button class="btn btn-primary" type="submit">ذخیره پروفایل</button></form></div>';
+    return '<div class="card confcore-form"><form method="post" action="'.esc_url(admin_url('admin-post.php')).'"><input type="hidden" name="action" value="confcore_profile">'.wp_nonce_field('confcore_profile','confcore_profile_nonce',true,false).'<label>نام نمایشی</label><input name="display_name" maxlength="100" value="'.esc_attr($u->display_name).'" required><label>شماره موبایل تأییدشده</label><input value="'.esc_attr($phone).'" readonly><button class="btn btn-primary" type="submit">ذخیره پروفایل</button></form></div>';
   }
   public function save_profile(){
     if(!is_user_logged_in() || !isset($_POST['confcore_profile_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['confcore_profile_nonce'])),'confcore_profile'))wp_die('درخواست نامعتبر است.',403);
@@ -372,7 +503,7 @@ final class Conference_Core {
   public function papers_shortcode(){
     $q=new WP_Query(array('post_type'=>'conf_paper','post_status'=>'publish','posts_per_page'=>20));
     if(!$q->have_posts())return '<p>هنوز مقاله پذیرفته‌شده‌ای برای نمایش منتشر نشده است.</p>';
-    ob_start(); echo '<div class="grid grid-2">'; while($q->have_posts()){$q->the_post();echo '<article class="card"><h3>'.esc_html(get_the_title()).'</h3></article>';} wp_reset_postdata(); echo '</div>'; return ob_get_clean();
+    ob_start(); echo '<div class="grid grid-2">'; while($q->have_posts()){$q->the_post();$abstract=get_post_meta(get_the_ID(),'_conf_paper_abstract',true);$track=get_post_meta(get_the_ID(),'_conf_paper_track',true);$author=get_the_author();if(!$author)$author='نمونه نمایشی';echo '<article class="card"><h3>'.esc_html(get_the_title()).'</h3>';if($track)echo '<p class="confcore-speaker-role">'.esc_html($track).'</p>';if($abstract)echo '<p>'.esc_html(wp_trim_words($abstract,45,'…')).'</p>';echo '<p class="text-muted">نویسنده: '.esc_html($author).' | '.esc_html(get_the_date()).'</p></article>';} wp_reset_postdata(); echo '</div>'; return ob_get_clean();
   }
   public function speakers_shortcode(){
     $q=new WP_Query(array('post_type'=>'conf_speaker','posts_per_page'=>24,'orderby'=>'menu_order title','order'=>'ASC'));
@@ -419,7 +550,7 @@ final class Conference_Core {
     $user=wp_get_current_user();$phone=get_user_meta($user->ID,'conference_phone',true);
     $existing=get_posts(array('post_type'=>'conf_registration','author'=>$user->ID,'posts_per_page'=>1,'post_status'=>array('pending','publish','draft','private')));
     if($existing){$reg=$existing[0];$status=$reg->post_status==='pending'?'در انتظار تأیید':($reg->post_status==='publish'?'تأیید شده':'نیازمند پیگیری');return '<div class="card confcore-form"><h2>وضعیت ثبت‌نام همایش</h2><p>وضعیت: <strong>'.esc_html($status).'</strong></p><p>نام: '.esc_html(get_post_meta($reg->ID,'_conf_reg_name',true)).'</p><p>سازمان: '.esc_html(get_post_meta($reg->ID,'_conf_reg_org',true)).'</p><p>شماره موبایل: '.esc_html($phone).'</p></div>';}
-    return '<div class="card confcore-form"><h2>ثبت‌نام در همایش</h2><p>این فرم فقط درخواست حضور را ثبت می‌کند؛ هیچ نوع ثبت‌نام پولی یا انتخاب نوع ثبت‌نامی وجود ندارد.</p><form method="post" action="'.esc_url(admin_url('admin-post.php')).'"><input type="hidden" name="action" value="confcore_event_registration">'.wp_nonce_field('confcore_event_registration','confcore_event_registration_nonce',true,false).'<label>نام و نام خانوادگی</label><input name="reg_name" maxlength="120" value="'.esc_attr($user->display_name).'" required><label>دانشگاه یا سازمان</label><input name="reg_org" maxlength="180"><label>شماره موبایل تأییدشده</label><input value="'.esc_attr($phone).'" readonly><button class="btn btn-primary" type="submit">ثبت درخواست حضور</button></form></div>';
+    return '<div class="card confcore-form"><p>این فرم فقط درخواست حضور را ثبت می‌کند؛ هیچ نوع ثبت‌نام پولی یا انتخاب نوع ثبت‌نامی وجود ندارد.</p><form method="post" action="'.esc_url(admin_url('admin-post.php')).'"><input type="hidden" name="action" value="confcore_event_registration">'.wp_nonce_field('confcore_event_registration','confcore_event_registration_nonce',true,false).'<label>نام و نام خانوادگی</label><input name="reg_name" maxlength="120" value="'.esc_attr($user->display_name).'" required><label>دانشگاه یا سازمان</label><input name="reg_org" maxlength="180"><label>شماره موبایل تأییدشده</label><input value="'.esc_attr($phone).'" readonly><button class="btn btn-primary" type="submit">ثبت درخواست حضور</button></form></div>';
   }
   public function save_event_registration(){
     if(!is_user_logged_in())wp_die('ابتدا وارد حساب کاربری شوید.',403);
@@ -483,6 +614,62 @@ final class Conference_Core {
     $reviewer=absint($_POST['confcore_assigned_reviewer']??0);
     if($reviewer){$user=get_user_by('id',$reviewer);if(!$user || !in_array('conference_reviewer',(array)$user->roles,true))$reviewer=0;}
     if($reviewer)update_post_meta($post_id,'_conf_assigned_reviewer',$reviewer);else delete_post_meta($post_id,'_conf_assigned_reviewer');
+  }
+  public function reviewer_dashboard_shortcode(){
+    if(!is_user_logged_in() || !current_user_can('review_conference_papers'))return '<div class="card"><p>این بخش فقط برای داوران و مدیران قابل دسترسی است.</p><a href="'.esc_url(home_url('/login/')).'">ورود به سامانه</a></div>';
+    $args=array('post_type'=>'conf_paper','post_status'=>'pending','posts_per_page'=>100);
+    if(!current_user_can('manage_conference') && !current_user_can('manage_options')){$args['meta_key']='_conf_assigned_reviewer';$args['meta_value']=get_current_user_id();}
+    $queue=get_posts($args);
+    $reviewed=get_posts(array('post_type'=>'conf_paper','post_status'=>array('publish','draft'),'posts_per_page'=>100,'meta_key'=>'_conf_reviewed_by','meta_value'=>get_current_user_id()));
+    ob_start(); ?>
+    <div class="admin-layout confcore-workspace"><aside class="admin-sidebar"><h3>پنل داوری</h3><nav class="admin-nav"><a href="<?php echo esc_url(home_url('/reviewer-dashboard/')); ?>">داشبورد داور</a><a href="<?php echo esc_url(home_url('/review-queue/')); ?>">صف داوری</a><a href="<?php echo esc_url(home_url('/my-reviews/')); ?>">تاریخچه داوری</a><a href="<?php echo esc_url(home_url('/dashboard/')); ?>">پنل کاربری</a><a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">خروج</a></nav></aside><section class="admin-main"><div class="admin-page-heading"><div><h1>پنل داوری مقالات</h1><p>فقط مقاله‌های تخصیص‌یافته به حساب شما در این بخش نمایش داده می‌شوند.</p></div></div><div class="stats-grid"><div class="stat-card"><div class="stat-card-info"><h3><?php echo esc_html(count($queue)); ?></h3><p>در صف داوری</p></div></div><div class="stat-card"><div class="stat-card-info"><h3><?php echo esc_html(count($reviewed)); ?></h3><p>داوری ثبت‌شده</p></div></div></div><?php echo do_shortcode('[conference_review_queue]'); ?></section></div>
+    <?php return ob_get_clean();
+  }
+  public function review_paper_shortcode(){
+    if(!is_user_logged_in() || !current_user_can('review_conference_papers'))return '<div class="card"><p>برای داوری مقاله باید با حساب داور وارد شوید.</p></div>';
+    $id=isset($_GET['paper_id'])?absint($_GET['paper_id']):(isset($_GET['paper'])?absint($_GET['paper']):0);
+    $paper=$id?get_post($id):false;
+    if(!$paper || $paper->post_type!=='conf_paper')return '<div class="card"><p>مقاله موردنظر پیدا نشد. از صف داوری یک مقاله را انتخاب کنید.</p><a href="'.esc_url(home_url('/review-queue/')).'">بازگشت به صف داوری</a></div>';
+    if(!current_user_can('manage_conference') && !current_user_can('manage_options') && (int)get_post_meta($id,'_conf_assigned_reviewer',true)!==get_current_user_id())return '<div class="card"><p>این مقاله به شما تخصیص داده نشده است.</p></div>';
+    $download=wp_nonce_url(admin_url('admin-post.php?action=confcore_download&paper='.$id),'confcore_download_'.$id);
+    ob_start(); ?>
+    <div class="card confcore-review-paper"><div class="admin-page-heading"><div><span class="admin-breadcrumb">داوری / مقاله #<?php echo esc_html($id); ?></span><h1><?php echo esc_html(get_the_title($paper)); ?></h1><p>وضعیت فعلی: <?php echo esc_html($paper->post_status==='pending'?'در انتظار داوری':$paper->post_status); ?></p></div></div><p><a class="btn btn-outline" href="<?php echo esc_url($download); ?>">دریافت امن فایل مقاله</a></p><div class="confcore-paper-details"><?php $abstract=get_post_meta($id,'_conf_paper_abstract',true);$keywords=get_post_meta($id,'_conf_paper_keywords',true);$track=get_post_meta($id,'_conf_paper_track',true);if($track): ?><p><strong>محور:</strong> <?php echo esc_html($track); ?></p><?php endif; ?><?php if($keywords): ?><p><strong>کلیدواژه‌ها:</strong> <?php echo esc_html($keywords); ?></p><?php endif; ?><?php if($abstract): ?><h2>چکیده</h2><p><?php echo nl2br(esc_html($abstract)); ?></p><?php endif; ?></div><?php $note=get_post_meta($id,'_conf_review_note',true);if($note): ?><div class="card"><strong>یادداشت قبلی:</strong><p><?php echo esc_html($note); ?></p></div><?php endif; ?><?php if($paper->post_status==='pending'): ?><label for="confcore-review-note">یادداشت داوری</label><textarea id="confcore-review-note" class="confcore-review-note" rows="5" maxlength="5000" placeholder="نکات اصلاحی یا توضیحات داوری"></textarea><p><button type="button" class="btn btn-primary" data-paper-decision="<?php echo esc_attr($id); ?>" data-decision="accept">پذیرش مقاله</button> <button type="button" class="btn btn-outline" data-paper-decision="<?php echo esc_attr($id); ?>" data-decision="reject">نیازمند اصلاح</button></p><?php else: ?><p>این مقاله قبلاً تعیین تکلیف شده است.</p><?php endif; ?><a href="<?php echo esc_url(home_url('/review-queue/')); ?>">بازگشت به صف داوری</a></div>
+    <?php return ob_get_clean();
+  }
+  public function admin_workspace_shortcode($atts){
+    if(!current_user_can('manage_conference') && !current_user_can('manage_options'))return '<div class="card"><p>شما اجازه دسترسی به مرکز مدیریت همایش را ندارید.</p><a href="'.esc_url(home_url('/login/')).'">ورود به سامانه</a></div>';
+    $atts=shortcode_atts(array('section'=>'dashboard'),$atts,'conference_admin_workspace');
+    $section=sanitize_key($atts['section']);
+    $sections=array('dashboard'=>'مرکز مدیریت','users'=>'کاربران','papers'=>'مقالات','registrations'=>'ثبت‌نام‌ها','reviews'=>'داوری‌ها','reviewers'=>'داوران','settings'=>'تنظیمات','sms'=>'تنظیمات پیامک','team'=>'تیم و کمیته‌ها','posts'=>'نوشته‌ها');
+    if(!isset($sections[$section]))$section='dashboard';
+    $counts=array('papers'=>wp_count_posts('conf_paper'),'registrations'=>wp_count_posts('conf_registration'),'speakers'=>wp_count_posts('conf_speaker'),'sessions'=>wp_count_posts('conf_session'));
+    $total=function($o){$n=0;foreach((array)$o as $v)$n+=(int)$v;return $n;};
+    $links=array('dashboard'=>'admin-dashboard','users'=>'admin-users','papers'=>'admin-papers','registrations'=>'admin-registrations','reviews'=>'admin-reviews','reviewers'=>'admin-reviewers','settings'=>'admin-settings','sms'=>'admin-sms','team'=>'admin-team','posts'=>'admin-posts');
+    ob_start(); ?>
+    <div class="admin-layout confcore-workspace"><aside class="admin-sidebar"><h3>مرکز مدیریت</h3><nav class="admin-nav"><?php foreach($sections as $key=>$label): ?><a class="<?php echo $section===$key?'is-active':''; ?>" href="<?php echo esc_url(home_url('/'.$links[$key].'/')); ?>"><?php echo esc_html($label); ?></a><?php endforeach; ?><a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">خروج</a></nav></aside><section class="admin-main"><div class="admin-page-heading"><div><div class="admin-breadcrumb">مدیریت همایش / <?php echo esc_html($sections[$section]); ?></div><h1><?php echo esc_html($sections[$section]); ?></h1><p>اطلاعات این صفحه مستقیماً از پایگاه داده وردپرس خوانده می‌شود.</p></div></div>
+    <?php if($section==='dashboard'): ?>
+      <div class="stats-grid"><?php foreach(array('papers'=>'مقالات','registrations'=>'ثبت‌نام‌ها','speakers'=>'سخنرانان','sessions'=>'جلسات') as $key=>$label): ?><div class="stat-card"><div class="stat-card-info"><h3><?php echo esc_html(number_format_i18n($total($counts[$key]))); ?></h3><p><?php echo esc_html($label); ?></p></div></div><?php endforeach; ?></div>
+      <div class="grid grid-2"><?php foreach(array('papers'=>'مدیریت مقالات','registrations'=>'ثبت‌نام شرکت‌کنندگان','users'=>'مدیریت کاربران','reviewers'=>'مدیریت داوران','reviews'=>'نتایج داوری','team'=>'تیم و کمیته‌ها','posts'=>'اخبار و نوشته‌ها','settings'=>'تنظیمات ظاهر و صفحات','sms'=>'تنظیمات پیامک') as $key=>$label): ?><a class="card" href="<?php echo esc_url(home_url('/'.$links[$key].'/')); ?>"><h3><?php echo esc_html($label); ?> ←</h3><p>مشاهده و مدیریت اطلاعات</p></a><?php endforeach; ?></div>
+    <?php elseif($section==='settings'): ?>
+      <?php if(current_user_can('edit_theme_options')): ?><div class="grid grid-2"><a class="card" href="<?php echo esc_url(admin_url('customize.php')); ?>"><h3>سفارشی‌سازی ظاهر</h3><p>اسلایدر، متن بخش‌ها، رنگ، آمار و اطلاعات همایش</p></a><a class="card" href="<?php echo esc_url(admin_url('nav-menus.php')); ?>"><h3>فهرست‌های سایت</h3><p>ویرایش منوی اصلی و فوتر</p></a><a class="card" href="<?php echo esc_url(admin_url('widgets.php')); ?>"><h3>ابزارک‌ها</h3><p>مدیریت ستون‌های فوتر و صفحه اصلی</p></a><a class="card" href="<?php echo esc_url(admin_url('edit.php?post_type=page')); ?>"><h3>برگه‌ها و مسیرها</h3><p>ویرایش محتوای صفحات و نامک‌ها</p></a></div><?php else: ?><div class="card"><p>تنظیمات ظاهر، فهرست‌ها و برگه‌ها فقط توسط مدیرکل وردپرس قابل تغییر است.</p></div><?php endif; ?>
+    <?php elseif($section==='sms'): ?>
+      <div class="card"><h2>درگاه پیامک</h2><p>کلید خصوصی و نام قالب‌های تأییدشده باید در بخش امن مدیریت تنظیم شوند.</p><?php if(current_user_can('manage_options')): ?><a class="btn btn-primary" href="<?php echo esc_url(admin_url('admin.php?page=confcore-settings')); ?>">باز کردن تنظیمات پیامک</a><?php else: ?><p>تغییر کلید و قالب پیامک فقط توسط مدیرکل وردپرس انجام می‌شود.</p><?php endif; ?></div>
+    <?php elseif($section==='users'): ?>
+      <?php $items=get_users(array('number'=>100,'orderby'=>'registered','order'=>'DESC')); ?><div class="card"><h2>کاربران سایت</h2><?php if(current_user_can('create_users')): ?><p><a class="btn btn-primary" href="<?php echo esc_url(admin_url('user-new.php')); ?>">افزودن کاربر / تعیین نقش</a></p><?php else: ?><p>نمایش کاربران برای مدیر همایش فعال است؛ تغییر نقش و ساخت کاربر فقط توسط مدیرکل وردپرس انجام می‌شود.</p><?php endif; ?><div class="table-wrapper"><table><thead><tr><th>کاربر</th><th>موبایل</th><th>نقش</th><th>مدیریت</th></tr></thead><tbody><?php foreach($items as $u): ?><tr><td><?php echo esc_html($u->display_name); ?></td><td><?php $user_phone=get_user_meta($u->ID,'conference_phone',true);echo esc_html(current_user_can('manage_options')?$user_phone:($user_phone?substr($user_phone,0,4).'•••••'.substr($user_phone,-2):'—')); ?></td><td><?php echo esc_html(implode(', ',(array)$u->roles)); ?></td><td><?php if(current_user_can('edit_users')): ?><a href="<?php echo esc_url(get_edit_user_link($u->ID)); ?>">ویرایش نقش و مشخصات</a><?php else: ?>فقط مدیرکل<?php endif; ?></td></tr><?php endforeach; ?></tbody></table></div></div>
+    <?php elseif($section==='papers'): ?>
+      <?php $items=get_posts(array('post_type'=>'conf_paper','post_status'=>array('pending','publish','draft','private'),'posts_per_page'=>100)); ?><div class="card"><h2>مقالات ارسالی</h2><div class="table-wrapper"><table><thead><tr><th>عنوان</th><th>نویسنده</th><th>وضعیت</th><th>داور</th><th>مدیریت</th></tr></thead><tbody><?php foreach($items as $p): $reviewer=get_user_by('id',(int)get_post_meta($p->ID,'_conf_assigned_reviewer',true)); ?><tr><td><?php echo esc_html($p->post_title); ?></td><td><?php echo esc_html(get_the_author_meta('display_name',$p->post_author)); ?></td><td><?php echo esc_html($p->post_status); ?></td><td><?php echo esc_html($reviewer?$reviewer->display_name:'تخصیص نیافته'); ?></td><td><a href="<?php echo esc_url(get_edit_post_link($p->ID)); ?>">تخصیص داور / ویرایش</a></td></tr><?php endforeach; ?></tbody></table></div></div>
+    <?php elseif($section==='registrations'): ?>
+      <?php $items=get_posts(array('post_type'=>'conf_registration','post_status'=>array('pending','publish','draft','private'),'posts_per_page'=>100)); ?><div class="card"><h2>درخواست‌های حضور</h2><div class="table-wrapper"><table><thead><tr><th>نام</th><th>موبایل</th><th>سازمان</th><th>وضعیت</th><th>مدیریت</th></tr></thead><tbody><?php foreach($items as $p): ?><tr><td><?php echo esc_html(get_post_meta($p->ID,'_conf_reg_name',true)); ?></td><td><?php $reg_phone=get_post_meta($p->ID,'_conf_reg_phone',true);echo esc_html(current_user_can('manage_options')?$reg_phone:($reg_phone?substr($reg_phone,0,4).'•••••'.substr($reg_phone,-2):'—')); ?></td><td><?php echo esc_html(get_post_meta($p->ID,'_conf_reg_org',true)); ?></td><td><?php echo esc_html($p->post_status); ?></td><td><a href="<?php echo esc_url(get_edit_post_link($p->ID)); ?>">مشاهده</a></td></tr><?php endforeach; ?></tbody></table></div></div>
+    <?php elseif($section==='reviewers'): ?>
+      <?php $items=get_users(array('role'=>'conference_reviewer','number'=>100));global $wpdb;$assignment_counts=$wpdb->get_results($wpdb->prepare("SELECT pm.meta_value,COUNT(*) AS total FROM {$wpdb->postmeta} pm INNER JOIN {$wpdb->posts} p ON p.ID=pm.post_id WHERE pm.meta_key=%s AND p.post_type=%s AND p.post_status NOT IN ('trash','auto-draft') GROUP BY pm.meta_value",'_conf_assigned_reviewer','conf_paper'),OBJECT_K); ?><div class="card"><h2>داوران</h2><?php if(current_user_can('create_users')): ?><p><a class="btn btn-primary" href="<?php echo esc_url(admin_url('user-new.php')); ?>">افزودن داور</a></p><?php endif; ?><div class="table-wrapper"><table><thead><tr><th>نام</th><th>موبایل</th><th>مقالات تخصیص‌یافته</th><th>مدیریت</th></tr></thead><tbody><?php foreach($items as $u): ?><tr><td><?php echo esc_html($u->display_name); ?></td><td><?php $reviewer_phone=get_user_meta($u->ID,'conference_phone',true);echo esc_html(current_user_can('manage_options')?$reviewer_phone:($reviewer_phone?substr($reviewer_phone,0,4).'•••••'.substr($reviewer_phone,-2):'—')); ?></td><td><?php echo esc_html(isset($assignment_counts[$u->ID])?(int)$assignment_counts[$u->ID]->total:0); ?></td><td><?php if(current_user_can('edit_users')): ?><a href="<?php echo esc_url(get_edit_user_link($u->ID)); ?>">ویرایش</a><?php else: ?>فقط مدیرکل<?php endif; ?></td></tr><?php endforeach; ?></tbody></table></div></div>
+    <?php elseif($section==='reviews'): ?>
+      <?php $items=get_posts(array('post_type'=>'conf_paper','post_status'=>array('publish','draft'),'posts_per_page'=>100,'meta_key'=>'_conf_reviewed_by','meta_compare'=>'EXISTS')); ?><div class="card"><h2>نتایج ثبت‌شده</h2><div class="table-wrapper"><table><thead><tr><th>مقاله</th><th>نتیجه</th><th>داور</th><th>یادداشت</th></tr></thead><tbody><?php foreach($items as $p): $u=get_user_by('id',(int)get_post_meta($p->ID,'_conf_reviewed_by',true)); ?><tr><td><?php echo esc_html($p->post_title); ?></td><td><?php echo esc_html($p->post_status==='publish'?'پذیرفته':'نیازمند اصلاح'); ?></td><td><?php echo esc_html($u?$u->display_name:'—'); ?></td><td><?php echo esc_html(get_post_meta($p->ID,'_conf_review_note',true)); ?></td></tr><?php endforeach; ?></tbody></table></div></div>
+    <?php elseif($section==='team'): ?>
+      <div class="grid grid-2"><?php foreach(array('conf_speaker'=>'سخنرانان','conf_session'=>'برنامه همایش','conf_committee'=>'تیم و کمیته‌ها') as $type=>$label): ?><a class="card" href="<?php echo esc_url(admin_url('edit.php?post_type='.$type)); ?>"><h3><?php echo esc_html($label); ?></h3><p>مدیریت محتوا و جزئیات</p></a><?php endforeach; ?></div>
+    <?php elseif($section==='posts'): ?>
+      <?php $items=get_posts(array('post_type'=>'post','post_status'=>array('publish','draft','pending'),'posts_per_page'=>100)); ?><div class="card"><h2>نوشته‌ها و اطلاعیه‌ها</h2><p><a class="btn btn-primary" href="<?php echo esc_url(admin_url('post-new.php')); ?>">افزودن نوشته</a></p><div class="table-wrapper"><table><thead><tr><th>عنوان</th><th>تاریخ</th><th>وضعیت</th><th>مدیریت</th></tr></thead><tbody><?php foreach($items as $p): ?><tr><td><?php echo esc_html($p->post_title); ?></td><td><?php echo esc_html(get_the_date('', $p)); ?></td><td><?php echo esc_html($p->post_status); ?></td><td><a href="<?php echo esc_url(get_edit_post_link($p->ID)); ?>">ویرایش</a></td></tr><?php endforeach; ?></tbody></table></div></div>
+    <?php endif; ?></section></div>
+    <?php return ob_get_clean();
   }
   public function admin_menu(){
     add_menu_page('سامانه همایش','سامانه همایش','manage_conference','confcore',array($this,'admin_page'),'dashicons-groups',26);
