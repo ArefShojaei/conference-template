@@ -99,6 +99,7 @@ function conf1405_private_page_robots($robots){
 add_filter('wp_robots','conf1405_private_page_robots');
 
 function conf1405_create_default_menu(){
+  if(get_option('conf1405_menu_seed_version')==='2')return;
   $locations=get_theme_mod('nav_menu_locations',array());
   $assigned=!empty($locations['primary'])?wp_get_nav_menu_object((int)$locations['primary']):false;
   if($assigned && $assigned->name!=='منوی اصلی همایش')return;
@@ -106,18 +107,21 @@ function conf1405_create_default_menu(){
   $menu_id=$menu?$menu->term_id:wp_create_nav_menu('منوی اصلی همایش');
   if(is_wp_error($menu_id))return;
   $slugs=array('about','speakers','team','schedule','papers','news','event-registration','author-guidelines','faq','contact');
+  $all_pages_exist=true;
   $items=wp_get_nav_menu_items($menu_id);
   $existing=array();
   foreach((array)$items as $item)$existing[(int)$item->object_id]=true;
   foreach($slugs as $slug){
     $page=get_page_by_path($slug);
-    if($page && empty($existing[(int)$page->ID])){
+    if(!$page){$all_pages_exist=false;continue;}
+    if(empty($existing[(int)$page->ID])){
       wp_update_nav_menu_item($menu_id,0,array('menu-item-title'=>$page->post_title,'menu-item-object'=>'page','menu-item-object-id'=>$page->ID,'menu-item-type'=>'post_type','menu-item-status'=>'publish'));
     }
   }
   $locations['primary']=$menu_id;
   if(empty($locations['footer']))$locations['footer']=$menu_id;
   set_theme_mod('nav_menu_locations',$locations);
+  if($all_pages_exist)update_option('conf1405_menu_seed_version','2');
 }
 function conf1405_seed_theme_defaults(){
   $defaults=array(
