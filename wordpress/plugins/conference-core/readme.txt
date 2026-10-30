@@ -5,7 +5,7 @@ Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv2 or later
 
-Core conference workflows for the Conference 1405 WordPress theme.
+The application layer for Conference 1405: mobile OTP authentication, roles and capabilities, secure paper workflows, reviewer assignments, attendee registrations, notifications, contact inbox, certificates and conference content types. Keep business logic here so it survives theme changes.
 
 == Features ==
 * Phone-number-only registration and login using one-time codes.
@@ -15,7 +15,7 @@ Core conference workflows for the Conference 1405 WordPress theme.
 * Owner/reviewer/admin-only paper downloads.
 * Paper submission receipts and reviewer/admin decisions can notify authors through configured SMS templates.
 * Reviewer decision endpoint with optional SMS result notification.
-* Dynamic speaker, schedule, team and news shortcodes; contact form messages are stored in the admin inbox with phone validation and IP rate limiting.
+* Editable session metadata (conference day, start/end time, room and speaker) rendered as a grouped chronological schedule; dynamic speaker, team and news shortcodes; contact form messages are stored in the admin inbox with phone validation and IP rate limiting.
 * No-payment attendee registration (no registration-type selector), managed from the WordPress admin and notified by SMS.
 * User profile, papers, review history, status notifications and certificate listing shortcodes.
 * Admin tools to seed demo speakers, sessions, committee members, posts and pages.
@@ -32,3 +32,9 @@ Use HTTPS. API keys must never be committed to the repository or exposed in brow
 
 == SMS ==
 VerifyLookup templates must be approved by Kavenegar. Configure an OTP template with the code token and a result template with token (decision) and token2 (paper ID). Real SMS delivery cannot be verified until a valid account/API key and templates are configured on the target host.
+
+== Theme and plugin responsibilities ==
+The Conference 1405 theme owns presentation: RTL layout, responsive styling, navigation, homepage slider, Customizer settings and template rendering. Conference Core owns application behavior and data workflows: OTP authentication, capabilities, submissions, review, registrations, SMS, contact messages, certificates and conference post types. Keeping these responsibilities separate means a future theme change does not remove submitted papers or authentication workflows.
+
+== Portable SQL demo content ==
+See `wordpress/demo-content/conference-demo.sql` and `wordpress/demo-content/SQL-IMPORT.md`. Replace the `wp_` table prefix with the destination site's actual WordPress table prefix before importing. Activate the plugin first so the conference post types are registered.
