@@ -23,6 +23,7 @@ final class Conference_Core {
     add_action('admin_head-profile.php',array($this,'hide_core_email_field'));
     add_filter('user_profile_update_errors',array($this,'allow_blank_profile_email'),10,3);
     add_action('admin_post_confcore_download',array($this,'download_paper'));
+    add_action('transition_post_status',array($this,'paper_status_notification'),10,3);
     add_action('admin_post_confcore_contact',array($this,'save_contact'));
     add_action('admin_post_nopriv_confcore_contact',array($this,'save_contact'));
     add_shortcode('conference_login',array($this,'login_shortcode'));
@@ -198,6 +199,9 @@ final class Conference_Core {
     $this->send_submission_sms($post_id);
     return rest_ensure_response(array('success'=>true,'message'=>'مقاله با موفقیت ثبت شد و در انتظار بررسی است.','paper_id'=>$post_id));
   }
+  public function paper_status_notification($new_status,$old_status,$post){
+    if($post instanceof WP_Post && $post->post_type==='conf_paper' && $old_status==='pending' && in_array($new_status,array('publish','draft'),true))$this->send_status_sms($post->ID,$new_status);
+  }
   public function paper_decision($request){
     $id=absint($request['id']); $decision=sanitize_key($request->get_param('decision')); $note=sanitize_textarea_field($request->get_param('note'));
     $post=get_post($id); if(!$post || $post->post_type!=='conf_paper' || $post->post_status!=='pending')return new WP_Error('paper_unavailable','این مقاله در صف بررسی نیست.',array('status'=>404));
@@ -206,7 +210,6 @@ final class Conference_Core {
     $updated=wp_update_post(array('ID'=>$id,'post_status'=>$status),true);
     if(is_wp_error($updated))return new WP_Error('decision_failed','ثبت نتیجه انجام نشد.',array('status'=>500));
     update_post_meta($id,'_conf_review_note',$note); update_post_meta($id,'_conf_reviewed_by',get_current_user_id());
-    $this->send_status_sms($id,$status);
     return rest_ensure_response(array('success'=>true,'message'=>$decision==='accept'?'مقاله پذیرفته شد.':'مقاله برای اصلاح بازگردانده شد.'));
   }
   public function download_paper(){
