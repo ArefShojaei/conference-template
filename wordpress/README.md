@@ -13,7 +13,7 @@ Paper upload accepts PDF, DOC and DOCX up to 20 MB and uses an authenticated dow
 ```php
 define('CONFERENCE_KAVENEGAR_API_KEY', 'PUT_YOUR_PRIVATE_API_KEY_HERE');
 ```
-سپس نام قالب‌های تأییدشده VerifyLookup را در تنظیمات افزونه وارد کن: قالب OTP، قالب رسید ارسال مقاله، قالب نتیجه داوری. قالب نتیجه از `token` برای وضعیت و `token2` برای شناسه مقاله استفاده می‌کند.
+سپس نام قالب‌های تأییدشده VerifyLookup را در تنظیمات افزونه وارد کن: قالب OTP، قالب رسید ارسال مقاله، قالب نتیجه داوری. قالب نتیجه از `token` برای وضعیت و `token2` برای شناسه مقاله استفاده می‌کند. قالب ثبت‌نام شرکت‌کننده نیز از `token` برای وضعیت و `token2` برای شناسه ثبت‌نام استفاده می‌کند.
 
 ## تنظیم وب‌سرور و کش
 برای Nginx داخل server block:
