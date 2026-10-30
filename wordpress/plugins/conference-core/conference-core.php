@@ -272,7 +272,7 @@ final class Conference_Core {
     if($mode==='register' && !$user){
       $display_name=trim($first_name.' '.$last_name); $user_id=wp_insert_user(array('user_login'=>$phone,'user_pass'=>wp_generate_password(48,true,true),'user_email'=>'','first_name'=>$first_name,'last_name'=>$last_name,'display_name'=>$display_name,'role'=>'conference_author'));
       if(is_wp_error($user_id))return new WP_Error('register_failed','ساخت حساب کاربری انجام نشد.',array('status'=>500));
-      update_user_meta($user_id,'conference_phone',$phone); $user=get_user_by('id',$user_id);
+      update_user_meta($user_id,'conference_phone',$phone);update_user_meta($user_id,'conference_terms_accepted_at',current_time('mysql',true));update_user_meta($user_id,'conference_terms_version','2026-10-30'); $user=get_user_by('id',$user_id);
     }
     if(!$user)return new WP_Error('account_missing','حساب کاربری پیدا نشد.',array('status'=>404));
     $wpdb->delete($table,array('phone'=>$phone),array('%s'));
