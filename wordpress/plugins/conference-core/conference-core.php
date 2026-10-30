@@ -20,6 +20,7 @@ final class Conference_Core {
     add_action('rest_api_init',array($this,'routes'));
     add_action('admin_menu',array($this,'admin_menu'));
     add_action('admin_init',array($this,'settings'));
+    add_action('admin_init',array($this,'ensure_default_pages'));
     add_action('add_meta_boxes',array($this,'contact_meta_box'));
     add_action('add_meta_boxes',array($this,'session_meta_box'));
     add_action('save_post_conf_session',array($this,'save_session_meta'));
@@ -74,6 +75,7 @@ final class Conference_Core {
     dbDelta("CREATE TABLE {$table} (phone varchar(20) NOT NULL, code_hash varchar(255) NOT NULL, expires_at datetime NOT NULL, attempts tinyint unsigned NOT NULL DEFAULT 0, created_at datetime NOT NULL, PRIMARY KEY  (phone), KEY expires_at (expires_at)) {$charset};");
     self::instance()->register_types();
     self::create_default_pages();
+    update_option('confcore_site_structure_version','2');
     flush_rewrite_rules();
   }
   public static function deactivate(){ flush_rewrite_rules(); }
@@ -128,6 +130,11 @@ final class Conference_Core {
     $posts=get_page_by_path('posts');
     if($home){update_option('show_on_front','page');update_option('page_on_front',(int)$home->ID);}
     if($posts)update_option('page_for_posts',(int)$posts->ID);
+  }
+  public function ensure_default_pages(){
+    if(get_option('confcore_site_structure_version')==='2')return;
+    self::create_default_pages();
+    update_option('confcore_site_structure_version','2');
   }
   public function ensure_role_caps(){
     $admin=get_role('administrator');
