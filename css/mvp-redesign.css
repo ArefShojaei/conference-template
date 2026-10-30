@@ -329,3 +329,9 @@ a:not(.btn):hover{color:#0f766e}
 .file-upload:hover{background:#eaf7f1!important}
 .progress-bar{background:linear-gradient(90deg,#0f766e,#34a38a)!important}
 :where(a,button,input,select,textarea,[tabindex]):focus-visible{outline-color:#34a38a!important}
+
+
+/* Override legacy inline navy hero bands and gold inline accents to match the shared green identity. */
+.section[style*="#0f172a"],.section[style*="#1e3a5f"]{background:linear-gradient(135deg,#123d38,#0f766e)!important}
+[style*="#e9b765"]{background-color:#65b99b!important}
+[style*="#e9b765"][style*="linear-gradient"]{background:linear-gradient(135deg,#d8f1e8,#65b99b)!important}
