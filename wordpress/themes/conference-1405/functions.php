@@ -1,6 +1,6 @@
 <?php
 if (!defined('ABSPATH')) exit;
-define('CONF1405_VERSION','1.2.0');
+define('CONF1405_VERSION','1.3.0');
 function conf1405_setup(){
  load_theme_textdomain('conference-1405',get_template_directory().'/languages');
  add_theme_support('title-tag'); add_theme_support('post-thumbnails');
@@ -74,7 +74,7 @@ function conf1405_customize($c){
   'cta_button'=>array('متن دکمه دعوت به اقدام','ثبت‌نام با شماره موبایل')
  );
  foreach($home_texts as $key=>$item){$mod='conf1405_'.$key;$c->add_setting($mod,array('default'=>$item[1],'sanitize_callback'=>'sanitize_text_field'));$c->add_control($mod,array('label'=>$item[0],'section'=>'conf1405_home_texts','type'=>'text'));}
- $c->add_section('conf1405_colors',array('title'=>'رنگ‌بندی قالب','priority'=>34));
+ $c->add_section('conf1405_colors',array('title'=>'رنگ‌بندی قالب','priority'=>35));
  $c->add_setting('conf1405_primary',array('default'=>'#123d38','sanitize_callback'=>'sanitize_hex_color'));
  $c->add_control(new WP_Customize_Color_Control($c,'conf1405_primary',array('label'=>'رنگ اصلی','section'=>'conf1405_colors')));
 }
