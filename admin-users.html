@@ -32,17 +32,17 @@
     </aside>
     <main class="main-content">
       <div class="page-header">
-        <div><div class="breadcrumb"><a href="admin-dashboard.html">مدیریت</a> / <span>کاربران</span></div><h1>مدیریت کاربران</h1></div>
-        <button class="btn btn-primary">+ کاربر جدید</button>
+        <div><div class="breadcrumb"><a href="admin-dashboard.html">مدیریت</a> / <span>کاربران</span></div><h1>مدیریت کاربران</h1><p class="text-muted">ثبت‌نام اولیه برای همه رایگان است؛ نقش و سطح دسترسی هر حساب را مدیر سامانه تعیین می‌کند.</p></div>
       </div>
+      <div class="alert alert-info mb-3"><span>ℹ️</span><div>کاربر پس از تأیید شماره موبایل ثبت‌نام می‌کند و تا زمان تعیین نقش توسط مدیر، دسترسی مدیریتی یا داوری ندارد. تخصیص نقش در نسخه عملیاتی از همین پنل و با کنترل دسترسی سمت سرور انجام می‌شود.</div></div>
       <div class="table-wrapper">
         <table>
           <thead><tr><th>نام</th><th>شماره موبایل</th><th>نقش</th><th>وضعیت</th><th>تاریخ عضویت</th><th>عملیات</th></tr></thead>
           <tbody>
-            <tr><td>علی رضایی</td><td>09123456781</td><td><span class="badge badge-primary">نویسنده</span></td><td><span class="badge badge-success">فعال</span></td><td>۸ مهر</td><td><button type="button" class="btn btn-sm btn-outline" disabled title="این عملیات در نسخه ایستا فعال نیست">ویرایش</button></td></tr>
-            <tr><td>دکتر کاظمی</td><td>09123456782</td><td><span class="badge badge-info">داور</span></td><td><span class="badge badge-success">فعال</span></td><td>۱ مهر</td><td><button type="button" class="btn btn-sm btn-outline" disabled title="این عملیات در نسخه ایستا فعال نیست">ویرایش</button></td></tr>
-            <tr><td>مریم احمدی</td><td>09123456783</td><td><span class="badge badge-primary">نویسنده</span></td><td><span class="badge badge-success">فعال</span></td><td>۱۲ مهر</td><td><button type="button" class="btn btn-sm btn-outline" disabled title="این عملیات در نسخه ایستا فعال نیست">ویرایش</button></td></tr>
-            <tr><td>سارا نوری</td><td>09123456784</td><td><span class="badge badge-gray">شرکت‌کننده</span></td><td><span class="badge badge-warning">معلق</span></td><td>۱۵ مهر</td><td><button type="button" class="btn btn-sm btn-outline" disabled title="این عملیات در نسخه ایستا فعال نیست">ویرایش</button></td></tr>
+            <tr><td>علی رضایی</td><td>09123456781</td><td><select class="form-control" aria-label="نقش علی رضایی"><option>شرکت‌کننده</option><option selected>نویسنده</option><option>داور</option><option>مدیر</option></select></td><td><select class="form-control" aria-label="وضعیت علی رضایی"><option selected>فعال</option><option>در انتظار تأیید</option><option>معلق</option></select></td><td>۸ مهر</td><td><button type="button" class="btn btn-sm btn-outline" disabled title="ذخیره‌سازی نقش پس از اتصال backend فعال می‌شود">ذخیره نقش</button></td></tr>
+            <tr><td>دکتر کاظمی</td><td>09123456782</td><td><select class="form-control" aria-label="نقش دکتر کاظمی"><option>شرکت‌کننده</option><option>نویسنده</option><option selected>داور</option><option>مدیر</option></select></td><td><select class="form-control" aria-label="وضعیت دکتر کاظمی"><option selected>فعال</option><option>در انتظار تأیید</option><option>معلق</option></select></td><td>۱ مهر</td><td><button type="button" class="btn btn-sm btn-outline" disabled title="ذخیره‌سازی نقش پس از اتصال backend فعال می‌شود">ذخیره نقش</button></td></tr>
+            <tr><td>مریم احمدی</td><td>09123456783</td><td><select class="form-control" aria-label="نقش مریم احمدی"><option>شرکت‌کننده</option><option selected>نویسنده</option><option>داور</option><option>مدیر</option></select></td><td><select class="form-control" aria-label="وضعیت مریم احمدی"><option selected>فعال</option><option>در انتظار تأیید</option><option>معلق</option></select></td><td>۱۲ مهر</td><td><button type="button" class="btn btn-sm btn-outline" disabled title="ذخیره‌سازی نقش پس از اتصال backend فعال می‌شود">ذخیره نقش</button></td></tr>
+            <tr><td>سارا نوری</td><td>09123456784</td><td><select class="form-control" aria-label="نقش سارا نوری"><option selected>شرکت‌کننده</option><option>نویسنده</option><option>داور</option><option>مدیر</option></select></td><td><select class="form-control" aria-label="وضعیت سارا نوری"><option>فعال</option><option>در انتظار تأیید</option><option selected>معلق</option></select></td><td>۱۵ مهر</td><td><button type="button" class="btn btn-sm btn-outline" disabled title="ذخیره‌سازی نقش پس از اتصال backend فعال می‌شود">ذخیره نقش</button></td></tr>
           </tbody>
         </table>
       </div>
