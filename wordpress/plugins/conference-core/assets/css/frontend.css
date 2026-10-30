@@ -1,1 +1,10 @@
 .confcore-form{max-width:680px;margin:30px auto;padding:28px}.confcore-form h2{margin-bottom:18px}.confcore-form label{display:block;font-weight:700;margin:14px 0 6px}.confcore-form input,.confcore-form textarea{width:100%;padding:12px;border:1px solid #d8e2dc;border-radius:9px;margin-bottom:12px;background:#fff}.confcore-form button{margin-top:10px}.confcore-message{margin-top:14px;min-height:24px;color:var(--mvp-forest,#123d38)}.confcore-otp-step[hidden]{display:none}.content-card{padding:28px}.content-card h1{margin-bottom:20px}.content-card img{margin:18px auto;border-radius:12px}.confcore-form input[type=file]{background:#f7faf8}.admin-panel button{margin:3px}@media(max-width:680px){.confcore-form{padding:18px;margin:18px 0}.admin-content-grid{display:block}.admin-panel{overflow-x:auto}}
+/* Structured schedule and content metadata */
+.confcore-schedule{display:grid;gap:28px}
+.confcore-schedule-day{margin:0}
+.confcore-schedule-day>h2{font-size:1.35rem;margin:0 0 16px;color:var(--primary,#123d38)}
+.confcore-session{height:100%;border-inline-start:4px solid var(--primary,#123d38)}
+.confcore-session-time{display:inline-block;margin-bottom:10px;padding:6px 10px;border-radius:8px;background:#edf5f1;color:#123d38;font-weight:700;direction:ltr}
+.confcore-session h3{margin:0 0 8px}
+.confcore-session p{margin:8px 0 0}
+.confcore-speaker-role{color:var(--primary,#123d38);font-weight:700;margin:4px 0 10px}
