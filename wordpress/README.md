@@ -7,3 +7,20 @@ Shortcodes: `[conference_login]`, `[conference_register]`, `[conference_dashboar
 Theme customizer controls the event details, three hero slide images/backgrounds, text, links and primary color. WordPress pages/posts and conference speakers/sessions are dynamic.
 
 Paper upload accepts PDF, DOC and DOCX up to 20 MB and uses an authenticated download endpoint. On Nginx, deny direct access to `wp-content/uploads/conference-private`; `.htaccess` only protects Apache. Use HTTPS and set PHP upload_max_filesize/post_max_size to at least 20M (24M recommended). Real SMS delivery requires your Kavenegar API key and an approved VerifyLookup template. No payment or email-based registration is included.
+
+## تنظیم امن کلید پیامک
+در فایل `wp-config.php` و قبل از خط پایان ویرایش، این مقدار را با کلید واقعی خودت جایگزین کن (کلید واقعی را در GitHub یا گفتگو ارسال نکن):
+```php
+define('CONFERENCE_KAVENEGAR_API_KEY', 'PUT_YOUR_PRIVATE_API_KEY_HERE');
+```
+سپس نام قالب‌های تأییدشده VerifyLookup را در تنظیمات افزونه وارد کن: قالب OTP، قالب رسید ارسال مقاله، قالب نتیجه داوری. قالب نتیجه از `token` برای وضعیت و `token2` برای شناسه مقاله استفاده می‌کند.
+
+## تنظیم وب‌سرور و کش
+برای Nginx داخل server block:
+```nginx
+location ^~ /wp-content/uploads/conference-private/ {
+    deny all;
+    return 403;
+}
+```
+در افزونه کش، صفحات ورود، ثبت‌نام، داشبورد و ارسال مقاله و مسیرهای REST با پیشوند `/wp-json/conference/v1/` را از page cache خارج کن. همچنین برای DOCX باید افزونه PHP یعنی ZipArchive فعال باشد.
