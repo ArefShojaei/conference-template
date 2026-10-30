@@ -17,12 +17,13 @@ Core conference workflows for the Conference 1405 WordPress theme.
 * Reviewer decision endpoint with optional SMS result notification.
 * Dynamic speaker, schedule, team and news shortcodes; contact form messages are stored in the admin inbox with phone validation and IP rate limiting.
 * No-payment attendee registration (no registration-type selector), managed from the WordPress admin and notified by SMS.
+* User profile, papers, review history, status notifications and certificate listing shortcodes.
 * Admin tools to seed demo speakers, sessions, committee members, posts and pages.
 
 == Setup ==
 1. Activate the plugin.
 2. Configure Kavenegar API key and approved OTP, submission-receipt, paper-result, attendee-registration and attendee-status templates under Conference → SMS settings.
-3. Create pages or use the pages generated on activation. Shortcodes: [conference_login], [conference_register], [conference_dashboard], [conference_submit_paper], [conference_papers], [conference_speakers], [conference_schedule], [conference_team], [conference_news], [conference_contact], [conference_event_registration].
+3. Create pages or use the pages generated on activation. Shortcodes: [conference_login], [conference_register], [conference_dashboard], [conference_submit_paper], [conference_papers], [conference_speakers], [conference_schedule], [conference_team], [conference_news], [conference_contact], [conference_event_registration], [conference_my_papers], [conference_review_queue], [conference_my_reviews], [conference_messages], [conference_profile], [conference_certificates].
 4. Assign roles from Users. New signups are authors; users cannot select their role.
 5. Run demo content import from Conference → Tools.
 
