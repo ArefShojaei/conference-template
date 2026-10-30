@@ -26,6 +26,10 @@ final class Conference_Core {
     add_action('admin_head-profile.php',array($this,'hide_core_email_field'));
     add_action('admin_head-user-new.php',array($this,'hide_core_email_field'));
     add_filter('manage_users_columns',array($this,'remove_email_user_column'));
+    add_action('show_user_profile',array($this,'admin_phone_profile_field'));
+    add_action('edit_user_profile',array($this,'admin_phone_profile_field'));
+    add_action('personal_options_update',array($this,'save_admin_phone_profile'));
+    add_action('edit_user_profile_update',array($this,'save_admin_phone_profile'));
     add_filter('user_profile_update_errors',array($this,'allow_blank_profile_email'),10,3);
     add_action('admin_post_confcore_download',array($this,'download_paper'));
     add_action('transition_post_status',array($this,'paper_status_notification'),10,3);
@@ -120,6 +124,27 @@ final class Conference_Core {
   public function hide_core_email_field(){ echo '<style>#email,.user-email-wrap,#email-description,label[for="email"]{display:none!important}</style><script>document.addEventListener("DOMContentLoaded",function(){var e=document.getElementById("email");if(e&&e.closest("tr"))e.closest("tr").style.display="none";});</script>'; }
   public function allow_blank_profile_email($errors,$update,$user){ if(isset($_POST['email']) && trim((string)wp_unslash($_POST['email']))==='')$errors->remove('empty_email'); }
 
+  private function find_user_by_phone($phone){
+    $user=$this->find_user_by_phone($phone);
+    if($user)return $user;
+    $ids=get_users(array('meta_key'=>'conference_phone','meta_value'=>$phone,'number'=>1,'fields'=>'ID'));
+    return !empty($ids)?get_user_by('id',(int)$ids[0]):false;
+  }
+  public function admin_phone_profile_field($user){
+    if(!current_user_can('manage_options'))return;
+    $phone=get_user_meta($user->ID,'conference_phone',true);
+    echo '<h2>ورود با شماره موبایل</h2><table class="form-table"><tr><th><label for="conference_phone_admin">شماره موبایل</label></th><td><input type="tel" id="conference_phone_admin" name="conference_phone_admin" value="'.esc_attr($phone).'" class="regular-text" placeholder="09123456789"><p class="description">برای ورود OTP مدیران و کاربران قدیمی؛ شماره باید یکتا باشد.</p>';
+    wp_nonce_field('confcore_admin_phone_'.$user->ID,'confcore_admin_phone_nonce');
+    echo '</td></tr></table>';
+  }
+  public function save_admin_phone_profile($user_id){
+    if(!current_user_can('manage_options') || !isset($_POST['confcore_admin_phone_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['confcore_admin_phone_nonce'])),'confcore_admin_phone_'.$user_id))return;
+    $phone=$this->normalize_phone(wp_unslash($_POST['conference_phone_admin']??''));
+    if(!$phone){delete_user_meta($user_id,'conference_phone');return;}
+    $existing=$this->find_user_by_phone($phone);
+    if($existing && (int)$existing->ID!==(int)$user_id)return;
+    update_user_meta($user_id,'conference_phone',$phone);
+  }
   private function normalize_phone($phone){
     $digits=array('۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9','٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9');
     $phone=strtr((string)$phone,$digits); $phone=preg_replace('/[^0-9+]/','',$phone);
