@@ -1,0 +1,29 @@
+name: WordPress package checks
+on:
+  pull_request:
+    paths:
+      - 'wordpress/**'
+      - '.github/workflows/wordpress-php-lint.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'wordpress/**'
+      - '.github/workflows/wordpress-php-lint.yml'
+concurrency:
+  group: wordpress-checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+      - name: PHP syntax checks
+        run: find wordpress -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: JavaScript syntax checks
+        run: |
+          node --check wordpress/themes/conference-1405/assets/js/main.js
+          node --check wordpress/plugins/conference-core/assets/js/frontend.js
