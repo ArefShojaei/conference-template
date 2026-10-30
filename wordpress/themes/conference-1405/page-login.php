@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) exit;
   <section class="auth-visual auth-visual-login">
     <a href="<?php echo esc_url(home_url('/')); ?>" class="auth-brand"><span class="auth-brand-mark">هـ</span><span><?php echo esc_html(get_theme_mod('conf1405_event_name','همایش')); ?><span class="auth-brand-light"> <?php echo esc_html(get_theme_mod('conf1405_event_date','۱۴۰۵')); ?></span></span></a>
     <div class="auth-visual-content">
-      <span class="auth-overline"><span></span><?php echo ورود ساده و امن; ?></span>
+      <span class="auth-overline"><span></span><?php echo 'ورود ساده و امن'; ?></span>
       <h1><?php echo "همراه شما<br><em>در مسیر دانش.</em>"; ?></h1>
       <p><?php echo "برای ورود به پنل کاربری، شماره تلفن همراه خود را وارد کنید. کد تأیید برای همان شماره ارسال خواهد شد."; ?></p>
       <?php if(false): ?>
