@@ -1,6 +1,6 @@
 <?php
 if (!defined('ABSPATH')) exit;
-define('CONF1405_VERSION','1.1.0');
+define('CONF1405_VERSION','1.2.0');
 function conf1405_setup(){
  load_theme_textdomain('conference-1405',get_template_directory().'/languages');
  add_theme_support('title-tag'); add_theme_support('post-thumbnails');
