@@ -98,13 +98,13 @@ final class Conference_Core {
   }
   public function ensure_role_caps(){
     $admin=get_role('administrator');
-    if($admin){$admin->add_cap('manage_conference');$admin->add_cap('review_conference_papers');}
+    if($admin){foreach(array('manage_conference','review_conference_papers') as $cap)if(!$admin->has_cap($cap))$admin->add_cap($cap);}
     $manager=get_role('conference_manager');
-    if($manager){foreach(array('read','edit_posts','edit_others_posts','read_private_posts','publish_posts','upload_files','manage_conference','review_conference_papers','list_users') as $cap)$manager->add_cap($cap);}
+    if($manager){foreach(array('read','edit_posts','edit_others_posts','read_private_posts','publish_posts','upload_files','manage_conference','review_conference_papers','list_users') as $cap)if(!$manager->has_cap($cap))$manager->add_cap($cap);}
     $author=get_role('conference_author');
-    if($author){$author->add_cap('submit_conference_papers');$author->add_cap('upload_files');}
+    if($author){foreach(array('submit_conference_papers','upload_files') as $cap)if(!$author->has_cap($cap))$author->add_cap($cap);}
     $reviewer=get_role('conference_reviewer');
-    if($reviewer)$reviewer->add_cap('review_conference_papers');
+    if($reviewer && !$reviewer->has_cap('review_conference_papers'))$reviewer->add_cap('review_conference_papers');
   }
   public function register_types(){
     register_post_type('conf_speaker',array('labels'=>array('name'=>'سخنرانان','singular_name'=>'سخنران'),'public'=>true,'has_archive'=>true,'menu_icon'=>'dashicons-microphone','supports'=>array('title','editor','excerpt','thumbnail'),'show_in_rest'=>true));
