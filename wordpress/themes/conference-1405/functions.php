@@ -60,9 +60,8 @@ add_filter('wp_robots','conf1405_private_page_robots');
 
 function conf1405_create_default_menu(){
   $locations=get_theme_mod('nav_menu_locations',array());
-  if(!empty($locations['primary']))return;
-  $menu=wp_get_nav_menu_object('منوی اصلی همایش');
-  $menu_id=$menu?$menu->term_id:wp_create_nav_menu('منوی اصلی همایش');
+  $menu_id=!empty($locations['primary'])?absint($locations['primary']):0;
+  if(!$menu_id){$menu=wp_get_nav_menu_object('منوی اصلی همایش');$menu_id=$menu?$menu->term_id:wp_create_nav_menu('منوی اصلی همایش');}
   if(is_wp_error($menu_id))return;
   $slugs=array('about','speakers','team','schedule','papers','news','event-registration','contact');
   foreach($slugs as $slug){
@@ -79,3 +78,4 @@ function conf1405_create_default_menu(){
   set_theme_mod('nav_menu_locations',$locations);
 }
 add_action('after_switch_theme','conf1405_create_default_menu');
+add_action('admin_init','conf1405_create_default_menu');
