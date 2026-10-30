@@ -88,8 +88,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const normalizeDigits = value => value
       .replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)))
       .replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
-      .replace(/[\\s-]/g, '');
-    const validIranMobile = value => /^(09[0-9]{9}|\\+989[0-9]{9}|00989[0-9]{9})$/.test(value);
+      .replace(/[\s-]/g, '');
+    const validIranMobile = value => /^(09[0-9]{9}|\+989[0-9]{9}|00989[0-9]{9})$/.test(value);
 
     requestButton.addEventListener('click', () => {
       phone.value = normalizeDigits(phone.value);
