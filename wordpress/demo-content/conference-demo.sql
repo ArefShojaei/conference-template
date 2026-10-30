@@ -537,40 +537,40 @@ CASE p.post_name WHEN 'about' THEN 1 WHEN 'speakers' THEN 2 WHEN 'team' THEN 3 W
 'nav_menu_item','',0
 FROM wp_posts p
 WHERE p.post_type='page' AND p.post_name IN ('about','speakers','team','schedule','papers','news','event-registration','author-guidelines','faq','contact')
-AND NOT EXISTS (SELECT 1 FROM wp_posts mi WHERE mi.post_type='nav_menu_item' AND mi.post_name=CONCAT('conference-page-menu-item-',p.ID));
+AND NOT EXISTS (SELECT 1 FROM wp_posts mi JOIN wp_postmeta m ON m.post_id=mi.ID AND m.meta_key='_menu_item_object_id' AND m.meta_value=CAST(p.ID AS CHAR) WHERE mi.post_type='nav_menu_item');
 
 INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
 SELECT mi.ID,'_menu_item_type','post_type' FROM wp_posts mi
-WHERE mi.post_type='nav_menu_item' AND mi.post_name LIKE 'conference-page-menu-item-%'
+WHERE mi.post_type='nav_menu_item' AND mi.post_name LIKE 'conference-page-conference-page-menu-item-%'
 AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=mi.ID AND m.meta_key='_menu_item_type');
 INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
 SELECT mi.ID,'_menu_item_object','page' FROM wp_posts mi
-WHERE mi.post_type='nav_menu_item' AND mi.post_name LIKE 'menu-item-%'
+WHERE mi.post_type='nav_menu_item' AND mi.post_name LIKE 'conference-page-menu-item-%'
 AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=mi.ID AND m.meta_key='_menu_item_object');
 INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
-SELECT mi.ID,'_menu_item_object_id',p.ID FROM wp_posts mi JOIN wp_posts p ON mi.post_name=CONCAT('menu-item-',p.ID)
+SELECT mi.ID,'_menu_item_object_id',p.ID FROM wp_posts mi JOIN wp_posts p ON mi.post_name=CONCAT('conference-page-menu-item-',p.ID)
 WHERE mi.post_type='nav_menu_item' AND p.post_type='page'
 AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=mi.ID AND m.meta_key='_menu_item_object_id');
 INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
 SELECT mi.ID,'_menu_item_menu_item_parent','0' FROM wp_posts mi
-WHERE mi.post_type='nav_menu_item' AND mi.post_name LIKE 'menu-item-%'
+WHERE mi.post_type='nav_menu_item' AND mi.post_name LIKE 'conference-page-menu-item-%'
 AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=mi.ID AND m.meta_key='_menu_item_menu_item_parent');
 INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
 SELECT mi.ID,'_menu_item_classes','a:1:{i:0;s:0:"";}' FROM wp_posts mi
-WHERE mi.post_type='nav_menu_item' AND mi.post_name LIKE 'menu-item-%'
+WHERE mi.post_type='nav_menu_item' AND mi.post_name LIKE 'conference-page-menu-item-%'
 AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=mi.ID AND m.meta_key='_menu_item_classes');
 INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
 SELECT mi.ID,'_menu_item_xfn','' FROM wp_posts mi
-WHERE mi.post_type='nav_menu_item' AND mi.post_name LIKE 'menu-item-%'
+WHERE mi.post_type='nav_menu_item' AND mi.post_name LIKE 'conference-page-menu-item-%'
 AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=mi.ID AND m.meta_key='_menu_item_xfn');
 INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
 SELECT mi.ID,'_menu_item_url','' FROM wp_posts mi
-WHERE mi.post_type='nav_menu_item' AND mi.post_name LIKE 'menu-item-%'
+WHERE mi.post_type='nav_menu_item' AND mi.post_name LIKE 'conference-page-menu-item-%'
 AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=mi.ID AND m.meta_key='_menu_item_url');
 
 INSERT INTO wp_term_relationships (object_id,term_taxonomy_id,term_order)
 SELECT mi.ID,@conf_menu_taxonomy_id,mi.menu_order FROM wp_posts mi
-WHERE mi.post_type='nav_menu_item' AND mi.post_name LIKE 'menu-item-%'
+WHERE mi.post_type='nav_menu_item' AND mi.post_name LIKE 'conference-page-menu-item-%'
 AND NOT EXISTS (SELECT 1 FROM wp_term_relationships tr WHERE tr.object_id=mi.ID AND tr.term_taxonomy_id=@conf_menu_taxonomy_id);
 UPDATE wp_term_taxonomy SET count=(SELECT COUNT(*) FROM wp_term_relationships WHERE term_taxonomy_id=@conf_menu_taxonomy_id) WHERE term_taxonomy_id=@conf_menu_taxonomy_id;
 
