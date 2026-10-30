@@ -258,7 +258,10 @@ final class Conference_Core {
     $is_manager=current_user_can('manage_conference') || current_user_can('manage_options');
     $is_assigned_reviewer=current_user_can('review_conference_papers') && (int)get_post_meta($id,'_conf_assigned_reviewer',true)===get_current_user_id();
     if(!$is_owner && !$is_manager && !$is_assigned_reviewer)wp_die('دسترسی غیرمجاز.',403);
-    $path=get_post_meta($id,'_conf_private_path',true); if(!$path || !is_file($path))wp_die('فایل موجود نیست.',404);
+    $path=get_post_meta($id,'_conf_private_path',true);
+    $private_base=realpath(wp_upload_dir()['basedir'].'/conference-private');$real_path=$path?realpath($path):false;
+    if(!$private_base || !$real_path || strpos($real_path,$private_base.DIRECTORY_SEPARATOR)!==0 || !is_file($real_path))wp_die('فایل موجود نیست.',404);
+    $path=$real_path;
     $ext=strtolower(pathinfo($path,PATHINFO_EXTENSION)); $mime=$ext==='pdf'?'application/pdf':($ext==='doc'?'application/msword':'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     nocache_headers(); header('X-Content-Type-Options: nosniff'); header('Content-Type: '.$mime); header('Content-Length: '.filesize($path)); header('Content-Disposition: attachment; filename="paper-'.$id.'.'.$ext.'"; filename*=UTF-8\'\''.rawurlencode(get_post_meta($id,'_conf_original_name',true))); readfile($path); exit;
   }
