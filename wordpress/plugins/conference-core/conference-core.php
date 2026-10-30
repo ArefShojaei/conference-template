@@ -381,7 +381,7 @@ final class Conference_Core {
   }
   private function form_script(){wp_enqueue_style('confcore-front');wp_enqueue_script('confcore-front');}
   private function auth_form($mode){
-    if(is_user_logged_in())return '<p>شما وارد شده‌اید. <a href="'.esc_url(home_url('/dashboard/')).'">رفتن به پنل</a></p>';
+    if(is_user_logged_in()){$target=current_user_can('manage_conference')||current_user_can('manage_options')?home_url('/admin-dashboard/'):(current_user_can('review_conference_papers')?home_url('/reviewer-dashboard/'):home_url('/dashboard/'));return '<p>شما وارد شده‌اید. <a href="'.esc_url($target).'">رفتن به پنل</a></p>';}
     $this->form_script(); ob_start(); ?>
     <div class="confcore-auth-content">
       <div class="auth-step"><?php echo $mode==='register'?'ثبت‌نام با شماره موبایل':'ورود با شماره همراه'; ?></div>
