@@ -30,11 +30,14 @@ final class Conference_Core {
     add_action('admin_head-profile.php',array($this,'hide_core_email_field'));
     add_action('admin_head-user-new.php',array($this,'hide_core_email_field'));
     add_filter('manage_users_columns',array($this,'remove_email_user_column'));
+    add_action('user_new_form',array($this,'admin_new_user_phone_field'));
+    add_action('user_register',array($this,'save_new_user_phone'));
     add_action('show_user_profile',array($this,'admin_phone_profile_field'));
     add_action('edit_user_profile',array($this,'admin_phone_profile_field'));
     add_action('personal_options_update',array($this,'save_admin_phone_profile'));
     add_action('edit_user_profile_update',array($this,'save_admin_phone_profile'));
     add_filter('user_profile_update_errors',array($this,'allow_blank_profile_email'),10,3);
+    add_filter('user_profile_update_errors',array($this,'validate_admin_new_user_phone'),20,3);
     add_action('admin_post_confcore_download',array($this,'download_paper'));
     add_action('transition_post_status',array($this,'paper_status_notification'),10,3);
     add_action('admin_post_confcore_contact',array($this,'save_contact'));
@@ -165,6 +168,28 @@ final class Conference_Core {
     if($user)return $user;
     $ids=get_users(array('meta_key'=>'conference_phone','meta_value'=>$phone,'number'=>1,'fields'=>'ID'));
     return !empty($ids)?get_user_by('id',(int)$ids[0]):false;
+  }
+  public function admin_new_user_phone_field($operation){
+    if(!current_user_can('manage_options'))return;
+    echo '<h2>ورود با شماره موبایل</h2><table class="form-table"><tr><th><label for="conference_phone_new">شماره موبایل</label></th><td><input type="tel" id="conference_phone_new" name="conference_phone_new" class="regular-text" placeholder="09123456789"><p class="description">برای حساب‌های نویسنده، داور و مدیر همایش الزامی است.</p>';
+    wp_nonce_field('confcore_new_user_phone','confcore_new_user_phone_nonce');
+    echo '</td></tr></table>';
+  }
+  public function validate_admin_new_user_phone($errors,$update,$user){
+    if($update || !current_user_can('manage_options'))return;
+    $role=isset($_POST['role'])?sanitize_key(wp_unslash($_POST['role'])):'';
+    if(!in_array($role,array('conference_author','conference_reviewer','conference_manager'),true))return;
+    $nonce=isset($_POST['confcore_new_user_phone_nonce'])?sanitize_text_field(wp_unslash($_POST['confcore_new_user_phone_nonce'])):'';
+    if(!$nonce || !wp_verify_nonce($nonce,'confcore_new_user_phone')){$errors->add('conference_phone_nonce','اعتبارسنجی فیلد شماره موبایل انجام نشد.');return;}
+    $phone=$this->normalize_phone(wp_unslash($_POST['conference_phone_new']??''));
+    if(!$phone){$errors->add('conference_phone_invalid','برای این نقش، شماره موبایل معتبر الزامی است.');return;}
+    $existing=$this->find_user_by_phone($phone);
+    if($existing)$errors->add('conference_phone_duplicate','این شماره موبایل قبلاً به حساب دیگری اختصاص یافته است.');
+  }
+  public function save_new_user_phone($user_id){
+    if(!current_user_can('manage_options') || !isset($_POST['confcore_new_user_phone_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['confcore_new_user_phone_nonce'])),'confcore_new_user_phone'))return;
+    $phone=$this->normalize_phone(wp_unslash($_POST['conference_phone_new']??''));
+    if($phone && !$this->find_user_by_phone($phone))update_user_meta($user_id,'conference_phone',$phone);
   }
   public function admin_phone_profile_field($user){
     if(!current_user_can('manage_options'))return;
