@@ -112,6 +112,17 @@ final class Conference_Core {
     if($status!==200 || empty($json['return']['status']) || (int)$json['return']['status']!==200)return new WP_Error('sms_failed','ارسال پیامک ناموفق بود؛ تنظیمات سرویس را بررسی کنید.',array('status'=>502));
     return true;
   }
+  private function send_submission_sms($post_id){
+    $post=get_post($post_id); if(!$post)return false;
+    $phone=get_user_meta($post->post_author,'conference_phone',true);
+    $api=defined('CONFERENCE_KAVENEGAR_API_KEY')?CONFERENCE_KAVENEGAR_API_KEY:get_option('confcore_kavenegar_key','');
+    $template=get_option('confcore_kavenegar_submission_template','');
+    if(!$phone || !$api || !$template)return false;
+    // Approved VerifyLookup template: token = submitted, token2 = paper ID.
+    $url='https://api.kavenegar.com/v1/'.rawurlencode($api).'/verify/lookup.json';
+    $response=wp_remote_post($url,array('timeout'=>15,'redirection'=>0,'body'=>array('receptor'=>$phone,'token'=>'ثبت شد','token2'=>(string)$post_id,'template'=>$template,'type'=>'sms')));
+    return !is_wp_error($response) && wp_remote_retrieve_response_code($response)===200;
+  }
   private function send_status_sms($post_id,$status){
     $post=get_post($post_id); if(!$post)return false;
     $phone=get_user_meta($post->post_author,'conference_phone',true);
@@ -163,6 +174,7 @@ final class Conference_Core {
     $post_id=wp_insert_post(array('post_type'=>'conf_paper','post_status'=>'pending','post_title'=>$title,'post_author'=>get_current_user_id()),true);
     if(is_wp_error($post_id)){@unlink($target);return new WP_Error('save_error','ثبت اطلاعات مقاله ناموفق بود.',array('status'=>500));}
     update_post_meta($post_id,'_conf_private_path',$target); update_post_meta($post_id,'_conf_original_name',$name); update_post_meta($post_id,'_conf_file_size',(int)$f['size']);
+    $this->send_submission_sms($post_id);
     return rest_ensure_response(array('success'=>true,'message'=>'مقاله با موفقیت ثبت شد و در انتظار بررسی است.','paper_id'=>$post_id));
   }
   public function paper_decision($request){
@@ -223,9 +235,10 @@ final class Conference_Core {
     register_setting('confcore_settings','confcore_kavenegar_template',array('sanitize_callback'=>'sanitize_text_field'));
     register_setting('confcore_settings','confcore_kavenegar_sender',array('sanitize_callback'=>'sanitize_text_field'));
     register_setting('confcore_settings','confcore_kavenegar_result_template',array('sanitize_callback'=>'sanitize_text_field'));
+    register_setting('confcore_settings','confcore_kavenegar_submission_template',array('sanitize_callback'=>'sanitize_text_field'));
   }
   public function admin_page(){if(!current_user_can('manage_conference'))return;echo '<div class="wrap"><h1>سامانه همایش</h1><p>از منوی مقالات ارسالی، کاربران وردپرس و انواع محتوای سخنرانان/برنامه، مدیریت سامانه را انجام دهید.</p><p>برای تخصیص نقش، به کاربران ← همه کاربران بروید و نقش نویسنده همایش، داور همایش یا مدیر همایش را انتخاب کنید.</p><p><a class="button button-primary" href="'.esc_url(admin_url('edit.php?post_type=conf_paper')).'">مدیریت مقالات</a></p></div>';}
-  public function settings_page(){if(!current_user_can('manage_options'))return; ?><div class="wrap"><h1>تنظیمات پیامک همایش</h1><p>از Kavenegar VerifyLookup استفاده کنید. API Key در مرورگر یا کد جاوااسکریپت قرار نمی‌گیرد.</p><form method="post" action="options.php"><?php settings_fields('confcore_settings'); ?><table class="form-table"><tr><th>API Key</th><td><input type="password" autocomplete="new-password" name="confcore_kavenegar_key" value="<?php echo esc_attr(defined('CONFERENCE_KAVENEGAR_API_KEY')?'':get_option('confcore_kavenegar_key','')); ?>" class="regular-text" <?php disabled(defined('CONFERENCE_KAVENEGAR_API_KEY')); ?>><p class="description"><?php echo defined('CONFERENCE_KAVENEGAR_API_KEY')?'کلید از wp-config.php خوانده می‌شود.':'کلید را از پنل کاوه‌نگار وارد کنید یا در wp-config.php ثابت CONFERENCE_KAVENEGAR_API_KEY تعریف کنید.'; ?></p></td></tr><tr><th>نام قالب VerifyLookup</th><td><input name="confcore_kavenegar_template" value="<?php echo esc_attr(get_option('confcore_kavenegar_template','')); ?>" class="regular-text"></td></tr><tr><th>شماره فرستنده (اختیاری)</th><td><input name="confcore_kavenegar_sender" value="<?php echo esc_attr(get_option('confcore_kavenegar_sender','')); ?>" class="regular-text"></td></tr><tr><th>قالب پیامک نتیجه داوری</th><td><input name="confcore_kavenegar_result_template" value="<?php echo esc_attr(get_option('confcore_kavenegar_result_template','')); ?>" class="regular-text"><p class="description">قالب جداگانه VerifyLookup؛ متغیر token وضعیت و token2 شناسه مقاله است.</p></td></tr></table><?php submit_button('ذخیره تنظیمات'); ?></form></div><?php }
+  public function settings_page(){if(!current_user_can('manage_options'))return; ?><div class="wrap"><h1>تنظیمات پیامک همایش</h1><p>از Kavenegar VerifyLookup استفاده کنید. API Key در مرورگر یا کد جاوااسکریپت قرار نمی‌گیرد.</p><form method="post" action="options.php"><?php settings_fields('confcore_settings'); ?><table class="form-table"><tr><th>API Key</th><td><input type="password" autocomplete="new-password" name="confcore_kavenegar_key" value="<?php echo esc_attr(defined('CONFERENCE_KAVENEGAR_API_KEY')?'':get_option('confcore_kavenegar_key','')); ?>" class="regular-text" <?php disabled(defined('CONFERENCE_KAVENEGAR_API_KEY')); ?>><p class="description"><?php echo defined('CONFERENCE_KAVENEGAR_API_KEY')?'کلید از wp-config.php خوانده می‌شود.':'کلید را از پنل کاوه‌نگار وارد کنید یا در wp-config.php ثابت CONFERENCE_KAVENEGAR_API_KEY تعریف کنید.'; ?></p></td></tr><tr><th>نام قالب VerifyLookup</th><td><input name="confcore_kavenegar_template" value="<?php echo esc_attr(get_option('confcore_kavenegar_template','')); ?>" class="regular-text"></td></tr><tr><th>شماره فرستنده (اختیاری)</th><td><input name="confcore_kavenegar_sender" value="<?php echo esc_attr(get_option('confcore_kavenegar_sender','')); ?>" class="regular-text"></td></tr><tr><th>قالب پیامک نتیجه داوری</th><td><input name="confcore_kavenegar_result_template" value="<?php echo esc_attr(get_option('confcore_kavenegar_result_template','')); ?>" class="regular-text"><p class="description">قالب جداگانه VerifyLookup؛ متغیر token وضعیت و token2 شناسه مقاله است.</p></td></tr><tr><th>قالب پیامک ثبت مقاله</th><td><input name="confcore_kavenegar_submission_template" value="<?php echo esc_attr(get_option('confcore_kavenegar_submission_template','')); ?>" class="regular-text"><p class="description">قالب VerifyLookup جداگانه؛ token متن «ثبت شد» و token2 شناسه مقاله است.</p></td></tr></table><?php submit_button('ذخیره تنظیمات'); ?></form></div><?php }
   public function tools_page(){
     if(!current_user_can('manage_options'))return;
     if(isset($_POST['confcore_seed']) && check_admin_referer('confcore_seed_demo')){$this->seed_demo();echo '<div class="notice notice-success"><p>محتوای نمونه ایجاد شد. اجرای دوباره، موارد تکراری را نادیده می‌گیرد.</p></div>';}
