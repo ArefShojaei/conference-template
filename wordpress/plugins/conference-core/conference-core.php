@@ -21,6 +21,7 @@ final class Conference_Core {
     add_action('admin_menu',array($this,'admin_menu'));
     add_action('admin_init',array($this,'settings'));
     add_action('add_meta_boxes',array($this,'contact_meta_box'));
+    add_action('save_post_conf_paper',array($this,'save_paper_assignment'));
     add_action('admin_head-user-edit.php',array($this,'hide_core_email_field'));
     add_action('admin_head-profile.php',array($this,'hide_core_email_field'));
     add_action('admin_head-user-new.php',array($this,'hide_core_email_field'));
@@ -242,6 +243,7 @@ final class Conference_Core {
   public function paper_decision($request){
     $id=absint($request['id']); $decision=sanitize_key($request->get_param('decision')); $note=sanitize_textarea_field($request->get_param('note'));
     $post=get_post($id); if(!$post || $post->post_type!=='conf_paper' || $post->post_status!=='pending')return new WP_Error('paper_unavailable','این مقاله در صف بررسی نیست.',array('status'=>404));
+    if(!current_user_can('manage_conference') && !current_user_can('manage_options') && (int)get_post_meta($id,'_conf_assigned_reviewer',true)!==get_current_user_id())return new WP_Error('not_assigned','این مقاله به شما تخصیص داده نشده است.',array('status'=>403));
     if(!in_array($decision,array('accept','reject'),true))return new WP_Error('invalid_decision','تصمیم معتبر نیست.',array('status'=>400));
     $status=$decision==='accept'?'publish':'draft';
     $updated=wp_update_post(array('ID'=>$id,'post_status'=>$status),true);
@@ -252,7 +254,10 @@ final class Conference_Core {
   public function download_paper(){
     $id=isset($_GET['paper'])?absint($_GET['paper']):0; if(!$id || !wp_verify_nonce(isset($_GET['_wpnonce'])?sanitize_text_field(wp_unslash($_GET['_wpnonce'])):'','confcore_download_'.$id))wp_die('درخواست نامعتبر است.',403);
     $post=get_post($id); if(!$post || $post->post_type!=='conf_paper')wp_die('مقاله پیدا نشد.',404);
-    if((int)$post->post_author!==get_current_user_id() && !current_user_can('review_conference_papers') && !current_user_can('manage_options'))wp_die('دسترسی غیرمجاز.',403);
+    $is_owner=(int)$post->post_author===get_current_user_id();
+    $is_manager=current_user_can('manage_conference') || current_user_can('manage_options');
+    $is_assigned_reviewer=current_user_can('review_conference_papers') && (int)get_post_meta($id,'_conf_assigned_reviewer',true)===get_current_user_id();
+    if(!$is_owner && !$is_manager && !$is_assigned_reviewer)wp_die('دسترسی غیرمجاز.',403);
     $path=get_post_meta($id,'_conf_private_path',true); if(!$path || !is_file($path))wp_die('فایل موجود نیست.',404);
     $ext=strtolower(pathinfo($path,PATHINFO_EXTENSION)); $mime=$ext==='pdf'?'application/pdf':($ext==='doc'?'application/msword':'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     nocache_headers(); header('X-Content-Type-Options: nosniff'); header('Content-Type: '.$mime); header('Content-Length: '.filesize($path)); header('Content-Disposition: attachment; filename="paper-'.$id.'.'.$ext.'"; filename*=UTF-8\'\''.rawurlencode(get_post_meta($id,'_conf_original_name',true))); readfile($path); exit;
@@ -280,7 +285,7 @@ final class Conference_Core {
     if(!is_user_logged_in())return '<p>برای مشاهده پنل ابتدا <a href="'.esc_url(home_url('/login/')).'">وارد شوید</a>.</p>';
     $this->form_script();
     $u=wp_get_current_user(); $papers=get_posts(array('post_type'=>'conf_paper','author'=>$u->ID,'posts_per_page'=>50,'post_status'=>array('pending','publish','draft','private')));
-    ob_start(); ?><div class="admin-layout"><aside class="admin-sidebar"><h3>پنل کاربری</h3><nav class="admin-nav"><a href="<?php echo esc_url(home_url('/dashboard/')); ?>">داشبورد</a><a href="<?php echo esc_url(home_url('/my-papers/')); ?>">مقالات من</a><a href="<?php echo esc_url(home_url('/submit-paper/')); ?>">ارسال مقاله</a><a href="<?php echo esc_url(home_url('/my-registration/')); ?>">ثبت‌نام من</a><a href="<?php echo esc_url(home_url('/certificates/')); ?>">گواهی‌ها</a><a href="<?php echo esc_url(home_url('/messages/')); ?>">پیام‌ها</a><a href="<?php echo esc_url(home_url('/profile/')); ?>">پروفایل</a><?php if(current_user_can('review_conference_papers')): ?><a href="<?php echo esc_url(home_url('/review-queue/')); ?>">صف داوری</a><a href="<?php echo esc_url(home_url('/my-reviews/')); ?>">داوری‌های من</a><?php endif; ?><a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">خروج</a></nav></aside><section class="admin-main"><header class="admin-page-header"><h1>سلام، <?php echo esc_html($u->display_name); ?></h1><p>وضعیت مقالات و فعالیت‌های حساب کاربری شما</p></header><div class="admin-content-grid"><div class="admin-panel"><h2>مقالات من</h2><?php if($papers): ?><div class="table-wrapper"><table><thead><tr><th>عنوان</th><th>وضعیت</th><th>نظر داور</th><th>فایل</th></tr></thead><tbody><?php foreach($papers as $p): ?><tr><td><?php echo esc_html($p->post_title); ?></td><td><?php echo esc_html($p->post_status==='pending'?'در انتظار بررسی':($p->post_status==='publish'?'پذیرفته/منتشرشده':($p->post_status==='draft'?'نیازمند اصلاح':$p->post_status))); ?></td><td><?php echo esc_html(get_post_meta($p->ID,'_conf_review_note',true)); ?></td><td><a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=confcore_download&paper='.$p->ID),'confcore_download_'.$p->ID)); ?>">دریافت فایل</a></td></tr><?php endforeach; ?></tbody></table></div><?php else: ?><p>هنوز مقاله‌ای ارسال نکرده‌اید.</p><?php endif; ?><a class="btn btn-primary" href="<?php echo esc_url(home_url('/submit-paper/')); ?>">ارسال مقاله جدید</a></div><?php if(current_user_can('review_conference_papers')): $queue=get_posts(array('post_type'=>'conf_paper','post_status'=>'pending','posts_per_page'=>50)); ?><div class="admin-panel"><h2>صف داوری مقالات</h2><?php if($queue): ?><div class="table-wrapper"><table><thead><tr><th>عنوان مقاله</th><th>شناسه</th><th>فایل</th></tr></thead><tbody><?php foreach($queue as $item): ?><tr><td><?php echo esc_html($item->post_title); ?></td><td><?php echo esc_html($item->ID); ?></td><td><a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=confcore_download&paper='.$item->ID),'confcore_download_'.$item->ID)); ?>">دریافت فایل</a> <button type="button" class="button" data-paper-decision="<?php echo esc_attr($item->ID); ?>" data-decision="accept">پذیرش</button> <button type="button" class="button" data-paper-decision="<?php echo esc_attr($item->ID); ?>" data-decision="reject">بازگشت برای اصلاح</button></td></tr><?php endforeach; ?></tbody></table></div><?php else: ?><p>مقاله‌ای در صف داوری نیست.</p><?php endif; ?></div><?php endif; ?></div></section></div><?php return ob_get_clean();
+    ob_start(); ?><div class="admin-layout"><aside class="admin-sidebar"><h3>پنل کاربری</h3><nav class="admin-nav"><a href="<?php echo esc_url(home_url('/dashboard/')); ?>">داشبورد</a><a href="<?php echo esc_url(home_url('/my-papers/')); ?>">مقالات من</a><a href="<?php echo esc_url(home_url('/submit-paper/')); ?>">ارسال مقاله</a><a href="<?php echo esc_url(home_url('/my-registration/')); ?>">ثبت‌نام من</a><a href="<?php echo esc_url(home_url('/certificates/')); ?>">گواهی‌ها</a><a href="<?php echo esc_url(home_url('/messages/')); ?>">پیام‌ها</a><a href="<?php echo esc_url(home_url('/profile/')); ?>">پروفایل</a><?php if(current_user_can('review_conference_papers')): ?><a href="<?php echo esc_url(home_url('/review-queue/')); ?>">صف داوری</a><a href="<?php echo esc_url(home_url('/my-reviews/')); ?>">داوری‌های من</a><?php endif; ?><a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">خروج</a></nav></aside><section class="admin-main"><header class="admin-page-header"><h1>سلام، <?php echo esc_html($u->display_name); ?></h1><p>وضعیت مقالات و فعالیت‌های حساب کاربری شما</p></header><div class="admin-content-grid"><div class="admin-panel"><h2>مقالات من</h2><?php if($papers): ?><div class="table-wrapper"><table><thead><tr><th>عنوان</th><th>وضعیت</th><th>نظر داور</th><th>فایل</th></tr></thead><tbody><?php foreach($papers as $p): ?><tr><td><?php echo esc_html($p->post_title); ?></td><td><?php echo esc_html($p->post_status==='pending'?'در انتظار بررسی':($p->post_status==='publish'?'پذیرفته/منتشرشده':($p->post_status==='draft'?'نیازمند اصلاح':$p->post_status))); ?></td><td><?php echo esc_html(get_post_meta($p->ID,'_conf_review_note',true)); ?></td><td><a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=confcore_download&paper='.$p->ID),'confcore_download_'.$p->ID)); ?>">دریافت فایل</a></td></tr><?php endforeach; ?></tbody></table></div><?php else: ?><p>هنوز مقاله‌ای ارسال نکرده‌اید.</p><?php endif; ?><a class="btn btn-primary" href="<?php echo esc_url(home_url('/submit-paper/')); ?>">ارسال مقاله جدید</a></div><?php if(current_user_can('review_conference_papers')): $queue_args=array('post_type'=>'conf_paper','post_status'=>'pending','posts_per_page'=>50);if(!current_user_can('manage_conference') && !current_user_can('manage_options')){$queue_args['meta_key']='_conf_assigned_reviewer';$queue_args['meta_value']=get_current_user_id();}$queue=get_posts($queue_args); ?><div class="admin-panel"><h2>صف داوری مقالات</h2><?php if($queue): ?><div class="table-wrapper"><table><thead><tr><th>عنوان مقاله</th><th>شناسه</th><th>فایل</th></tr></thead><tbody><?php foreach($queue as $item): ?><tr><td><?php echo esc_html($item->post_title); ?></td><td><?php echo esc_html($item->ID); ?></td><td><a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=confcore_download&paper='.$item->ID),'confcore_download_'.$item->ID)); ?>">دریافت فایل</a> <button type="button" class="button" data-paper-decision="<?php echo esc_attr($item->ID); ?>" data-decision="accept">پذیرش</button> <button type="button" class="button" data-paper-decision="<?php echo esc_attr($item->ID); ?>" data-decision="reject">بازگشت برای اصلاح</button></td></tr><?php endforeach; ?></tbody></table></div><?php else: ?><p>مقاله‌ای در صف داوری نیست.</p><?php endif; ?></div><?php endif; ?></div></section></div><?php return ob_get_clean();
   }
   public function my_papers_shortcode(){
     if(!is_user_logged_in())return '<p>برای مشاهده مقالات وارد شوید.</p>';
@@ -292,7 +297,9 @@ final class Conference_Core {
   }
   public function review_queue_shortcode(){
     if(!is_user_logged_in() || !current_user_can('review_conference_papers'))return '<p>این بخش فقط برای داوران و مدیران قابل دسترسی است.</p>';
-    $items=get_posts(array('post_type'=>'conf_paper','post_status'=>'pending','posts_per_page'=>50));
+    $queue_args=array('post_type'=>'conf_paper','post_status'=>'pending','posts_per_page'=>50);
+    if(!current_user_can('manage_conference') && !current_user_can('manage_options')){$queue_args['meta_key']='_conf_assigned_reviewer';$queue_args['meta_value']=get_current_user_id();}
+    $items=get_posts($queue_args);
     if(!$items)return '<p>مقاله‌ای در صف داوری نیست.</p>';
     $this->form_script();ob_start();echo '<div class="table-wrapper"><table><thead><tr><th>عنوان مقاله</th><th>شناسه</th><th>فایل و تصمیم</th></tr></thead><tbody>';
     foreach($items as $p){echo '<tr><td>'.esc_html($p->post_title).'</td><td>'.esc_html($p->ID).'</td><td><a href="'.esc_url(wp_nonce_url(admin_url('admin-post.php?action=confcore_download&paper='.$p->ID),'confcore_download_'.$p->ID)).'">دریافت فایل</a> <button type="button" data-paper-decision="'.esc_attr($p->ID).'" data-decision="accept">پذیرش</button> <button type="button" data-paper-decision="'.esc_attr($p->ID).'" data-decision="reject">بازگشت برای اصلاح</button></td></tr>';}
@@ -403,11 +410,27 @@ final class Conference_Core {
       echo '<p>شماره موبایل: <strong>'.esc_html(get_post_meta($post->ID,'_conf_contact_phone',true)).'</strong></p>';
       echo '<p>نام: '.esc_html(get_post_meta($post->ID,'_conf_contact_name',true)).'</p>';
     },'conf_message','side','high');
+    add_meta_box('confcore_paper_assignment','تخصیص داور مقاله',function($post){
+      wp_nonce_field('confcore_assign_reviewer','confcore_reviewer_nonce');
+      $assigned=(int)get_post_meta($post->ID,'_conf_assigned_reviewer',true);
+      $reviewers=get_users(array('role'=>'conference_reviewer','fields'=>array('ID','display_name')));
+      echo '<p><label for="confcore_assigned_reviewer">داور مسئول</label><select id="confcore_assigned_reviewer" name="confcore_assigned_reviewer" style="width:100%"><option value="0">بدون تخصیص</option>';
+      foreach($reviewers as $reviewer)echo '<option value="'.esc_attr($reviewer->ID).'" '.selected($assigned,$reviewer->ID,false).'>'.esc_html($reviewer->display_name).'</option>';
+      echo '</select></p>';
+    },'conf_paper','side','high');
     add_meta_box('confcore_registration_details','اطلاعات ثبت‌نام',function($post){
       echo '<p>نام: '.esc_html(get_post_meta($post->ID,'_conf_reg_name',true)).'</p>';
       echo '<p>شماره موبایل: '.esc_html(get_post_meta($post->ID,'_conf_reg_phone',true)).'</p>';
       echo '<p>دانشگاه/سازمان: '.esc_html(get_post_meta($post->ID,'_conf_reg_org',true)).'</p>';
     },'conf_registration','side','high');
+  }
+  public function save_paper_assignment($post_id){
+    if(defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)return;
+    if(wp_is_post_revision($post_id) || !current_user_can('edit_post',$post_id))return;
+    if(!isset($_POST['confcore_reviewer_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['confcore_reviewer_nonce'])),'confcore_assign_reviewer'))return;
+    $reviewer=absint($_POST['confcore_assigned_reviewer']??0);
+    if($reviewer){$user=get_user_by('id',$reviewer);if(!$user || !in_array('conference_reviewer',(array)$user->roles,true))$reviewer=0;}
+    if($reviewer)update_post_meta($post_id,'_conf_assigned_reviewer',$reviewer);else delete_post_meta($post_id,'_conf_assigned_reviewer');
   }
   public function admin_menu(){
     add_menu_page('سامانه همایش','سامانه همایش','manage_conference','confcore',array($this,'admin_page'),'dashicons-groups',26);
