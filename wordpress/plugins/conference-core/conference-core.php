@@ -273,6 +273,8 @@ final class Conference_Core {
   }
   public function save_contact(){
     if(!isset($_POST['confcore_contact_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['confcore_contact_nonce'])),'confcore_contact'))wp_die('درخواست نامعتبر است.',403);
+    $ip=isset($_SERVER['REMOTE_ADDR'])?sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])):'unknown';
+    if($this->rate_limited('conf_contact_ip_'.md5($ip),5,3600))wp_die('تعداد پیام‌های مجاز در بازه زمانی به پایان رسیده است.',429);
     $name=sanitize_text_field(wp_unslash($_POST['contact_name']??''));$phone=$this->normalize_phone(wp_unslash($_POST['contact_phone']??''));$subject=sanitize_text_field(wp_unslash($_POST['contact_subject']??''));$message=sanitize_textarea_field(wp_unslash($_POST['contact_message']??''));
     if(!$name || !$phone || !$subject || !$message)wp_die('لطفاً همه فیلدها را صحیح تکمیل کنید.',400);
     $id=wp_insert_post(array('post_type'=>'conf_message','post_status'=>'private','post_title'=>$subject.' - '.$name,'post_content'=>$message,'post_author'=>get_current_user_id()),true);
@@ -304,7 +306,9 @@ final class Conference_Core {
       array('conf_speaker','دکتر نمونه محمدی','پژوهشگر هوش مصنوعی و یادگیری ماشین.'),
       array('conf_speaker','دکتر نمونه کریمی','متخصص داده‌کاوی و فناوری‌های سلامت.'),
       array('conf_session','افتتاحیه و سخنرانی کلیدی','آغاز همایش و معرفی محورهای علمی.'),
-      array('conf_session','کارگاه پژوهش و نوآوری','کارگاه آموزشی ویژه پژوهشگران.')
+      array('conf_session','کارگاه پژوهش و نوآوری','کارگاه آموزشی ویژه پژوهشگران.'),
+      array('conf_committee','دبیر علمی همایش','مسئولیت برنامه‌ریزی علمی و ارزیابی مقالات.'),
+      array('conf_committee','کمیته اجرایی','هماهنگی اجرایی، ثبت‌نام و پشتیبانی شرکت‌کنندگان.')
     );
     foreach($items as $item){$exists=get_page_by_title($item[1],OBJECT,$item[0]);if(!$exists)wp_insert_post(array('post_type'=>$item[0],'post_status'=>'publish','post_title'=>$item[1],'post_content'=>$item[2],'post_excerpt'=>$item[2]));}
     if(!get_page_by_title('اطلاعیه نمونه همایش'))wp_insert_post(array('post_type'=>'post','post_status'=>'publish','post_title'=>'اطلاعیه نمونه همایش','post_content'=>'این یک نوشته آزمایشی برای نمایش امکانات مدیریت نوشته‌هاست.'));
