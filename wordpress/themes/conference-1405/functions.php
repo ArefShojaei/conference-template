@@ -108,3 +108,15 @@ function conf1405_resource_hints($urls,$relation_type){
  return $urls;
 }
 add_filter('wp_resource_hints','conf1405_resource_hints',10,2);
+
+
+// Additional editable homepage metrics and footer contact details.
+function conf1405_extended_customize($c){
+ $c->add_section('conf1405_metrics',array('title'=>'آمار صفحه اصلی','priority'=>35));
+ $defaults=array(1=>array('03','روز تجربه و یادگیری'),2=>array('۱۲+','کارگاه تخصصی'),3=>array('۴۵+','سخنران و متخصص'),4=>array('۱۲۰۰+','شرکت‌کننده'));
+ foreach($defaults as $i=>$pair){foreach(array('value'=>$pair[0],'label'=>$pair[1]) as $key=>$value){$id="conf1405_metric{$i}_{$key}";$c->add_setting($id,array('default'=>$value,'sanitize_callback'=>'sanitize_text_field'));$c->add_control($id,array('label'=>"شاخص {$i} - ".($key==='value'?'عدد':'عنوان'),'section'=>'conf1405_metrics','type'=>'text'));}}
+ $c->add_section('conf1405_contact',array('title'=>'اطلاعات تماس و شبکه‌های اجتماعی','priority'=>36));
+ $contact=array('phone'=>array('تلفن تماس','۰۲۱-۱۲۳۴۵۶۷۸'),'email'=>array('ایمیل عمومی','info@example.com'),'address'=>array('نشانی','تهران، مرکز همایش‌های بین‌المللی'),'instagram'=>array('پیوند اینستاگرام',''),'telegram'=>array('پیوند تلگرام',''));
+ foreach($contact as $key=>$pair){$id='conf1405_'.$key;$c->add_setting($id,array('default'=>$pair[1],'sanitize_callback'=>in_array($key,array('instagram','telegram'),true)?'esc_url_raw':'sanitize_text_field'));$c->add_control($id,array('label'=>$pair[0],'section'=>'conf1405_contact','type'=>'text'));}
+}
+add_action('customize_register','conf1405_extended_customize');
