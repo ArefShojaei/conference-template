@@ -18,7 +18,7 @@ Core conference workflows for the Conference 1405 WordPress theme.
 
 == Setup ==
 1. Activate the plugin.
-2. Configure Kavenegar API key and the approved OTP/result templates under Conference → SMS settings.
+2. Configure Kavenegar API key and approved OTP, submission-receipt and result templates under Conference → SMS settings.
 3. Create pages or use the pages generated on activation. Shortcodes: [conference_login], [conference_register], [conference_dashboard], [conference_submit_paper], [conference_papers].
 4. Assign roles from Users. New signups are authors; users cannot select their role.
 5. Run demo content import from Conference → Tools.
