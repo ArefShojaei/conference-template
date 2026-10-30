@@ -147,6 +147,7 @@ final class Conference_Core {
     if($this->rate_limited('conf_otp_phone_'.md5($phone),3,900) || $this->rate_limited('conf_otp_ip_'.md5($ip),12,900))return new WP_Error('rate_limit','تعداد درخواست‌ها زیاد است. کمی بعد تلاش کنید.',array('status'=>429));
     $code=(string)random_int(100000,999999); $hash=hash_hmac('sha256',$code,wp_salt('auth'));
     global $wpdb; $table=$wpdb->prefix.'confcore_otp';
+    $wpdb->query("DELETE FROM {$table} WHERE expires_at < UTC_TIMESTAMP()");
     $wpdb->replace($table,array('phone'=>$phone,'code_hash'=>$hash,'expires_at'=>gmdate('Y-m-d H:i:s',time()+300),'attempts'=>0,'created_at'=>current_time('mysql',true)),array('%s','%s','%s','%d','%s'));
     $sent=$this->send_verification_sms($phone,$code);
     if(is_wp_error($sent)){ $wpdb->delete($table,array('phone'=>$phone),array('%s')); return $sent; }
