@@ -373,12 +373,12 @@ final class Conference_Core {
     ob_start(); echo '<div class="grid grid-2">'; while($q->have_posts()){$q->the_post();echo '<article class="card"><h3>'.esc_html(get_the_title()).'</h3></article>';} wp_reset_postdata(); echo '</div>'; return ob_get_clean();
   }
   public function speakers_shortcode(){
-    $q=new WP_Query(array('post_type'=>'conf_speaker','posts_per_page'=>24));
+    $q=new WP_Query(array('post_type'=>'conf_speaker','posts_per_page'=>24,'orderby'=>'menu_order title','order'=>'ASC'));
     if(!$q->have_posts())return '<p>اطلاعات سخنرانان به‌زودی منتشر می‌شود.</p>';
-    ob_start(); echo '<div class="grid grid-4">'; while($q->have_posts()){$q->the_post();echo '<article class="card speaker-card">';if(has_post_thumbnail())the_post_thumbnail('medium');echo '<h3>'.esc_html(get_the_title()).'</h3><div>'.wp_kses_post(get_the_excerpt()).'</div></article>';} wp_reset_postdata();echo '</div>';return ob_get_clean();
+    ob_start(); echo '<div class="grid grid-4">'; while($q->have_posts()){$q->the_post();$role=get_post_meta(get_the_ID(),'_conf_speaker_role',true);echo '<article class="card speaker-card">';if(has_post_thumbnail())the_post_thumbnail('medium');echo '<h3>'.esc_html(get_the_title()).'</h3>';if($role)echo '<p class="confcore-speaker-role">'.esc_html($role).'</p>';echo '<div>'.wp_kses_post(get_the_excerpt()).'</div></article>';} wp_reset_postdata();echo '</div>';return ob_get_clean();
   }
   public function schedule_shortcode(){
-    $q=new WP_Query(array('post_type'=>'conf_session','posts_per_page'=>100,'meta_key'=>'_conf_session_start','orderby'=>'meta_value','order'=>'ASC'));
+    $q=new WP_Query(array('post_type'=>'conf_session','posts_per_page'=>100,'meta_query'=>array('day_clause'=>array('key'=>'_conf_session_day','compare'=>'EXISTS'),'start_clause'=>array('key'=>'_conf_session_start','compare'=>'EXISTS')),'orderby'=>array('day_clause'=>'ASC','start_clause'=>'ASC')));
     if(!$q->have_posts())return '<p>برنامه همایش هنوز منتشر نشده است.</p>';
     ob_start();$day='';echo '<div class="confcore-schedule">';
     while($q->have_posts()){$q->the_post();$d=sanitize_text_field(get_post_meta(get_the_ID(),'_conf_session_day',true));$start=sanitize_text_field(get_post_meta(get_the_ID(),'_conf_session_start',true));$end=sanitize_text_field(get_post_meta(get_the_ID(),'_conf_session_end',true));$room=sanitize_text_field(get_post_meta(get_the_ID(),'_conf_session_room',true));$speaker=sanitize_text_field(get_post_meta(get_the_ID(),'_conf_session_speaker',true));
@@ -402,9 +402,9 @@ final class Conference_Core {
     foreach(array('_conf_session_day','_conf_session_start','_conf_session_end','_conf_session_room','_conf_session_speaker') as $key){if(isset($_POST[$key]))update_post_meta($post_id,$key,sanitize_text_field(wp_unslash($_POST[$key])));}
   }
   public function team_shortcode(){
-    $q=new WP_Query(array('post_type'=>'conf_committee','posts_per_page'=>40));
+    $q=new WP_Query(array('post_type'=>'conf_committee','posts_per_page'=>40,'orderby'=>'menu_order title','order'=>'ASC'));
     if(!$q->have_posts())return '<p>اعضای تیم برگزارکننده را از پیشخوان اضافه کنید.</p>';
-    ob_start();echo '<div class="grid grid-3">';while($q->have_posts()){$q->the_post();echo '<article class="card">';if(has_post_thumbnail())the_post_thumbnail('medium');echo '<h3>'.esc_html(get_the_title()).'</h3><div>'.wp_kses_post(get_the_excerpt()).'</div></article>';}wp_reset_postdata();echo '</div>';return ob_get_clean();
+    ob_start();echo '<div class="grid grid-3">';while($q->have_posts()){$q->the_post();$role=get_post_meta(get_the_ID(),'_conf_committee_role',true);echo '<article class="card">';if(has_post_thumbnail())the_post_thumbnail('medium');echo '<h3>'.esc_html(get_the_title()).'</h3>';if($role)echo '<p class="confcore-speaker-role">'.esc_html($role).'</p>';echo '<div>'.wp_kses_post(get_the_excerpt()).'</div></article>';}wp_reset_postdata();echo '</div>';return ob_get_clean();
   }
   public function news_shortcode(){
     $q=new WP_Query(array('post_type'=>'post','posts_per_page'=>12));
