@@ -114,6 +114,19 @@ function conf1405_seed_theme_defaults(){
   );
   foreach($slides as $i=>$fields)foreach($fields as $field=>$value){$key="conf1405_slide{$i}_{$field}";if(get_theme_mod($key,false)===false)set_theme_mod($key,$value);}
   for($i=1;$i<=3;$i++){ $key="conf1405_slide{$i}_link"; if(get_theme_mod($key,false)===false)set_theme_mod($key,home_url('/submit-paper/')); }
+  $metrics=array(1=>array('03','روز تجربه و یادگیری'),2=>array('۱۲+','کارگاه تخصصی'),3=>array('۴۵+','سخنران و متخصص'),4=>array('۱۲۰۰+','شرکت‌کننده'));
+  foreach($metrics as $i=>$pair){foreach(array('value'=>$pair[0],'label'=>$pair[1]) as $key=>$value){$mod="conf1405_metric{$i}_{$key}";if(get_theme_mod($mod,false)===false)set_theme_mod($mod,$value);}}
+  $features=array(
+    array('📝','ارسال و داوری مقاله','سامانه ارسال مقاله و پیگیری وضعیت داوری به صورت آنلاین'),
+    array('🎤','سخنرانان برجسته','حضور استادان و متخصصان برجسته در حوزه‌های علمی'),
+    array('🤝','شبکه‌سازی حرفه‌ای','فرصت ارتباط با پژوهشگران و فعالان صنعت'),
+    array('🏆','جوایز و تقدیر','تقدیر از مقاله‌ها و ارائه‌های برتر'),
+    array('📚','انتشار مقالات','معرفی و انتشار آثار پذیرفته‌شده همایش'),
+    array('💻','پنل کاربری کامل','داشبورد اختصاصی برای نویسندگان و داوران')
+  );
+  foreach($features as $i=>$pair){$n=$i+1;foreach(array('icon'=>$pair[0],'title'=>$pair[1],'text'=>$pair[2]) as $key=>$value){$mod="conf1405_feature{$n}_{$key}";if(get_theme_mod($mod,false)===false)set_theme_mod($mod,$value);}}
+  $dates=array(array('مهلت ارسال مقاله','۳۰ مهر ۱۴۰۵'),array('اعلام نتایج داوری','۱۵ آبان ۱۴۰۵'),array('مهلت ثبت‌نام نهایی','۳۰ آبان ۱۴۰۵'),array('برگزاری همایش','۱۵ تا ۱۷ آذر ۱۴۰۵'));
+  foreach($dates as $i=>$pair){$n=$i+1;foreach(array('title'=>$pair[0],'date'=>$pair[1]) as $key=>$value){$mod="conf1405_date{$n}_{$key}";if(get_theme_mod($mod,false)===false)set_theme_mod($mod,$value);}}
 }
 function conf1405_seed_default_widgets(){
   $sidebars=get_option('sidebars_widgets',array());
