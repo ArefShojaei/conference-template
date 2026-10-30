@@ -24,7 +24,7 @@ $is_workspace = in_array($slug, array_merge(array('dashboard','reviewer-dashboar
             <?php if(current_user_can('manage_conference') || current_user_can('manage_options')): ?><a href="<?php echo esc_url(home_url('/admin-dashboard/')); ?>">پنل مدیریت</a><?php endif; ?>
             <a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">خروج</a>
           </nav></aside>
-          <section class="admin-main"><header class="admin-page-heading"><h1><?php the_title(); ?></h1></header><article id="page-<?php the_ID(); ?>" <?php post_class('conf-page-content'); ?>><?php the_content(); ?></article></section>
+          <section class="admin-main"><?php if($slug!=='review-paper'): ?><header class="admin-page-heading"><h1><?php the_title(); ?></h1></header><?php endif; ?><article id="page-<?php the_ID(); ?>" <?php post_class('conf-page-content'); ?>><?php the_content(); ?></article></section>
         </div>
       <?php elseif (in_array($slug,$reviewer_slugs,true)) : ?>
         <div class="admin-layout confcore-page-shell">
