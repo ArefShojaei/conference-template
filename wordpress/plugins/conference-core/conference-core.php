@@ -469,7 +469,7 @@ final class Conference_Core {
   public function papers_shortcode(){
     $q=new WP_Query(array('post_type'=>'conf_paper','post_status'=>'publish','posts_per_page'=>20));
     if(!$q->have_posts())return '<p>هنوز مقاله پذیرفته‌شده‌ای برای نمایش منتشر نشده است.</p>';
-    ob_start(); echo '<div class="grid grid-2">'; while($q->have_posts()){$q->the_post();$abstract=get_post_meta(get_the_ID(),'_conf_paper_abstract',true);$track=get_post_meta(get_the_ID(),'_conf_paper_track',true);$author=get_the_author();echo '<article class="card"><h3>'.esc_html(get_the_title()).'</h3>';if($track)echo '<p class="confcore-speaker-role">'.esc_html($track).'</p>';if($abstract)echo '<p>'.esc_html(wp_trim_words($abstract,45,'…')).'</p>';echo '<p class="text-muted">نویسنده: '.esc_html($author).' | '.esc_html(get_the_date()).'</p></article>';} wp_reset_postdata(); echo '</div>'; return ob_get_clean();
+    ob_start(); echo '<div class="grid grid-2">'; while($q->have_posts()){$q->the_post();$abstract=get_post_meta(get_the_ID(),'_conf_paper_abstract',true);$track=get_post_meta(get_the_ID(),'_conf_paper_track',true);$author=get_the_author();if(!$author)$author='نمونه نمایشی';echo '<article class="card"><h3>'.esc_html(get_the_title()).'</h3>';if($track)echo '<p class="confcore-speaker-role">'.esc_html($track).'</p>';if($abstract)echo '<p>'.esc_html(wp_trim_words($abstract,45,'…')).'</p>';echo '<p class="text-muted">نویسنده: '.esc_html($author).' | '.esc_html(get_the_date()).'</p></article>';} wp_reset_postdata(); echo '</div>'; return ob_get_clean();
   }
   public function speakers_shortcode(){
     $q=new WP_Query(array('post_type'=>'conf_speaker','posts_per_page'=>24,'orderby'=>'menu_order title','order'=>'ASC'));
