@@ -19,6 +19,7 @@ final class Conference_Core {
     add_action('rest_api_init',array($this,'routes'));
     add_action('admin_menu',array($this,'admin_menu'));
     add_action('admin_init',array($this,'settings'));
+    add_action('add_meta_boxes',array($this,'contact_meta_box'));
     add_action('admin_head-user-edit.php',array($this,'hide_core_email_field'));
     add_action('admin_head-profile.php',array($this,'hide_core_email_field'));
     add_action('admin_head-user-new.php',array($this,'hide_core_email_field'));
@@ -288,6 +289,12 @@ final class Conference_Core {
     if(is_wp_error($id))wp_die('ثبت پیام انجام نشد.',500);
     update_post_meta($id,'_conf_contact_name',$name);update_post_meta($id,'_conf_contact_phone',$phone);
     $back=wp_get_referer();wp_safe_redirect(add_query_arg('contact','sent',$back?:home_url('/contact/')));exit;
+  }
+  public function contact_meta_box(){
+    add_meta_box('confcore_contact_phone','اطلاعات تماس',function($post){
+      echo '<p>شماره موبایل: <strong>'.esc_html(get_post_meta($post->ID,'_conf_contact_phone',true)).'</strong></p>';
+      echo '<p>نام: '.esc_html(get_post_meta($post->ID,'_conf_contact_name',true)).'</p>';
+    },'conf_message','side','high');
   }
   public function admin_menu(){
     add_menu_page('سامانه همایش','سامانه همایش','manage_conference','confcore',array($this,'admin_page'),'dashicons-groups',26);
