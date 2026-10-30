@@ -49,6 +49,31 @@ function conf1405_customize($c){
  $date_defaults=array(array('مهلت ارسال مقاله','۳۰ مهر ۱۴۰۵'),array('اعلام نتایج داوری','۱۵ آبان ۱۴۰۵'),array('مهلت ثبت‌نام نهایی','۳۰ آبان ۱۴۰۵'),array('برگزاری همایش','۱۵ تا ۱۷ آذر ۱۴۰۵'));
  $date_labels=array('title'=>'عنوان','date'=>'تاریخ');
  foreach($date_defaults as $i=>$item){$n=$i+1;foreach(array('title'=>$item[0],'date'=>$item[1]) as $key=>$value){$c->add_setting("conf1405_date{$n}_{$key}",array('default'=>$value,'sanitize_callback'=>'sanitize_text_field'));$c->add_control("conf1405_date{$n}_{$key}",array('label'=>"تاریخ {$n} - ".$date_labels[$key],'section'=>'conf1405_dates','type'=>'text'));}}
+ $c->add_section('conf1405_home_texts',array('title'=>'متن بخش‌های صفحه اصلی','priority'=>34));
+ $home_texts=array(
+  'hero_eyebrow'=>array('برچسب بالای اسلایدر','رویداد علمی'),
+  'hero_submit_label'=>array('متن دکمه ارسال مقاله','ارسال مقاله'),
+  'hero_about_label'=>array('متن پیوند درباره همایش','درباره همایش'),
+  'rail_topline'=>array('عنوان بالای کارت کناری','ثبت‌نام و ارسال مقاله'),
+  'rail_label'=>array('برچسب کارت کناری','رویداد علمی'),
+  'rail_location_label'=>array('عنوان محل برگزاری','مکان'),
+  'rail_deadline_label'=>array('عنوان مهلت ارسال','مهلت ارسال مقاله'),
+  'rail_register_label'=>array('متن دکمه ثبت‌نام کارت کناری','ثبت‌نام در همایش'),
+  'schedule_title'=>array('عنوان کارت برنامه','برنامه همایش'),
+  'schedule_text'=>array('توضیح کارت برنامه','جلسه‌ها و کارگاه‌ها را ببینید'),
+  'features_title'=>array('عنوان بخش ویژگی‌ها','چرا در این همایش شرکت کنید؟'),
+  'features_text'=>array('توضیح بخش ویژگی‌ها','فرصتی برای یادگیری، شبکه‌سازی و ارائه پژوهش‌های علمی'),
+  'dates_title'=>array('عنوان بخش تاریخ‌های مهم','تاریخ‌های مهم'),
+  'dates_text'=>array('توضیح بخش تاریخ‌های مهم','مهلت‌ها و رویدادهای کلیدی همایش'),
+  'news_title'=>array('عنوان بخش اخبار','آخرین اخبار و اطلاعیه‌ها'),
+  'news_text'=>array('توضیح بخش اخبار','جدیدترین مطالب همایش'),
+  'speakers_title'=>array('عنوان بخش سخنرانان','سخنرانان همایش'),
+  'speakers_text'=>array('توضیح بخش سخنرانان','چهره‌های علمی و تخصصی'),
+  'cta_title'=>array('عنوان دعوت به اقدام پایانی','آماده شرکت در همایش هستید؟'),
+  'cta_text'=>array('توضیح دعوت به اقدام پایانی','حساب کاربری خود را ایجاد کنید.'),
+  'cta_button'=>array('متن دکمه دعوت به اقدام','ثبت‌نام با شماره موبایل')
+ );
+ foreach($home_texts as $key=>$item){$mod='conf1405_'.$key;$c->add_setting($mod,array('default'=>$item[1],'sanitize_callback'=>'sanitize_text_field'));$c->add_control($mod,array('label'=>$item[0],'section'=>'conf1405_home_texts','type'=>'text'));}
  $c->add_section('conf1405_colors',array('title'=>'رنگ‌بندی قالب','priority'=>34));
  $c->add_setting('conf1405_primary',array('default'=>'#123d38','sanitize_callback'=>'sanitize_hex_color'));
  $c->add_control(new WP_Customize_Color_Control($c,'conf1405_primary',array('label'=>'رنگ اصلی','section'=>'conf1405_colors')));
@@ -127,6 +152,8 @@ function conf1405_seed_theme_defaults(){
   foreach($features as $i=>$pair){$n=$i+1;foreach(array('icon'=>$pair[0],'title'=>$pair[1],'text'=>$pair[2]) as $key=>$value){$mod="conf1405_feature{$n}_{$key}";if(get_theme_mod($mod,false)===false)set_theme_mod($mod,$value);}}
   $dates=array(array('مهلت ارسال مقاله','۳۰ مهر ۱۴۰۵'),array('اعلام نتایج داوری','۱۵ آبان ۱۴۰۵'),array('مهلت ثبت‌نام نهایی','۳۰ آبان ۱۴۰۵'),array('برگزاری همایش','۱۵ تا ۱۷ آذر ۱۴۰۵'));
   foreach($dates as $i=>$pair){$n=$i+1;foreach(array('title'=>$pair[0],'date'=>$pair[1]) as $key=>$value){$mod="conf1405_date{$n}_{$key}";if(get_theme_mod($mod,false)===false)set_theme_mod($mod,$value);}}
+  $home_texts=array('hero_eyebrow'=>'رویداد علمی','hero_submit_label'=>'ارسال مقاله','hero_about_label'=>'درباره همایش','rail_topline'=>'ثبت‌نام و ارسال مقاله','rail_label'=>'رویداد علمی','rail_location_label'=>'مکان','rail_deadline_label'=>'مهلت ارسال مقاله','rail_register_label'=>'ثبت‌نام در همایش','schedule_title'=>'برنامه همایش','schedule_text'=>'جلسه‌ها و کارگاه‌ها را ببینید','features_title'=>'چرا در این همایش شرکت کنید؟','features_text'=>'فرصتی برای یادگیری، شبکه‌سازی و ارائه پژوهش‌های علمی','dates_title'=>'تاریخ‌های مهم','dates_text'=>'مهلت‌ها و رویدادهای کلیدی همایش','news_title'=>'آخرین اخبار و اطلاعیه‌ها','news_text'=>'جدیدترین مطالب همایش','speakers_title'=>'سخنرانان همایش','speakers_text'=>'چهره‌های علمی و تخصصی','cta_title'=>'آماده شرکت در همایش هستید؟','cta_text'=>'حساب کاربری خود را ایجاد کنید.','cta_button'=>'ثبت‌نام با شماره موبایل');
+  foreach($home_texts as $key=>$value){$mod="conf1405_{$key}";if(get_theme_mod($mod,false)===false)set_theme_mod($mod,$value);}
 }
 function conf1405_seed_default_widgets(){
   $sidebars=get_option('sidebars_widgets',array());
