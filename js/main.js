@@ -77,6 +77,53 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  // Mobile OTP flow preview. Static HTML never sends or verifies a real SMS.
+  document.querySelectorAll('form[data-phone-otp]').forEach(form => {
+    const phone = form.querySelector('input[name="phone"]');
+    const requestButton = form.querySelector('[data-otp-request]');
+    const otpStep = form.querySelector('[data-otp-step]');
+    const otpField = otpStep && otpStep.querySelector('input[name="otp"]');
+    if (!phone || !requestButton || !otpStep || !otpField) return;
+
+    const normalizeDigits = value => value
+      .replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)))
+      .replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+      .replace(/[\s-]/g, '');
+    const validIranMobile = value => /^(09[0-9]{9}|\+989[0-9]{9}|00989[0-9]{9})$/.test(value);
+
+    requestButton.addEventListener('click', () => {
+      phone.value = normalizeDigits(phone.value);
+      if (!validIranMobile(phone.value)) {
+        phone.setCustomValidity('شماره موبایل معتبر ایران را وارد کنید؛ مانند 09123456789.');
+        phone.reportValidity();
+        return;
+      }
+      phone.setCustomValidity('');
+      const requiredFields = Array.from(form.querySelectorAll('[required]')).filter(field => field !== otpField);
+      const invalid = requiredFields.find(field => field.type === 'checkbox' ? !field.checked : !field.value.trim());
+      if (invalid) {
+        invalid.reportValidity();
+        return;
+      }
+      otpStep.hidden = false;
+      otpField.required = true;
+      otpField.focus();
+      requestButton.disabled = true;
+      requestButton.textContent = 'مرحله کد تأیید باز شد';
+      const note = otpStep.querySelector('[data-otp-preview-message]');
+      if (note) note.textContent = 'پیش‌نمایش: در این نسخه هیچ پیامکی ارسال نشده است. پس از اتصال درگاه پیامک، کد واقعی به شماره ثبت‌شده ارسال می‌شود.';
+      showAlert('مرحله کد یک‌بارمصرف نمایش داده شد؛ ارسال پیامک در نسخه HTML فعال نیست.', 'info');
+    });
+
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      phone.value = normalizeDigits(phone.value);
+      otpField.value = normalizeDigits(otpField.value);
+      if (!validIranMobile(phone.value) || !form.reportValidity()) return;
+      showAlert('برای تأیید واقعی کد و ورود، اتصال API امن وردپرس و سرویس پیامکی لازم است.', 'info');
+    });
+  });
+
   // Tabs
   document.querySelectorAll('.tabs').forEach(tabGroup => {
     const buttons = tabGroup.querySelectorAll('.tab-btn');
@@ -245,26 +292,6 @@ function showAlert(message, type = 'info') {
 
 function updateAuthUI(_user) {
   // Auth state is handled per-page for this static preview.
-}
-
-function loginDemo(email, role) {
-  const user = {
-    name: role === 'admin' ? 'مدیر سیستم (دمو)' : 'کاربر نمونه (دمو)',
-    email: email || 'user@example.com',
-    role: role || 'user',
-    demo: true
-  };
-  localStorage.setItem('conference_user', JSON.stringify(user));
-  showAlert('ورود نمایشی انجام شد؛ این ورود امن نیست و حساب واقعی ایجاد نمی‌کند.', 'info');
-  window.setTimeout(() => {
-    if (role === 'admin') {
-      window.location.href = 'admin-dashboard.html';
-    } else if (role === 'reviewer') {
-      window.location.href = 'reviewer-dashboard.html';
-    } else {
-      window.location.href = 'dashboard.html';
-    }
-  }, 1400);
 }
 
 function logout() {
