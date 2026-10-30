@@ -222,7 +222,8 @@ final class Conference_Core {
     $dir=wp_upload_dir(); $private=$dir['basedir'].'/conference-private';
     if(!wp_mkdir_p($private))return new WP_Error('storage_error','فضای ذخیره‌سازی آماده نیست.',array('status'=>500));
     @chmod($private,0700);
-    if(!file_exists($private.'/.htaccess')){ $deny=file_put_contents($private.'/.htaccess',"Require all denied\n<IfModule !mod_authz_core.c> Deny from all </IfModule>\n"); if($deny===false)return new WP_Error('storage_protection','امکان محافظت از پوشه فایل‌ها وجود ندارد.',array('status'=>500)); }
+    $deny=file_put_contents($private.'/.htaccess',"Require all denied\n<IfModule !mod_authz_core.c> Deny from all </IfModule>\n");
+    if($deny===false)return new WP_Error('storage_protection','امکان محافظت از پوشه فایل‌ها وجود ندارد.',array('status'=>500));
     if(!file_exists($private.'/index.php'))file_put_contents($private.'/index.php',"<?php http_response_code(404); exit;");
     $stored=wp_generate_password(24,false,false).'.'.$ext; $target=$private.'/'.$stored;
     if(!move_uploaded_file($f['tmp_name'],$target))return new WP_Error('storage_error','ذخیره فایل انجام نشد.',array('status'=>500));
