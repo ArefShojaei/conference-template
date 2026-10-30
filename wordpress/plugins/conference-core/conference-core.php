@@ -160,7 +160,7 @@ final class Conference_Core {
     return !is_wp_error($response) && wp_remote_retrieve_response_code($response)===200;
   }
   public function verify_otp($request){
-    $phone=$this->normalize_phone($request->get_param('phone')); $code=preg_replace('/\D/','',(string)$request->get_param('code')); $mode=sanitize_key($request->get_param('mode'));
+    $phone=$this->normalize_phone($request->get_param('phone')); $code=strtr((string)$request->get_param('code'),array('۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9','٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9')); $code=preg_replace('/[^0-9]/','',$code); $mode=sanitize_key($request->get_param('mode'));
     if(!$phone || !preg_match('/^[0-9]{6}$/',$code) || !in_array($mode,array('login','register'),true))return new WP_Error('invalid_input','اطلاعات واردشده معتبر نیست.',array('status'=>400));
     global $wpdb; $table=$wpdb->prefix.'confcore_otp'; $row=$wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE phone=%s",$phone));
     if(!$row || strtotime($row->expires_at.' UTC')<time())return new WP_Error('expired','کد منقضی شده است؛ دوباره درخواست دهید.',array('status'=>400));
