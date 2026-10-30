@@ -602,7 +602,7 @@ AND NOT EXISTS (SELECT 1 FROM wp_posts mi JOIN wp_postmeta m ON m.post_id=mi.ID 
 
 INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
 SELECT mi.ID,'_menu_item_type','post_type' FROM wp_posts mi
-WHERE mi.post_type='nav_menu_item' AND mi.post_name LIKE 'conference-page-conference-page-menu-item-%'
+WHERE mi.post_type='nav_menu_item' AND mi.post_name LIKE 'conference-page-menu-item-%'
 AND NOT EXISTS (SELECT 1 FROM wp_postmeta m WHERE m.post_id=mi.ID AND m.meta_key='_menu_item_type');
 INSERT INTO wp_postmeta (post_id,meta_key,meta_value)
 SELECT mi.ID,'_menu_item_object','page' FROM wp_posts mi
