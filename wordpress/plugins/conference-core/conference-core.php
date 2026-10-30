@@ -42,7 +42,7 @@ final class Conference_Core {
   public static function activate(){
     add_role('conference_author','نویسنده همایش',array('read'=>true,'upload_files'=>true,'submit_conference_papers'=>true));
     add_role('conference_reviewer','داور همایش',array('read'=>true,'review_conference_papers'=>true));
-    add_role('conference_manager','مدیر همایش',array('read'=>true,'edit_posts'=>true,'publish_posts'=>true,'upload_files'=>true,'manage_conference'=>true,'review_conference_papers'=>true,'list_users'=>true));
+    add_role('conference_manager','مدیر همایش',array('read'=>true,'edit_posts'=>true,'edit_others_posts'=>true,'read_private_posts'=>true,'publish_posts'=>true,'upload_files'=>true,'manage_conference'=>true,'review_conference_papers'=>true,'list_users'=>true));
     $admin_role=get_role('administrator');
     if($admin_role){$admin_role->add_cap('manage_conference');$admin_role->add_cap('review_conference_papers');}
 
