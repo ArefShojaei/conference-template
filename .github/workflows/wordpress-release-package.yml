@@ -25,8 +25,14 @@ jobs:
           zip -qr ../../dist/conference-core-plugin.zip conference-core
           cd ../../
           cp wordpress/demo-content/conference-demo.sql dist/
+          cp wordpress/demo-content/conference-demo.xml dist/
+          cp wordpress/README.md dist/README-WORDPRESS.md
           cp wordpress/INSTALLATION-CHECKLIST.md dist/
           cp wordpress/demo-content/SQL-IMPORT.md dist/
+          cp wordpress/RECOMMENDED-PLUGINS.md dist/
+          cp wordpress/plugins/conference-core/readme.txt dist/CONFERENCE-CORE-README.txt
+          cd dist
+          sha256sum * > SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:
           name: conference-wordpress-install-package
