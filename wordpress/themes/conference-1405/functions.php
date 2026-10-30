@@ -43,10 +43,12 @@ function conf1405_customize($c){
   array('📚','انتشار مقالات','معرفی و انتشار آثار پذیرفته‌شده همایش'),
   array('💻','پنل کاربری کامل','داشبورد اختصاصی برای نویسندگان و داوران')
  );
- foreach($feature_defaults as $i=>$item){$n=$i+1;foreach(array('icon'=>$item[0],'title'=>$item[1],'text'=>$item[2]) as $key=>$value){$c->add_setting("conf1405_feature{$n}_{$key}",array('default'=>$value,'sanitize_callback'=>'sanitize_text_field'));$c->add_control("conf1405_feature{$n}_{$key}",array('label'=>"ویژگی {$n} - {$key}",'section'=>'conf1405_features','type'=>'text'));}}
+ $feature_labels=array('icon'=>'آیکن','title'=>'عنوان','text'=>'توضیح');
+ foreach($feature_defaults as $i=>$item){$n=$i+1;foreach(array('icon'=>$item[0],'title'=>$item[1],'text'=>$item[2]) as $key=>$value){$c->add_setting("conf1405_feature{$n}_{$key}",array('default'=>$value,'sanitize_callback'=>'sanitize_text_field'));$c->add_control("conf1405_feature{$n}_{$key}",array('label'=>"ویژگی {$n} - ".$feature_labels[$key],'section'=>'conf1405_features','type'=>'text'));}}
  $c->add_section('conf1405_dates',array('title'=>'تاریخ‌های مهم صفحه اصلی','priority'=>33));
  $date_defaults=array(array('مهلت ارسال مقاله','۳۰ مهر ۱۴۰۵'),array('اعلام نتایج داوری','۱۵ آبان ۱۴۰۵'),array('مهلت ثبت‌نام نهایی','۳۰ آبان ۱۴۰۵'),array('برگزاری همایش','۱۵ تا ۱۷ آذر ۱۴۰۵'));
- foreach($date_defaults as $i=>$item){$n=$i+1;foreach(array('title'=>$item[0],'date'=>$item[1]) as $key=>$value){$c->add_setting("conf1405_date{$n}_{$key}",array('default'=>$value,'sanitize_callback'=>'sanitize_text_field'));$c->add_control("conf1405_date{$n}_{$key}",array('label'=>"تاریخ {$n} - {$key}",'section'=>'conf1405_dates','type'=>'text'));}}
+ $date_labels=array('title'=>'عنوان','date'=>'تاریخ');
+ foreach($date_defaults as $i=>$item){$n=$i+1;foreach(array('title'=>$item[0],'date'=>$item[1]) as $key=>$value){$c->add_setting("conf1405_date{$n}_{$key}",array('default'=>$value,'sanitize_callback'=>'sanitize_text_field'));$c->add_control("conf1405_date{$n}_{$key}",array('label'=>"تاریخ {$n} - ".$date_labels[$key],'section'=>'conf1405_dates','type'=>'text'));}}
  $c->add_section('conf1405_colors',array('title'=>'رنگ‌بندی قالب','priority'=>34));
  $c->add_setting('conf1405_primary',array('default'=>'#123d38','sanitize_callback'=>'sanitize_hex_color'));
  $c->add_control(new WP_Customize_Color_Control($c,'conf1405_primary',array('label'=>'رنگ اصلی','section'=>'conf1405_colors')));
