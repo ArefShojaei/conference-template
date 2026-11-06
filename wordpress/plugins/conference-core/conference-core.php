@@ -59,7 +59,7 @@ final class Conference_Core {
     add_filter('get_avatar',array($this,'avatar_initials_markup'),10,6);
   }
   public static function activate(){
-    add_role('conference_author','نویسنده همایش',array('read'=>true,'upload_files'=>true,'submit_conference_papers'=>true));
+    add_role('conference_author','نویسنده همایش',array('read'=>true,'submit_conference_papers'=>true));
     // Remove obsolete conference roles left by previous plugin versions.
     remove_role('conference_reviewer');remove_role('conference_manager');
     $admin_role=get_role('administrator');
@@ -111,7 +111,8 @@ final class Conference_Core {
     remove_role('conference_reviewer');remove_role('conference_manager');
     if($admin){if(!$admin->has_cap('manage_conference'))$admin->add_cap('manage_conference');$admin->remove_cap('review_conference_papers');}
     $author=get_role('conference_author');
-    if($author){foreach(array('submit_conference_papers','upload_files') as $cap)if(!$author->has_cap($cap))$author->add_cap($cap);}
+    if($author && !$author->has_cap('submit_conference_papers'))$author->add_cap('submit_conference_papers');
+    if($author && $author->has_cap('upload_files'))$author->remove_cap('upload_files');
   }
   public function remove_obsolete_pages(){
     foreach(array('schedule','my-registration','messages') as $slug){$page=get_page_by_path($slug);if($page && $page->post_status!=='trash')wp_update_post(array('ID'=>$page->ID,'post_status'=>'trash'));}
