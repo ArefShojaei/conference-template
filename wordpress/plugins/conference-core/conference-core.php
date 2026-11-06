@@ -20,7 +20,6 @@ final class Conference_Core {
     add_action('init',array($this,'remove_obsolete_pages'),30);
     add_action('rest_api_init',array($this,'routes'));
     add_action('admin_menu',array($this,'admin_menu'));
-    add_action('admin_init',array($this,'settings'));
     add_action('add_meta_boxes',array($this,'contact_meta_box'));
     add_action('add_meta_boxes_conf_certificate',array($this,'certificate_meta_box'));
     add_action('add_meta_boxes_conf_paper',array($this,'paper_admin_meta_box'));
@@ -178,7 +177,7 @@ final class Conference_Core {
     // API key را در wp-config.php با CONFERENCE_KAVENEGAR_API_KEY یا تنظیمات افزونه وارد کنید.
     // نام قالب باید در پنل کاوه‌نگار برای VerifyLookup تأیید شده باشد.
     $api=defined('CONFERENCE_KAVENEGAR_API_KEY')?CONFERENCE_KAVENEGAR_API_KEY:get_option('confcore_kavenegar_key','');
-    $template=get_option('confcore_kavenegar_template',''); $sender=get_option('confcore_kavenegar_sender','');
+    $template=defined('CONFERENCE_KAVENEGAR_OTP_TEMPLATE')?CONFERENCE_KAVENEGAR_OTP_TEMPLATE:get_option('confcore_kavenegar_template',''); $sender=defined('CONFERENCE_KAVENEGAR_SENDER')?CONFERENCE_KAVENEGAR_SENDER:get_option('confcore_kavenegar_sender','');
     if(!$api || !$template)return new WP_Error('sms_not_configured','تنظیمات سرویس پیامک کامل نیست؛ مدیر سایت باید API Key و نام قالب را وارد کند.',array('status'=>503));
     $url='https://api.kavenegar.com/v1/'.rawurlencode($api).'/verify/lookup.json';
     $body=array('receptor'=>$phone,'token'=>$code,'template'=>$template,'type'=>'sms');
