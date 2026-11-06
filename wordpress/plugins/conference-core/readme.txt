@@ -5,33 +5,33 @@ Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv2 or later
 
-The application layer for Conference 1405: mobile OTP authentication, roles and capabilities, secure paper workflows, reviewer assignments, attendee registrations, notifications, contact inbox, certificates and conference content types. Keep business logic here so it survives theme changes.
+The application layer for Conference 1405: mobile OTP authentication, author paper submissions, attendee registration, contact inbox, administrator-issued certificates and conference content types. No reviewer role, role selector, schedule workflow, paid flow or SMS settings panel is included. Keep business logic here so it survives theme changes.
 
 == Features ==
 * Phone-number-only registration and login using one-time codes.
 * Kavenegar VerifyLookup integration with API key kept server-side.
-* Conference author, reviewer and manager roles.
+* Author role for attendee accounts; WordPress administrators manage conference operations.
 * Private paper uploads: PDF, DOC, DOCX; maximum 20 MB; signature validation.
-* Owner/reviewer/admin-only paper downloads.
-* Paper submission receipts and reviewer/admin decisions can notify authors through configured SMS templates.
+* Paper downloads are restricted to the submitting user and conference administrators.
+* OTP SMS is used for authentication; article status is shown in user accounts.
 * Reviewer decision endpoint with optional SMS result notification.
-* Editable session metadata (conference day, start/end time, room and speaker) rendered as a grouped chronological schedule; dynamic speaker, team and news shortcodes; contact form messages are stored in the admin inbox with phone validation and IP rate limiting.
-* No-payment attendee registration (no registration-type selector), managed from the WordPress admin and notified by SMS.
-* User profile, papers, review history, status notifications and certificate listing shortcodes.
+dynamic speaker, team and news shortcodes; contact form messages are stored in the admin inbox with phone validation and IP rate limiting.
+* Free attendee registration (no payment or registration-type selector), managed from WordPress admin.
+* User profile, papers with removable author-name chips, and issued certificates with download links.
 * Admin tools to seed demo speakers, sessions, committee members, posts and pages.
 
 == Setup ==
 1. Activate the plugin.
-2. Configure Kavenegar API key and approved OTP, submission-receipt, paper-result, attendee-registration and attendee-status templates under Conference → SMS settings.
-3. Create pages or use the pages generated on activation. Shortcodes: [conference_login], [conference_register], [conference_dashboard], [conference_submit_paper], [conference_papers], [conference_speakers], [conference_schedule], [conference_team], [conference_news], [conference_contact], [conference_event_registration], [conference_my_papers], [conference_review_queue], [conference_my_reviews], [conference_messages], [conference_profile], [conference_certificates].
-4. Assign roles from Users. New signups are authors; users cannot select their role.
+2. Configure the Kavenegar OTP VerifyLookup key/template in server settings (e.g. wp-config.php); there is no SMS management page in the conference dashboard.
+3. Create pages or use the pages generated on activation. Shortcodes: [conference_login], [conference_register], [conference_dashboard], [conference_submit_paper], [conference_papers], [conference_speakers], [conference_team], [conference_news], [conference_contact], [conference_event_registration], [conference_my_papers], [conference_profile], [conference_certificates].
+4. New signups are authors; attendees do not select their role.
 5. Run demo content import from Conference → Tools.
 
 == Security ==
 Use HTTPS. API keys must never be committed to the repository or exposed in browser code. For production, define CONFERENCE_KAVENEGAR_API_KEY in wp-config.php. Paper files are stored outside the public uploads URL and served through an authenticated handler. Apache receives a deny-all .htaccess; Nginx administrators must add an equivalent deny rule. DOCX validation requires PHP ZipArchive. Configure PHP upload_max_filesize and post_max_size to at least 20M (24M recommended). Use backups and server-side malware scanning.
 
 == SMS ==
-VerifyLookup templates must be approved by Kavenegar. Configure an OTP template with the code token and a result template with token (decision) and token2 (paper ID). Real SMS delivery cannot be verified until a valid account/API key and templates are configured on the target host.
+VerifyLookup templates must be approved by Kavenegar. Configure an OTP VerifyLookup template with the code token. Real SMS delivery cannot be verified until a valid account/API key and templates are configured on the target host.
 
 == Theme and plugin responsibilities ==
 The Conference 1405 theme owns presentation: RTL layout, responsive styling, navigation, homepage slider, Customizer settings and template rendering. Conference Core owns application behavior and data workflows: OTP authentication, capabilities, submissions, review, registrations, SMS, contact messages, certificates and conference post types. Keeping these responsibilities separate means a future theme change does not remove submitted papers or authentication workflows.
