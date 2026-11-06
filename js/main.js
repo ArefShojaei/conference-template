@@ -366,63 +366,90 @@ if (document.readyState === 'loading') {
 }
 
 
-/* Reliable hamburger drawer for both admin and participant panel layouts. */
-document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('.admin-app .admin-layout').forEach(function (layout, index) {
-    const sidebar = layout.querySelector('.admin-sidebar');
-    const topbar = layout.closest('.admin-app')?.querySelector('.admin-topbar');
-    if (!sidebar || !topbar || topbar.querySelector('.panel-menu-toggle')) return;
+/* Reliable off-canvas navigation for admin and participant panels. */
+(function () {
+  function initPanelDrawers() {
+    document.querySelectorAll('.admin-app .admin-layout').forEach(function (layout, index) {
+      const app = layout.closest('.admin-app');
+      const sidebar = layout.querySelector('.admin-sidebar');
+      const topbar = app && app.querySelector('.admin-topbar');
+      if (!sidebar || !topbar) return;
 
-    const sidebarId = sidebar.id || ('panel-sidebar-' + (index + 1));
-    sidebar.id = sidebarId;
-    const toggle = document.createElement('button');
-    toggle.type = 'button';
-    toggle.className = 'panel-menu-toggle';
-    toggle.setAttribute('aria-label', 'باز کردن منوی پنل');
-    toggle.setAttribute('aria-expanded', 'false');
-    toggle.setAttribute('aria-controls', sidebarId);
-    toggle.innerHTML = '<span class="panel-menu-toggle-icon" aria-hidden="true">☰</span><span class="panel-menu-toggle-label">منو</span>';
-    topbar.insertBefore(toggle, topbar.firstElementChild);
-
-    let overlay = layout.querySelector('.panel-menu-overlay');
-    if (!overlay) {
-      overlay = document.createElement('button');
-      overlay.type = 'button';
-      overlay.className = 'panel-menu-overlay';
-      overlay.setAttribute('aria-label', 'بستن منوی پنل');
-      overlay.setAttribute('tabindex', '-1');
-      layout.appendChild(overlay);
-    }
-
-    function closeMenu() {
-      sidebar.classList.remove('is-open');
-      overlay.classList.remove('is-visible');
-      toggle.setAttribute('aria-expanded', 'false');
+      let toggle = topbar.querySelector('.panel-menu-toggle');
+      if (!toggle) {
+        toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'panel-menu-toggle';
+        toggle.innerHTML = '<span class="panel-menu-toggle-icon" aria-hidden="true">☰</span><span class="panel-menu-toggle-label">منو</span>';
+        topbar.insertBefore(toggle, topbar.firstElementChild);
+      }
       toggle.setAttribute('aria-label', 'باز کردن منوی پنل');
-      document.body.classList.remove('panel-menu-open');
-    }
-    function openMenu() {
-      sidebar.classList.add('is-open');
-      overlay.classList.add('is-visible');
-      toggle.setAttribute('aria-expanded', 'true');
-      toggle.setAttribute('aria-label', 'بستن منوی پنل');
-      document.body.classList.add('panel-menu-open');
-    }
+      toggle.setAttribute('aria-expanded', 'false');
 
-    toggle.addEventListener('click', function () {
-      sidebar.classList.contains('is-open') ? closeMenu() : openMenu();
-    });
-    overlay.addEventListener('click', closeMenu);
-    sidebar.querySelectorAll('a').forEach(function (link) {
-      link.addEventListener('click', function () {
-        if (window.matchMedia('(max-width: 760px)').matches) closeMenu();
+      const sidebarId = sidebar.id || ('panel-sidebar-' + (index + 1));
+      sidebar.id = sidebarId;
+      toggle.setAttribute('aria-controls', sidebarId);
+
+      let overlay = layout.querySelector('.panel-menu-overlay');
+      if (!overlay) {
+        overlay = document.createElement('button');
+        overlay.type = 'button';
+        overlay.className = 'panel-menu-overlay';
+        overlay.setAttribute('aria-label', 'بستن منوی پنل');
+        overlay.setAttribute('tabindex', '-1');
+        layout.appendChild(overlay);
+      }
+
+      function closeMenu() {
+        sidebar.classList.remove('is-open');
+        overlay.classList.remove('is-visible');
+        sidebar.style.removeProperty('transform');
+        sidebar.style.removeProperty('visibility');
+        sidebar.style.removeProperty('opacity');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', 'باز کردن منوی پنل');
+        document.body.classList.remove('panel-menu-open');
+      }
+
+      function openMenu() {
+        sidebar.classList.add('is-open');
+        sidebar.style.setProperty('transform', 'translateX(0)', 'important');
+        sidebar.style.setProperty('visibility', 'visible', 'important');
+        sidebar.style.setProperty('opacity', '1', 'important');
+        sidebar.querySelectorAll('.admin-nav, .admin-nav-label, .admin-nav > a').forEach(function (item) {
+          item.style.setProperty('visibility', 'visible', 'important');
+          item.style.setProperty('opacity', '1', 'important');
+        });
+        overlay.classList.add('is-visible');
+        toggle.setAttribute('aria-expanded', 'true');
+        toggle.setAttribute('aria-label', 'بستن منوی پنل');
+        document.body.classList.add('panel-menu-open');
+      }
+
+      toggle.onclick = function () {
+        sidebar.classList.contains('is-open') ? closeMenu() : openMenu();
+      };
+      overlay.onclick = closeMenu;
+      sidebar.querySelectorAll('a').forEach(function (link) {
+        link.onclick = function () {
+          if (window.matchMedia('(max-width: 760px)').matches) closeMenu();
+        };
       });
+      if (!layout.dataset.panelDrawerBound) {
+        layout.dataset.panelDrawerBound = 'true';
+        document.addEventListener('keydown', function (event) {
+          if (event.key === 'Escape') closeMenu();
+        });
+        window.addEventListener('resize', function () {
+          if (window.innerWidth > 760) closeMenu();
+        });
+      }
     });
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') closeMenu();
-    });
-    window.addEventListener('resize', function () {
-      if (window.innerWidth > 760) closeMenu();
-    });
-  });
-});
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPanelDrawers, { once: true });
+  } else {
+    initPanelDrawers();
+  }
+})();
