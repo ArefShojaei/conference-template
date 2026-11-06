@@ -79,7 +79,7 @@ function conf1405_create_default_menu(){
   if($menu_id){$assigned=wp_get_nav_menu_object($menu_id);if(!$assigned || $assigned->name!=='منوی اصلی همایش')return;}
   else{$menu=wp_get_nav_menu_object('منوی اصلی همایش');$menu_id=$menu?$menu->term_id:wp_create_nav_menu('منوی اصلی همایش');}
   if(is_wp_error($menu_id))return;
-  $slugs=array('about','speakers','team','schedule','papers','news','event-registration','contact');
+  $slugs=array('about','speakers','team','papers','news','event-registration','contact');
   $items=wp_get_nav_menu_items($menu_id);
   if(!$items)$items=array();
   if(count($items)>=count($slugs))return;
