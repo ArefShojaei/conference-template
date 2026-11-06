@@ -77,3 +77,26 @@ button,.btn{touch-action:manipulation}
  body.panel-menu-open{overflow:hidden}
 }
 @media(prefers-reduced-motion:reduce){.admin-app .admin-sidebar{transition:none}.admin-app .panel-menu-overlay{transition:none}}
+
+
+/* Panel drawer visibility and table geometry corrections. */
+@media(max-width:760px){
+ .admin-app .admin-sidebar.is-open{visibility:visible!important;opacity:1!important;pointer-events:auto!important}
+ .admin-app .admin-sidebar .admin-nav{display:flex!important;flex-direction:column!important;align-items:stretch!important;width:100%!important;min-width:0!important;visibility:visible!important;opacity:1!important}
+ .admin-app .admin-sidebar .admin-nav-label{display:block!important;color:#c6e7db!important;font-size:.72rem!important;padding:12px 10px 5px!important}
+ .admin-app .admin-sidebar .admin-nav>a{display:flex!important;align-items:center!important;gap:10px!important;color:#fff!important;background:transparent!important;border:0!important;width:100%!important;min-width:0!important;box-sizing:border-box!important;white-space:normal!important;text-align:start!important;visibility:visible!important;opacity:1!important}
+ .admin-app .admin-sidebar .admin-nav>a:hover,.admin-app .admin-sidebar .admin-nav>a.is-current{background:#ffffff20!important;color:#fff!important}
+ .admin-app .admin-sidebar .admin-nav-icon{color:#d8f5e9!important;flex:0 0 24px}
+ .admin-app .admin-sidebar-intro,.admin-app .admin-sidebar-footer{display:block!important;color:#fff!important}
+ .admin-app .admin-sidebar .admin-event-select{color:#fff!important}
+ .admin-app .admin-sidebar .admin-event-select small{color:#d2e8df!important}
+ .admin-app .admin-sidebar .admin-sidebar-caption{color:#c6e7db!important}
+ .admin-app .admin-sidebar{visibility:visible!important;opacity:1!important}
+ .admin-app .panel-menu-toggle{position:relative;z-index:10030}
+}
+.admin-app .admin-main .table-wrapper,.admin-app .admin-main .admin-table-wrap{overflow-x:auto;overflow-y:hidden;max-width:100%;width:100%;box-sizing:border-box}
+.admin-app .admin-main table{width:100%;table-layout:auto;border-collapse:separate;border-spacing:0;min-width:680px}
+.admin-app .admin-main table thead th{vertical-align:middle;text-align:start;white-space:normal;line-height:1.5}
+.admin-app .admin-main table tbody td{vertical-align:middle;text-align:start;line-height:1.65;overflow-wrap:anywhere}
+.admin-app .admin-main table tbody tr>td:last-child{white-space:normal}
+.admin-app .admin-main table th,.admin-app .admin-main table td{box-sizing:border-box}
