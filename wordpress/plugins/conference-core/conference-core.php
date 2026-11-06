@@ -378,7 +378,10 @@ final class Conference_Core {
     if(!in_array($hook,array('post.php','post-new.php'),true))return;
     $screen=get_current_screen();if(!$screen || $screen->post_type!=='conf_certificate')return;
     wp_enqueue_media();
-    wp_add_inline_script('jquery',"(function($){$(function(){var frame;$('#confcore_certificate_choose').on('click',function(e){e.preventDefault();if(frame){frame.open();return;}frame=wp.media({title:'انتخاب فایل گواهی',button:{text:'استفاده از این فایل'},multiple:false});frame.on('select',function(){var a=frame.state().get('selection').first().toJSON();$('#confcore_certificate_file_id').val(a.id);$('#confcore_certificate_file_name').text(a.filename||a.url);});frame.open();});$('#confcore_certificate_clear').on('click',function(){ $('#confcore_certificate_file_id').val('0');$('#confcore_certificate_file_name').text('فایلی انتخاب نشده است.');});});})(jQuery);");
+    $script=<<<'JS'
+(function($){$(function(){var frame;$('#confcore_certificate_choose').on('click',function(e){e.preventDefault();if(frame){frame.open();return;}frame=wp.media({title:'انتخاب فایل گواهی',button:{text:'استفاده از این فایل'},multiple:false});frame.on('select',function(){var a=frame.state().get('selection').first().toJSON();$('#confcore_certificate_file_id').val(a.id);$('#confcore_certificate_file_name').text(a.filename||a.url);});frame.open();});$('#confcore_certificate_clear').on('click',function(){ $('#confcore_certificate_file_id').val('0');$('#confcore_certificate_file_name').text('فایلی انتخاب نشده است.');});});})(jQuery);
+JS;
+    wp_add_inline_script('jquery',$script);
   }
   public function save_certificate_meta($post_id){
     if(defined('DOING_AUTOSAVE')&&DOING_AUTOSAVE)return;
