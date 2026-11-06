@@ -22,13 +22,13 @@
 <div class="form-group"><label class="check-line"><input id="registration-open" name="registration_open" type="checkbox" checked><span>ثبت‌نام شرکت‌کنندگان فعال باشد</span></label></div>
 <div class="form-group"><label class="form-label" for="review-workflow">گردش کار پس از ارسال مقاله</label><select id="review-workflow" name="review_workflow" class="form-control"><option value="editorial">بررسی دبیرخانه ← داوری ← نتیجه نهایی</option><option value="double-blind">داوری دوسو ناشناس ← تصمیم کمیته علمی</option><option value="single-review">یک داور ← تصمیم دبیر علمی</option></select></div>
 <hr style="margin:25px 0;border:none;border-top:1px solid var(--gray-200);">
-<h3 style="margin-bottom:20px;">تعرفه‌ها (تومان)</h3>
+<h3 style="margin-bottom:20px;">سیاست ثبت‌نام (تومان)</h3>
 <div class="form-row"><div class="form-group"><label class="form-label">شرکت‌کننده عادی</label><input type="number" name="fee_regular" class="form-control" value="1500000" min="0"></div><div class="form-group"><label class="form-label">نویسنده مقاله</label><input type="number" name="fee_author" class="form-control" value="2000000" min="0"></div></div>
 <div class="form-group"><label class="form-label">دانشجویی</label><input type="number" name="fee_student" class="form-control" value="900000" min="0"></div>
 <button type="submit" class="btn btn-primary mt-3">ذخیره تنظیمات نمایشی</button><p class="form-hint">تنظیمات در مرورگر ذخیره می‌شوند؛ برای اعمال همگانی باید به backend متصل شوند.</p></form>
         </div>
       </div>
-    <footer class="admin-main-footer"><span>همایش‌یار · مرکز مدیریت</span><span>نسخه رابط کاربری HTML</span></footer></main></div>
+    <footer class="admin-main-footer"><span>همایش‌یار · مرکز مدیریت</span><span>نسخه رابط کاربری HTML</span></footer><section class="admin-panel"><div class="admin-panel-heading"><h2>سیاست مالی همایش</h2></div><div class="admin-panel-body"><p class="alert alert-success">ثبت‌نام شرکت‌کنندگان و ارسال مقاله رایگان است. هیچ درگاه پرداخت، دریافت وجه، صورتحساب یا تأیید پرداخت در فرایند همایش وجود ندارد.</p></div></section></main></div>
   <script src="js/main.js"></script>
 <script>document.addEventListener("DOMContentLoaded",function(){const f=document.getElementById("conference-settings-form");if(!f)return;try{const saved=JSON.parse(localStorage.getItem("conference_settings")||"{}");Object.keys(saved).forEach(k=>{const el=f.elements.namedItem(k);if(el){if(el.type==="checkbox")el.checked=!!saved[k];else el.value=saved[k];}});}catch(e){}f.addEventListener("submit",function(e){e.preventDefault();const data={};Array.from(f.elements).forEach(el=>{if(el.name)data[el.name]=el.type==="checkbox"?el.checked:el.value;});localStorage.setItem("conference_settings",JSON.stringify(data));showAlert("تنظیمات نمایشی در همین مرورگر ذخیره شد.","success");});});</script></body>
 </html>
