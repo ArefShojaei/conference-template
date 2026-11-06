@@ -18,28 +18,28 @@
       <div class="card">
         <div class="card-header"><h2 style="font-size:1.25rem;">اطلاعات مقاله</h2></div>
         <div class="card-body">
-          <form data-validate data-success="true" data-redirect="dashboard.html">
+          <form id="paper-submission-form" data-validate data-success="true" data-redirect="my-papers.html">
             <div class="form-group">
               <label class="form-label">عنوان مقاله *</label>
-              <input type="text" class="form-control" required placeholder="عنوان کامل مقاله">
+              <input type="text" name="title" class="form-control" required maxlength="300" placeholder="عنوان کامل مقاله">
             </div>
             <div class="form-group">
               <label class="form-label">عنوان انگلیسی</label>
-              <input type="text" class="form-control" placeholder="English Title">
+              <input type="text" name="title_en" class="form-control" maxlength="300" placeholder="English Title">
             </div>
             <div class="form-group">
               <label class="form-label">چکیده (۱۵۰ تا ۳۵۰ کلمه) *</label>
-              <textarea class="form-control" required placeholder="چکیده مقاله را وارد کنید..." style="min-height:150px;"></textarea>
+              <textarea id="paper-abstract" name="abstract" class="form-control" required minlength="150" maxlength="3500" placeholder="چکیده مقاله را وارد کنید..." style="min-height:150px;"></textarea><small class="form-hint" id="abstract-word-count" aria-live="polite">۰ کلمه از ۱۵۰ تا ۳۵۰ کلمه</small>
             </div>
             <div class="form-group">
               <label class="form-label">کلمات کلیدی *</label>
-              <input type="text" class="form-control" required placeholder="کلمات را با ویرگول جدا کنید">
+              <input type="text" name="keywords" class="form-control" required placeholder="کلمات را با ویرگول جدا کنید">
               <div class="form-hint">حداقل ۳ و حداکثر ۶ کلمه کلیدی</div>
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">محور همایش *</label>
-                <select class="form-control" required>
+                <select name="topic" class="form-control" required>
                   <option value="">انتخاب محور...</option>
                   <option>هوش مصنوعی و یادگیری ماشین</option>
                   <option>رایانش ابری و توزیع‌شده</option>
@@ -51,7 +51,7 @@
               </div>
               <div class="form-group">
                 <label class="form-label">نوع ارائه *</label>
-                <select class="form-control" required>
+                <select name="presentation_type" class="form-control" required>
                   <option value="">انتخاب...</option>
                   <option>ارائه شفاهی</option>
                   <option>پوستر</option>
@@ -64,7 +64,7 @@
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">نام نویسنده مسئول *</label>
-                <input type="text" class="form-control" required>
+                <input type="text" name="corresponding_author" class="form-control" required maxlength="160">
               </div>
               <div class="form-group">
                 <label class="form-label">شماره موبایل نویسنده مسئول *</label>
@@ -87,7 +87,7 @@
                 <div class="file-upload-icon">📄</div>
                 <p>فایل را اینجا رها کنید یا <span>انتخاب کنید</span></p>
                 <p class="file-name text-muted" style="font-size:0.85rem;">حداکثر ۱۰ مگابایت — فرمت PDF</p>
-                <input type="file" accept=".pdf" style="display:none;" required>
+                <input type="file" name="paper_file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;" required data-file-role="paper">
               </div>
             </div>
             <div class="form-group">
@@ -95,7 +95,7 @@
               <div class="file-upload" onclick="this.querySelector('input').click()">
                 <div class="file-upload-icon">📎</div>
                 <p>فایل‌های اضافی (کد، داده، ...)</p>
-                <input type="file" style="display:none;">
+                <input type="file" name="supplementary_files[]" accept=".pdf,.doc,.docx,.zip,.csv,.xlsx,.txt,.png,.jpg" multiple style="display:none;" data-file-role="supplementary">
               </div>
             </div>
 
@@ -109,7 +109,20 @@
             </div>
 
             <button type="submit" class="btn btn-primary btn-lg btn-block mt-3">ارسال مقاله</button>
-          </form>
+          <p class="form-hint">فایل مقاله: PDF یا Word، حداکثر ۱۰ مگابایت. فایل‌های مکمل تا ۲۰ مگابایت برای هر فایل.</p></form>
         </div>
       </div>
-    </div></div><footer class="admin-main-footer"><span>همایش‌یار · فضای کاربری</span><span>نسخه رابط کاربری HTML</span></footer></main></div></body></html>
+    </div></div><footer class="admin-main-footer"><span>همایش‌یار · فضای کاربری</span><span>نسخه رابط کاربری HTML</span></footer></main></div><script>
+(function(){
+ const form=document.getElementById('paper-submission-form'); if(!form)return;
+ const abstractField=document.getElementById('paper-abstract'),counter=document.getElementById('abstract-word-count');
+ const words=()=>abstractField.value.trim().split(/\\s+/u).filter(Boolean).length;
+ const update=()=>{const n=words();counter.textContent=n.toLocaleString('fa-IR')+' کلمه — بازه مجاز ۱۵۰ تا ۳۵۰';counter.style.color=(n>=150&&n<=350)?'':'#b91c1c';abstractField.setCustomValidity((n<150||n>350)?'چکیده باید بین ۱۵۰ تا ۳۵۰ کلمه باشد.':'');};
+ abstractField.addEventListener('input',update);update();
+ form.addEventListener('submit',function(e){update();if(!form.checkValidity()){e.preventDefault();form.reportValidity();return;}
+ const paper=form.querySelector('[data-file-role="paper"]');if(paper&&paper.files[0]){const file=paper.files[0],ext=file.name.toLowerCase().split('.').pop(),allowed=['pdf','doc','docx'];if(file.size>10*1024*1024||!allowed.includes(ext)){e.preventDefault();paper.setCustomValidity('فایل مقاله باید PDF یا Word و حداکثر ۱۰ مگابایت باشد.');paper.reportValidity();paper.setCustomValidity('');return;}}
+ const extra=form.querySelector('[data-file-role="supplementary"]');if(extra){for(const file of extra.files){if(file.size>20*1024*1024){e.preventDefault();extra.setCustomValidity('هر فایل مکمل باید کمتر از ۲۰ مگابایت باشد.');extra.reportValidity();extra.setCustomValidity('');return;}}}
+ });
+})();
+</script>
+</body></html>
