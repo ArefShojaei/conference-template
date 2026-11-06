@@ -243,6 +243,7 @@ final class Conference_Core {
     $post_id=wp_insert_post(array('post_type'=>'conf_paper','post_status'=>'pending','post_title'=>$title,'post_author'=>get_current_user_id()),true);
     if(is_wp_error($post_id)){@unlink($target);return new WP_Error('save_error','ثبت اطلاعات مقاله ناموفق بود.',array('status'=>500));}
     update_post_meta($post_id,'_conf_private_path',$target); update_post_meta($post_id,'_conf_original_name',$name); update_post_meta($post_id,'_conf_file_size',(int)$f['size']);
+    $authors=$request->get_param('authors');if(is_string($authors))$authors=json_decode(wp_unslash($authors),true);if(!is_array($authors))$authors=array();$authors=array_values(array_unique(array_filter(array_map('sanitize_text_field',$authors))));if(count($authors)<2){wp_delete_post($post_id,true);@unlink($target);return new WP_Error('authors_required','حداقل نام دو نویسنده را وارد کنید.',array('status'=>400));}update_post_meta($post_id,'_conf_paper_authors',$authors);
     $this->send_submission_sms($post_id);
     return rest_ensure_response(array('success'=>true,'message'=>'مقاله با موفقیت ثبت شد و در انتظار بررسی است.','paper_id'=>$post_id));
   }
@@ -292,7 +293,7 @@ final class Conference_Core {
   public function submit_shortcode(){
     if(!is_user_logged_in())return '<p>برای ارسال مقاله ابتدا <a href="'.esc_url(home_url('/login/')).'">وارد شوید</a>.</p>';
     if(!current_user_can('submit_conference_papers'))return '<p>دسترسی ارسال مقاله برای حساب شما فعال نیست. با مدیر همایش تماس بگیرید.</p>';
-    $this->form_script(); ob_start(); ?><div class="card confcore-form"><h2>ارسال مقاله</h2><form class="confcore-paper-form"><label>عنوان مقاله</label><input type="text" name="title" maxlength="180" required><label>فایل مقاله (PDF، DOC، DOCX - حداکثر ۲۰ مگابایت)</label><input type="file" name="paper" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required><button class="btn btn-primary" type="submit">ارسال برای بررسی</button><p class="confcore-message" role="status"></p></form></div><?php return ob_get_clean();
+    $this->form_script(); ob_start(); ?><div class="card confcore-form"><h2>ارسال مقاله</h2><form class="confcore-paper-form"><label>عنوان مقاله</label><input type="text" name="title" maxlength="180" required><label>نویسندگان مقاله (حداقل ۲ نفر)</label><div class="confcore-author-tags"><div class="confcore-author-tag-list" aria-live="polite"></div><div class="confcore-author-entry"><input type="text" class="confcore-author-input" maxlength="120" placeholder="نام نویسنده را وارد کنید و Enter بزنید"><button type="button" class="button confcore-author-add">افزودن نویسنده</button></div></div><p>نام‌ها به شکل تگ جدا نمایش داده می‌شوند و با × قابل حذف‌اند.</p><label>فایل مقاله (PDF، DOC، DOCX - حداکثر ۲۰ مگابایت)</label><input type="file" name="paper" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required><button class="btn btn-primary" type="submit">ارسال برای بررسی</button><p class="confcore-message" role="status"></p></form></div><?php return ob_get_clean();
   }
   public function dashboard_shortcode(){
     if(!is_user_logged_in())return '<p>برای مشاهده پنل ابتدا <a href="'.esc_url(home_url('/login/')).'">وارد شوید</a>.</p>';
