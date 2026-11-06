@@ -14,7 +14,7 @@
 <div class="auth-visual-footer"><span>۱۵ تا ۱۷ آذر ۱۴۰۵</span><span>تهران · ایران</span></div></section>
 <section class="auth-panel auth-register-panel"><div class="auth-panel-top"><a href="index.html" class="auth-back">← بازگشت به وب‌سایت</a><span>قبلاً عضو شده‌اید؟ <a href="login.html">وارد شوید</a></span></div>
 <div class="auth-form-wrap"><div class="auth-step">ایجاد حساب کاربری</div><h2>ثبت‌نام رایگان</h2><p class="auth-intro">اطلاعات خود را برای ساخت حساب وارد کنید.</p>
-<div class="demo-notice"><span>i</span><p><strong>نسخه نمایشی HTML</strong><br>فرم و اعتبارسنجی در مرورگر اجرا می‌شوند؛ ذخیره واقعی حساب، ایمیل تأیید و احراز هویت نیازمند اتصال به backend است.</p></div>
+
 <form class="auth-form" id="register-form" data-validate data-success="true" data-redirect="dashboard.html">
 <div class="form-row"><div class="form-group"><label for="first-name" class="form-label">نام فارسی *</label><input id="first-name" name="first_name" type="text" class="form-control" required autocomplete="given-name" maxlength="60" placeholder="نام"></div>
 <div class="form-group"><label for="last-name" class="form-label">نام خانوادگی فارسی *</label><input id="last-name" name="last_name" type="text" class="form-control" required autocomplete="family-name" maxlength="80" placeholder="نام خانوادگی"></div></div>
@@ -29,7 +29,7 @@
 <div class="form-group"><label for="password-confirm" class="form-label">تکرار رمز عبور *</label><input id="password-confirm" name="password_confirm" type="password" class="form-control" required autocomplete="new-password" minlength="8" maxlength="128" placeholder="رمز عبور را تکرار کنید"></div>
 <label class="check-line terms-line"><input type="checkbox" name="terms" required><span>با <a href="faq.html">قوانین همایش</a> موافقم.</span></label>
 <button type="submit" class="btn btn-primary btn-lg btn-block auth-submit">ساخت حساب کاربری <span>←</span></button></form>
-<p class="auth-legal">اطلاعات واردشده در نسخه نمایشی در سرور ذخیره نمی‌شود.</p></div><div class="auth-panel-footer">© ۱۴۰۵ همایش فناوری و نوآوری <span>ثبت‌نام حساب کاربری</span></div></section></main>
+<p class="auth-legal"></p></div><div class="auth-panel-footer">© ۱۴۰۵ همایش فناوری و نوآوری <span>ثبت‌نام حساب کاربری</span></div></section></main>
 <script src="js/main.js"></script>
 <script>document.getElementById('register-form').addEventListener('submit',function(e){const p=document.getElementById('password'),c=document.getElementById('password-confirm');if(p.value!==c.value){e.preventDefault();c.setCustomValidity('رمزهای عبور یکسان نیستند.');c.reportValidity();}else{c.setCustomValidity('');}});document.getElementById('password-confirm').addEventListener('input',function(){this.setCustomValidity('');});</script>
 <script>(function(){const form=document.getElementById("register-form"),field=document.getElementById("national-id");if(!form||!field)return;function validIranCode(value){if(!/^[0-9]{10}$/.test(value)||value.split("").every(digit=>digit===value[0]))return false;const digits=value.split("").map(Number),check=digits[9],sum=digits.slice(0,9).reduce((total,digit,index)=>total+digit*(10-index),0)%11;return sum<2?check===sum:check===11-sum;}field.addEventListener("input",()=>field.setCustomValidity(""));form.addEventListener("submit",function(event){if(!validIranCode(field.value)){event.preventDefault();field.setCustomValidity("کد ملی معتبر وارد کنید.");field.reportValidity();}});})();</script></body></html>
