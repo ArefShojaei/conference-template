@@ -11,3 +11,7 @@
 
 /* Removable author chips */
 .confcore-author-tags{margin:8px 0 16px}.confcore-author-tag-list{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.confcore-author-tag{display:inline-flex;align-items:center;gap:9px;padding:6px 12px;border:1px solid #b7d9cc;border-radius:999px;background:#eaf5ef;color:#174a3e;font-weight:600;max-width:100%}.confcore-author-remove{border:0!important;background:transparent!important;color:#8b3434!important;padding:0!important;margin:0!important;line-height:1;font-size:1.2rem;cursor:pointer}.confcore-author-entry{display:flex;align-items:center;gap:8px}.confcore-author-entry input{flex:1;min-width:0}.confcore-author-entry button{white-space:nowrap}@media(max-width:480px){.confcore-author-entry{flex-direction:column;align-items:stretch}.confcore-author-entry button{width:100%}}
+
+/* Letter-only account avatars */
+.confcore-user-heading,.confcore-profile-heading{display:flex;align-items:center;gap:14px}.confcore-user-heading h1{margin:0}.confcore-profile-heading{margin-bottom:20px}.confcore-profile-heading h2{margin:0 0 5px}.confcore-profile-heading p{margin:0;color:#65756f;font-size:.9rem}.confcore-user-avatar{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:46px;height:46px;border-radius:50%;border:1px solid #b9e5d4;background:linear-gradient(135deg,#d8f1e8,#65b99b);color:#123d38;font-weight:800;font-size:1rem;letter-spacing:0}
+@media(max-width:480px){.confcore-user-heading,.confcore-profile-heading{align-items:flex-start;gap:10px}.confcore-user-avatar{width:38px;height:38px}}
