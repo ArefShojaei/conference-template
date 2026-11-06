@@ -485,15 +485,6 @@ final class Conference_Core {
     add_menu_page('سامانه همایش','سامانه همایش','manage_conference','confcore',array($this,'admin_page'),'dashicons-groups',26);
     add_submenu_page('confcore','ابزارها و داده نمونه','ابزارها','manage_options','confcore-tools',array($this,'tools_page'));
   }
-  public function sanitize_api_key($value){$value=sanitize_text_field($value);return $value!==''?$value:get_option('confcore_kavenegar_key','');}
-  public function settings(){
-    register_setting('confcore_settings','confcore_kavenegar_key',array('sanitize_callback'=>array($this,'sanitize_api_key')));
-    register_setting('confcore_settings','confcore_kavenegar_template',array('sanitize_callback'=>'sanitize_text_field'));
-    register_setting('confcore_settings','confcore_kavenegar_sender',array('sanitize_callback'=>'sanitize_text_field'));
-    register_setting('confcore_settings','confcore_kavenegar_result_template',array('sanitize_callback'=>'sanitize_text_field'));
-    register_setting('confcore_settings','confcore_kavenegar_submission_template',array('sanitize_callback'=>'sanitize_text_field'));
-    register_setting('confcore_settings','confcore_kavenegar_registration_template',array('sanitize_callback'=>'sanitize_text_field'));
-  }
   public function admin_page(){
     if(!current_user_can('manage_conference'))return;
     $counts=array('مقالات دریافت‌شده'=>wp_count_posts('conf_paper'),'ثبت‌نام شرکت‌کنندگان'=>wp_count_posts('conf_registration'),'سخنرانان'=>wp_count_posts('conf_speaker'));
