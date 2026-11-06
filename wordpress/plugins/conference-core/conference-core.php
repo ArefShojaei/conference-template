@@ -40,6 +40,7 @@ final class Conference_Core {
     add_action('admin_post_nopriv_confcore_contact',array($this,'save_contact'));
     add_action('admin_post_confcore_event_registration',array($this,'save_event_registration'));
     add_action('admin_post_confcore_profile',array($this,'save_profile'));
+    add_action('admin_post_confcore_certificate_download',array($this,'download_certificate'));
     add_shortcode('conference_login',array($this,'login_shortcode'));
     add_shortcode('conference_register',array($this,'register_shortcode'));
     add_shortcode('conference_dashboard',array($this,'dashboard_shortcode'));
@@ -373,11 +374,19 @@ final class Conference_Core {
     if($file_id && get_post_type($file_id)==='attachment')update_post_meta($post_id,'_conf_certificate_file',$file_id);else delete_post_meta($post_id,'_conf_certificate_file');
     if($user_id && get_user_by('id',$user_id))update_post_meta($post_id,'_conf_certificate_user_id',$user_id);else delete_post_meta($post_id,'_conf_certificate_user_id');
   }
+  public function download_certificate(){
+    if(!is_user_logged_in())wp_die('برای دریافت گواهی وارد حساب شوید.',403);
+    $id=isset($_GET['certificate'])?absint($_GET['certificate']):0;if(!$id||!wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce']??'')),'confcore_certificate_download_'.$id))wp_die('درخواست نامعتبر است.',403);
+    $post=get_post($id);if(!$post||$post->post_type!=='conf_certificate'||$post->post_status!=='publish')wp_die('گواهی در دسترس نیست.',404);
+    $is_recipient=(int)get_post_meta($id,'_conf_certificate_user_id',true)===get_current_user_id();$is_admin=current_user_can('manage_conference')||current_user_can('manage_options');if(!$is_recipient&&!$is_admin)wp_die('دسترسی غیرمجاز.',403);
+    $file_id=(int)get_post_meta($id,'_conf_certificate_file',true);$path=$file_id?get_attached_file($file_id):'';$base=realpath(wp_upload_dir()['basedir']);$real=$path?realpath($path):false;if(!$base||!$real||strpos($real,$base.DIRECTORY_SEPARATOR)!==0||!is_file($real))wp_die('فایل گواهی موجود نیست.',404);
+    $mime=get_post_mime_type($file_id);if(!$mime)$mime='application/octet-stream';nocache_headers();header('X-Content-Type-Options: nosniff');header('Content-Type: '.$mime);header('Content-Length: '.filesize($real));header('Content-Disposition: attachment; filename="'.sanitize_file_name(basename($real)).'"');readfile($real);exit;
+  }
   public function certificates_shortcode(){
     if(!is_user_logged_in())return '<p>برای مشاهده گواهی‌ها وارد شوید.</p>';
     $items=get_posts(array('post_type'=>'conf_certificate','meta_key'=>'_conf_certificate_user_id','meta_value'=>get_current_user_id(),'posts_per_page'=>50,'post_status'=>'publish'));
     if(!$items)return '<p>گواهی‌ای برای حساب شما ثبت نشده است.</p>';
-    ob_start();echo '<div class="grid grid-2">';foreach($items as $p){$file_id=(int)get_post_meta($p->ID,'_conf_certificate_file',true);$file_url=$file_id?wp_get_attachment_url($file_id):'';echo '<article class="card"><h3>'.esc_html($p->post_title).'</h3><div>'.wp_kses_post(apply_filters('the_content',$p->post_content)).'</div>'.($file_url?'<a class="btn btn-primary" href="'.esc_url($file_url).'" download>مشاهده و دانلود گواهی</a>':'').'</article>';}echo '</div>';return ob_get_clean();
+    ob_start();echo '<div class="grid grid-2">';foreach($items as $p){$file_id=(int)get_post_meta($p->ID,'_conf_certificate_file',true);$file_url=$file_id?wp_get_attachment_url($file_id):'';echo '<article class="card"><h3>'.esc_html($p->post_title).'</h3><div>'.wp_kses_post(apply_filters('the_content',$p->post_content)).'</div>'.($file_url?'<a class="btn btn-primary" href="'.esc_url(wp_nonce_url(admin_url('admin-post.php?action=confcore_certificate_download&certificate='.$p->ID),'confcore_certificate_download_'.$p->ID)).'">مشاهده و دانلود گواهی</a>':'').'</article>';}echo '</div>';return ob_get_clean();
   }
   public function papers_shortcode(){
     $q=new WP_Query(array('post_type'=>'conf_paper','post_status'=>'publish','posts_per_page'=>20));
