@@ -456,3 +456,6 @@ a:not(.btn):hover{color:#0f766e}
  .nav-menu.show + .nav-actions{display:flex}
  .nav-actions .btn{min-width:88px;text-align:center}
 }
+
+/* Account initials avatars; no profile photo upload in this event platform */
+.admin-avatar,.speaker-avatar{display:inline-grid;place-items:center;flex:0 0 auto;border-radius:50%;font-weight:800;letter-spacing:0;background:linear-gradient(135deg,#d8f1e8,#65b99b)!important;color:#123d38!important;border:1px solid #b9e5d4}.admin-avatar{width:42px;height:42px;font-size:1rem}.speaker-avatar{width:76px;height:76px;font-size:1.4rem}
