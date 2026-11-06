@@ -70,7 +70,7 @@ function conf1405_meta_description(){
  echo '<meta property="og:type" content="'.(is_singular('post')?'article':'website').'">'.PHP_EOL;
  echo '<meta property="og:title" content="'.esc_attr($title).'">'.PHP_EOL;
  echo '<meta property="og:description" content="'.esc_attr($description).'">'.PHP_EOL;
- echo '<meta property="og:url" content="'.esc_url(is_singular()?get_permalink():home_url(add_query_arg(array(),$GLOBALS['wp']->request))).'">'.PHP_EOL;
+ echo '<meta property="og:url" content="'.esc_url(is_singular()?get_permalink():(is_front_page()?home_url('/'):get_pagenum_link())).'">'.PHP_EOL;
  if(has_post_thumbnail() && is_singular())echo '<meta property="og:image" content="'.esc_url(get_the_post_thumbnail_url(null,'large')).'">'.PHP_EOL;
 }
 add_action('wp_head','conf1405_meta_description',2);
