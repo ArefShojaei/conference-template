@@ -230,7 +230,7 @@ final class Conference_Core {
     if(!in_array($ext,array('pdf','doc','docx'),true))return new WP_Error('file_type','فقط فایل PDF، DOC یا DOCX مجاز است.',array('status'=>415));
     $handle=fopen($f['tmp_name'],'rb'); $magic=$handle?fread($handle,8):''; if($handle)fclose($handle);
     $valid=($ext==='pdf' && strpos($magic,'%PDF-')===0) || ($ext==='doc' && substr($magic,0,8)==="\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1");
-    if($ext==='docx' && class_exists('ZipArchive')){ $zip=new ZipArchive(); if($zip->open($f['tmp_name'])===true){$valid=$zip->locateName('[Content_Types].xml')!==false && $zip->locateName('word/document.xml')!==false;$zip->close();} }
+    if($ext==='docx' && class_exists('ZipArchive')){ $zip=new ZipArchive(); if($zip->open($f['tmp_name'])===true){$valid=$zip->locateName('[Content_Types].xml')!==false && $zip->locateName('word/document.xml')!==false && $zip->numFiles<=1000;$expanded=0;if($valid){for($i=0;$i<$zip->numFiles;$i++){$stat=$zip->statIndex($i);$expanded+=(int)($stat['size']??0);if($expanded>100*1024*1024){$valid=false;break;}}}$zip->close();} }
     if(!$valid)return new WP_Error('file_signature','محتوای فایل با پسوند آن مطابقت ندارد یا فایل DOCX معتبر نیست.',array('status'=>415));
     $dir=wp_upload_dir(); $private=$dir['basedir'].'/conference-private';
     if(!wp_mkdir_p($private))return new WP_Error('storage_error','فضای ذخیره‌سازی آماده نیست.',array('status'=>500));
