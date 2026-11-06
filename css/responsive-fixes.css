@@ -51,3 +51,29 @@ button,.btn{touch-action:manipulation}
 @media(max-width:1100px){.admin-app .admin-layout{grid-template-columns:220px minmax(0,1fr)}.admin-app .admin-kpi-grid,.admin-app .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-app .admin-content-grid,.admin-app .admin-bottom-grid,.admin-app .grid.grid-2{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:760px){.admin-app .admin-layout{display:flex;flex-direction:column}.admin-app .admin-sidebar{position:relative;top:auto;max-height:none;width:100%;padding:10px 12px;overflow-x:auto;overflow-y:hidden}.admin-app .admin-sidebar-intro,.admin-app .admin-sidebar-help,.admin-app .admin-sidebar-footer{display:none}.admin-app .admin-nav{display:flex;flex-direction:row;gap:6px;min-width:max-content;overflow:visible}.admin-app .admin-nav-label{display:none}.admin-app .admin-nav>a{white-space:nowrap;min-height:40px;padding:9px 12px}.admin-app .admin-main{padding:18px 12px}.admin-app .admin-topbar{padding:10px 12px;flex-wrap:wrap;gap:8px}.admin-app .admin-topbar-center{display:none}.admin-app .admin-topbar-actions{margin-inline-start:auto;gap:8px}.admin-app .admin-site-link,.admin-app .admin-user-label{display:none}.admin-app .admin-page-heading{flex-direction:column;align-items:flex-start;gap:12px}.admin-app .admin-heading-actions{width:100%;flex-wrap:wrap}.admin-app .admin-content-grid,.admin-app .admin-bottom-grid,.admin-app .grid.grid-2{grid-template-columns:minmax(0,1fr)}.admin-app .admin-kpi-grid,.admin-app .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-app .admin-main .form-row{grid-template-columns:minmax(0,1fr);gap:0}.registration-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.admin-app .admin-panel-heading{flex-wrap:wrap}.admin-app .admin-main-footer{gap:10px;flex-wrap:wrap}}
 @media(max-width:420px){.admin-app .admin-kpi-grid,.admin-app .stats-grid,.registration-summary-grid{grid-template-columns:minmax(0,1fr)!important}.admin-app .admin-main{padding-inline:10px}.admin-app .admin-page-heading h1{font-size:1.2rem}.admin-app .admin-avatar{width:34px;height:34px}}
+
+
+/* Mobile panel navigation uses a hamburger/off-canvas drawer, never a horizontal menu strip. */
+.panel-menu-toggle{display:none;align-items:center;justify-content:center;gap:8px;border:1px solid #dbe5df;background:#fff;color:#173e38;border-radius:10px;padding:9px 12px;font:inherit;font-weight:700;cursor:pointer;min-height:42px}
+.panel-menu-toggle-label{font-size:.82rem}
+.panel-menu-overlay{display:none}
+@media(max-width:760px){
+ .admin-app .admin-layout{display:block;position:relative}
+ .admin-app .admin-sidebar{position:fixed!important;inset:0 auto 0 0;width:min(300px,84vw)!important;max-width:84vw;max-height:100dvh!important;height:100dvh;overflow-y:auto!important;overflow-x:hidden!important;z-index:10020;transform:translateX(-110%);transition:transform .25s ease;display:block!important;padding:18px 14px!important;box-shadow:0 0 40px #0a292533;border-radius:0 18px 18px 0;background:#143f38!important}
+ .admin-app[dir="rtl"] .admin-sidebar{inset:0 0 0 auto;transform:translateX(110%);border-radius:18px 0 0 18px}
+ .admin-app .admin-sidebar.is-open{transform:translateX(0)}
+ .admin-app .admin-sidebar-intro,.admin-app .admin-sidebar-footer{display:block!important}
+ .admin-app .admin-nav{display:flex!important;flex-direction:column!important;min-width:0!important;overflow:visible!important;gap:5px!important}
+ .admin-app .admin-nav-label{display:block!important}
+ .admin-app .admin-nav>a{white-space:normal!important;width:100%;justify-content:flex-start;min-height:44px}
+ .admin-app .admin-main{padding:18px 12px}
+ .admin-app .admin-topbar{display:flex;align-items:center;flex-wrap:wrap}
+ .admin-app .panel-menu-toggle{display:inline-flex;order:0;flex-shrink:0}
+ .admin-app .admin-brand{order:1;min-width:0}
+ .admin-app .admin-topbar-actions{order:2;margin-inline-start:auto}
+ .admin-app .admin-topbar-center{display:none}
+ .admin-app .panel-menu-overlay{display:block;position:fixed;inset:0;background:#071b18a8;border:0;z-index:10010;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s}
+ .admin-app .panel-menu-overlay.is-visible{opacity:1;visibility:visible}
+ body.panel-menu-open{overflow:hidden}
+}
+@media(prefers-reduced-motion:reduce){.admin-app .admin-sidebar{transition:none}.admin-app .panel-menu-overlay{transition:none}}
