@@ -115,6 +115,11 @@
       </div>
     </div></div><footer class="admin-main-footer"><span>همایش‌یار · فضای کاربری</span><span>نسخه رابط کاربری HTML</span></footer></main></div><script>
 (function(){
+ document.addEventListener('click',function(e){var add=e.target.closest('.author-chip-add'),remove=e.target.closest('.author-chip-remove');if(add){var box=add.closest('[data-author-chip-editor]'),input=box.querySelector('.author-chip-input'),name=input.value.trim();if(!name)return;if(Array.from(box.querySelectorAll('.author-chip')).some(function(t){return t.dataset.name===name;})){input.value='';return;}var tag=document.createElement('span');tag.className='author-chip';tag.dataset.name=name;var label=document.createElement('span');label.textContent=name;var button=document.createElement('button');button.type='button';button.className='author-chip-remove';button.setAttribute('aria-label','حذف '+name);button.textContent='×';tag.append(label,button);box.querySelector('.author-chip-list').append(tag);input.value='';}if(remove)remove.closest('.author-chip').remove();});
+ document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.matches('.author-chip-input')){e.preventDefault();e.target.closest('[data-author-chip-editor]').querySelector('.author-chip-add').click();}});
+ document.addEventListener('submit',function(e){var form=e.target;if(!form.querySelector('[data-author-chip-editor]'))return;var lead=form.querySelector('[name=corresponding_author]'),chips=form.querySelectorAll('.author-chip');if(!lead||!lead.value.trim()||chips.length<1){e.preventDefault();alert('برای ارسال مقاله، نام نویسنده مسئول و حداقل یک نویسنده همکار (دو نویسنده یا بیشتر) را وارد کنید.');}});
+})();
+(function(){
  const form=document.getElementById('paper-submission-form'); if(!form)return;
  const abstractField=document.getElementById('paper-abstract'),counter=document.getElementById('abstract-word-count');
  const words=()=>abstractField.value.trim().split(/\s+/u).filter(Boolean).length;
