@@ -21,6 +21,9 @@ final class Conference_Core {
     add_action('admin_menu',array($this,'admin_menu'));
     add_action('admin_init',array($this,'settings'));
     add_action('add_meta_boxes',array($this,'contact_meta_box'));
+    add_action('add_meta_boxes_conf_certificate',array($this,'certificate_meta_box'));
+    add_action('save_post_conf_certificate',array($this,'save_certificate_meta'));
+    add_action('admin_enqueue_scripts',array($this,'certificate_admin_assets'));
     add_action('admin_head-user-edit.php',array($this,'hide_core_email_field'));
     add_action('admin_head-profile.php',array($this,'hide_core_email_field'));
     add_action('admin_head-user-new.php',array($this,'hide_core_email_field'));
@@ -346,11 +349,35 @@ final class Conference_Core {
     $updated=wp_update_user(array('ID'=>get_current_user_id(),'display_name'=>$name));if(is_wp_error($updated))wp_die('ذخیره پروفایل انجام نشد.',500);
     wp_safe_redirect(home_url('/profile/?updated=1'));exit;
   }
+  public function certificate_meta_box($post){
+    add_meta_box('confcore_certificate_file','فایل گواهی برای دانلود',function($post){
+      $file_id=(int)get_post_meta($post->ID,'_conf_certificate_file',true);
+      $url=$file_id?wp_get_attachment_url($file_id):'';
+      wp_nonce_field('confcore_certificate_file','confcore_certificate_nonce');
+      echo '<input type="hidden" id="confcore_certificate_file_id" name="confcore_certificate_file_id" value="'.esc_attr($file_id).'">';
+      echo '<p><button type="button" class="button" id="confcore_certificate_choose">انتخاب فایل گواهی از کتابخانه رسانه</button> <button type="button" class="button" id="confcore_certificate_clear">حذف فایل</button></p>';
+      echo '<p id="confcore_certificate_file_name">'.($url?esc_html(basename($url)):'فایلی انتخاب نشده است.').'</p>';
+      echo '<p class="description">نویسنده/گیرنده گواهی را از بخش «نویسنده» وردپرس انتخاب کنید. عنوان و محتوای برگه گواهی در همین ویرایشگر قابل تکمیل است.</p>';
+    },'conf_certificate','normal','high');
+  }
+  public function certificate_admin_assets($hook){
+    if(!in_array($hook,array('post.php','post-new.php'),true))return;
+    $screen=get_current_screen();if(!$screen || $screen->post_type!=='conf_certificate')return;
+    wp_enqueue_media();
+    wp_add_inline_script('jquery',"(function($){$(function(){var frame;$('#confcore_certificate_choose').on('click',function(e){e.preventDefault();if(frame){frame.open();return;}frame=wp.media({title:'انتخاب فایل گواهی',button:{text:'استفاده از این فایل'},multiple:false});frame.on('select',function(){var a=frame.state().get('selection').first().toJSON();$('#confcore_certificate_file_id').val(a.id);$('#confcore_certificate_file_name').text(a.filename||a.url);});frame.open();});$('#confcore_certificate_clear').on('click',function(){ $('#confcore_certificate_file_id').val('0');$('#confcore_certificate_file_name').text('فایلی انتخاب نشده است.');});});})(jQuery);");
+  }
+  public function save_certificate_meta($post_id){
+    if(defined('DOING_AUTOSAVE')&&DOING_AUTOSAVE)return;
+    if(!isset($_POST['confcore_certificate_nonce'])||!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['confcore_certificate_nonce'])),'confcore_certificate_file'))return;
+    if(!current_user_can('edit_post',$post_id))return;
+    $file_id=absint($_POST['confcore_certificate_file_id']??0);
+    if($file_id && get_post_type($file_id)==='attachment')update_post_meta($post_id,'_conf_certificate_file',$file_id);else delete_post_meta($post_id,'_conf_certificate_file');
+  }
   public function certificates_shortcode(){
     if(!is_user_logged_in())return '<p>برای مشاهده گواهی‌ها وارد شوید.</p>';
     $items=get_posts(array('post_type'=>'conf_certificate','author'=>get_current_user_id(),'posts_per_page'=>50,'post_status'=>'publish'));
     if(!$items)return '<p>گواهی‌ای برای حساب شما ثبت نشده است.</p>';
-    ob_start();echo '<div class="grid grid-2">';foreach($items as $p){echo '<article class="card"><h3>'.esc_html($p->post_title).'</h3><div>'.wp_kses_post(apply_filters('the_content',$p->post_content)).'</div></article>';}echo '</div>';return ob_get_clean();
+    ob_start();echo '<div class="grid grid-2">';foreach($items as $p){$file_id=(int)get_post_meta($p->ID,'_conf_certificate_file',true);$file_url=$file_id?wp_get_attachment_url($file_id):'';echo '<article class="card"><h3>'.esc_html($p->post_title).'</h3><div>'.wp_kses_post(apply_filters('the_content',$p->post_content)).'</div>'.($file_url?'<a class="btn btn-primary" href="'.esc_url($file_url).'" download>مشاهده و دانلود گواهی</a>':'').'</article>';}echo '</div>';return ob_get_clean();
   }
   public function papers_shortcode(){
     $q=new WP_Query(array('post_type'=>'conf_paper','post_status'=>'publish','posts_per_page'=>20));
