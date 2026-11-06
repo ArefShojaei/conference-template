@@ -282,7 +282,7 @@ final class Conference_Core {
     if(!$user)return $avatar;$initials=$this->user_initials($user->display_name);$size=max(24,(int)$size);$style='display:inline-flex;align-items:center;justify-content:center;width:'.$size.'px;height:'.$size.'px;border-radius:50%;background:linear-gradient(135deg,#d8f1e8,#65b99b);color:#123d38;border:1px solid #b9e5d4;font-weight:800;font-size:'.max(10,(int)round($size*.36)).'px;line-height:1;';
     return '<span class="confcore-initial-avatar" role="img" aria-label="'.esc_attr($alt?:$user->display_name).'" style="'.esc_attr($style).'">'.esc_html($initials).'</span>';
   }
-  private function user_initials($name){$parts=preg_split('/\\s+/u',trim((string)$name));$parts=array_values(array_filter($parts));$first=isset($parts[0])?(function_exists('mb_substr')?mb_substr($parts[0],0,1,'UTF-8'):substr($parts[0],0,1)):'';$last=count($parts)>1?(function_exists('mb_substr')?mb_substr($parts[count($parts)-1],0,1,'UTF-8'):substr($parts[count($parts)-1],0,1)):'';return $first.$last;}
+  private function user_initials($name){$parts=preg_split('/\\s+/u',trim((string)$name));$parts=array_values(array_filter($parts));$first=isset($parts[0])?(function_exists('mb_substr')?mb_substr($parts[0],0,1,'UTF-8'):preg_replace('/^(.).*$/us','$1',$parts[0])):'';$last=count($parts)>1?(function_exists('mb_substr')?mb_substr($parts[count($parts)-1],0,1,'UTF-8'):preg_replace('/^(.).*$/us','$1',$parts[count($parts)-1])):'';return $first.$last;}
   public function dashboard_shortcode(){
     if(!is_user_logged_in())return '<p>برای مشاهده پنل ابتدا <a href="'.esc_url(home_url('/login/')).'">وارد شوید</a>.</p>';
     $this->form_script();
