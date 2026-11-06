@@ -459,3 +459,6 @@ a:not(.btn):hover{color:#0f766e}
 
 /* Account initials avatars; no profile photo upload in this event platform */
 .admin-avatar,.speaker-avatar{display:inline-grid;place-items:center;flex:0 0 auto;border-radius:50%;font-weight:800;letter-spacing:0;background:linear-gradient(135deg,#d8f1e8,#65b99b)!important;color:#123d38!important;border:1px solid #b9e5d4}.admin-avatar{width:42px;height:42px;font-size:1rem}.speaker-avatar{width:76px;height:76px;font-size:1.4rem}
+
+/* Author name chip input in article submission form */
+.author-chip-editor{margin:8px 0}.author-chip-list{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.author-chip{display:inline-flex;align-items:center;gap:9px;padding:6px 12px;border:1px solid #b7d9cc;border-radius:999px;background:#eaf5ef;color:#174a3e;font-weight:600;max-width:100%}.author-chip-remove{border:0;background:transparent;color:#8b3434;padding:0;margin:0;line-height:1;font-size:1.2rem;cursor:pointer}.author-chip-entry{display:flex;align-items:center;gap:8px}.author-chip-entry input{flex:1;min-width:0}.author-chip-entry button{white-space:nowrap}@media(max-width:480px){.author-chip-entry{flex-direction:column;align-items:stretch}.author-chip-entry button{width:100%}}
