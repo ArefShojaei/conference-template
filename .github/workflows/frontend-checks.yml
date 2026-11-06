@@ -1,0 +1,29 @@
+name: Frontend regression checks
+on:
+  push:
+    branches: [main]
+    paths:
+      - '*.html'
+      - 'css/**'
+      - 'js/**'
+      - 'scripts/check_frontend.py'
+      - '.github/workflows/frontend-checks.yml'
+  pull_request:
+    paths:
+      - '*.html'
+      - 'css/**'
+      - 'js/**'
+      - 'scripts/check_frontend.py'
+      - '.github/workflows/frontend-checks.yml'
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate HTML metadata, ids and local links
+        run: python scripts/check_frontend.py
+      - name: Check static JavaScript syntax
+        run: node --check js/main.js
