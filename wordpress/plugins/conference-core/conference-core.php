@@ -416,30 +416,6 @@ final class Conference_Core {
     if(!$q->have_posts())return '<p>اطلاعات سخنرانان به‌زودی منتشر می‌شود.</p>';
     ob_start(); echo '<div class="grid grid-4">'; while($q->have_posts()){$q->the_post();$role=get_post_meta(get_the_ID(),'_conf_speaker_role',true);echo '<article class="card speaker-card">';if(has_post_thumbnail())the_post_thumbnail('medium');echo '<h3>'.esc_html(get_the_title()).'</h3>';if($role)echo '<p class="confcore-speaker-role">'.esc_html($role).'</p>';echo '<div>'.wp_kses_post(get_the_excerpt()).'</div></article>';} wp_reset_postdata();echo '</div>';return ob_get_clean();
   }
-  public function schedule_shortcode(){
-    $q=new WP_Query(array('post_type'=>'conf_session','posts_per_page'=>100,'meta_query'=>array('day_clause'=>array('key'=>'_conf_session_day','compare'=>'EXISTS'),'start_clause'=>array('key'=>'_conf_session_start','compare'=>'EXISTS')),'orderby'=>array('day_clause'=>'ASC','start_clause'=>'ASC')));
-    if(!$q->have_posts())return '<p>برنامه همایش هنوز منتشر نشده است.</p>';
-    ob_start();$day='';echo '<div class="confcore-schedule">';
-    while($q->have_posts()){$q->the_post();$d=sanitize_text_field(get_post_meta(get_the_ID(),'_conf_session_day',true));$start=sanitize_text_field(get_post_meta(get_the_ID(),'_conf_session_start',true));$end=sanitize_text_field(get_post_meta(get_the_ID(),'_conf_session_end',true));$room=sanitize_text_field(get_post_meta(get_the_ID(),'_conf_session_room',true));$speaker=sanitize_text_field(get_post_meta(get_the_ID(),'_conf_session_speaker',true));
-      if($d!==$day){if($day!=='')echo '</div>'; $day=$d;echo '<section class="confcore-schedule-day"><h2>'.esc_html($day?:'برنامه همایش').'</h2><div class="grid grid-2">';}
-      echo '<article class="card confcore-session"><div class="confcore-session-time">'.esc_html(trim($start.($end?' تا '.$end:''))).'</div><h3>'.esc_html(get_the_title()).'</h3><div>'.wp_kses_post(get_the_excerpt()).'</div>';
-      if($speaker)echo '<p><strong>سخنران:</strong> '.esc_html($speaker).'</p>';if($room)echo '<p><strong>محل برگزاری:</strong> '.esc_html($room).'</p>';echo '</article>';
-    }
-    if($day!=='')echo '</div></section>';wp_reset_postdata();echo '</div>';return ob_get_clean();
-  }
-  public function session_meta_box(){
-    add_meta_box('confcore_session_details','جزئیات زمان‌بندی جلسه',array($this,'render_session_meta_box'),'conf_session','normal','high');
-  }
-  public function render_session_meta_box($post){
-    wp_nonce_field('confcore_session_meta','confcore_session_nonce');
-    $fields=array('_conf_session_day'=>'روز همایش','_conf_session_start'=>'ساعت شروع','_conf_session_end'=>'ساعت پایان','_conf_session_room'=>'سالن / محل','_conf_session_speaker'=>'سخنران');
-    foreach($fields as $key=>$label){$value=get_post_meta($post->ID,$key,true);echo '<p><label style="display:block;font-weight:600;margin-bottom:5px">'.esc_html($label).'</label><input class="widefat" type="text" name="'.esc_attr($key).'" value="'.esc_attr($value).'" /></p>';}
-  }
-  public function save_session_meta($post_id){
-    if(!isset($_POST['confcore_session_nonce'])||!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['confcore_session_nonce'])),'confcore_session_meta'))return;
-    if(defined('DOING_AUTOSAVE')&&DOING_AUTOSAVE)return;if(!current_user_can('edit_post',$post_id))return;
-    foreach(array('_conf_session_day','_conf_session_start','_conf_session_end','_conf_session_room','_conf_session_speaker') as $key){if(isset($_POST[$key]))update_post_meta($post_id,$key,sanitize_text_field(wp_unslash($_POST[$key])));}
-  }
   public function team_shortcode(){
     $q=new WP_Query(array('post_type'=>'conf_committee','posts_per_page'=>40,'orderby'=>'menu_order title','order'=>'ASC'));
     if(!$q->have_posts())return '<p>اعضای تیم برگزارکننده را از پیشخوان اضافه کنید.</p>';
@@ -532,14 +508,12 @@ final class Conference_Core {
   public function tools_page(){
     if(!current_user_can('manage_options'))return;
     if(isset($_POST['confcore_seed']) && check_admin_referer('confcore_seed_demo')){$this->seed_demo();echo '<div class="notice notice-success"><p>محتوای نمونه ایجاد شد. اجرای دوباره، موارد تکراری را نادیده می‌گیرد.</p></div>';}
-    ?><div class="wrap"><h1>ابزارها و داده آزمایشی</h1><p>این ابزار چند سخنران، جلسه، نوشته و برگه راهنما ایجاد می‌کند. حساب آزمایشی با رمز ثابت ساخته نمی‌شود.</p><form method="post"><?php wp_nonce_field('confcore_seed_demo'); ?><input type="hidden" name="confcore_seed" value="1"><?php submit_button('وارد کردن محتوای نمونه'); ?></form></div><?php
+    ?><div class="wrap"><h1>ابزارها و داده آزمایشی</h1><p>این ابزار چند سخنران، عضو کمیته، نوشته و برگه راهنما ایجاد می‌کند. حساب آزمایشی با رمز ثابت ساخته نمی‌شود.</p><form method="post"><?php wp_nonce_field('confcore_seed_demo'); ?><input type="hidden" name="confcore_seed" value="1"><?php submit_button('وارد کردن محتوای نمونه'); ?></form></div><?php
   }
   private function seed_demo(){
     $items=array(
       array('conf_speaker','دکتر نمونه محمدی','پژوهشگر هوش مصنوعی و یادگیری ماشین.'),
       array('conf_speaker','دکتر نمونه کریمی','متخصص داده‌کاوی و فناوری‌های سلامت.'),
-      array('conf_session','افتتاحیه و سخنرانی کلیدی','آغاز همایش و معرفی محورهای علمی.'),
-      array('conf_session','کارگاه پژوهش و نوآوری','کارگاه آموزشی ویژه پژوهشگران.'),
       array('conf_committee','دبیر علمی همایش','مسئولیت برنامه‌ریزی علمی و ارزیابی مقالات.'),
       array('conf_committee','کمیته اجرایی','هماهنگی اجرایی، ثبت‌نام و پشتیبانی شرکت‌کنندگان.')
     );
