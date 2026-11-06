@@ -82,6 +82,8 @@ function conf1405_create_default_menu(){
   $slugs=array('about','speakers','team','papers','news','event-registration','contact');
   $items=wp_get_nav_menu_items($menu_id);
   if(!$items)$items=array();
+  foreach($items as $item){$path=trim((string)wp_parse_url($item->url,PHP_URL_PATH),'/');$slug=basename($path);if(in_array($slug,array('schedule','my-registration'),true)){wp_delete_post((int)$item->ID,true);}}
+  $items=wp_get_nav_menu_items($menu_id);if(!$items)$items=array();
   if(count($items)>=count($slugs))return;
   foreach($slugs as $slug){
     $page=get_page_by_path($slug);
