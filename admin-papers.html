@@ -29,7 +29,7 @@
               <td>هوش مصنوعی</td>
               <td><span class="badge badge-warning">در داوری</span></td>
               <td>۲ از ۳</td>
-              <td><button type="button" class="btn btn-sm btn-outline" disabled title="این عملیات در نسخه ایستا فعال نیست">جزئیات</button> <button type="button" class="btn btn-sm btn-primary" disabled title="این عملیات در نسخه ایستا فعال نیست">تخصیص داور</button></td>
+              <td><button type="button" class="btn btn-sm btn-outline" data-paper-details>جزئیات</button> <button type="button" class="btn btn-sm btn-primary" disabled title="این عملیات در نسخه ایستا فعال نیست">تخصیص داور</button></td>
             </tr>
             <tr>
               <td>#P-1038</td>
@@ -38,7 +38,7 @@
               <td>امنیت</td>
               <td><span class="badge badge-info">جدید</span></td>
               <td>۰ از ۳</td>
-              <td><button type="button" class="btn btn-sm btn-outline" disabled title="این عملیات در نسخه ایستا فعال نیست">جزئیات</button> <button type="button" class="btn btn-sm btn-primary" disabled title="این عملیات در نسخه ایستا فعال نیست">تخصیص داور</button></td>
+              <td><button type="button" class="btn btn-sm btn-outline" data-paper-details>جزئیات</button> <button type="button" class="btn btn-sm btn-primary" disabled title="این عملیات در نسخه ایستا فعال نیست">تخصیص داور</button></td>
             </tr>
             <tr>
               <td>#P-1001</td>
@@ -47,7 +47,7 @@
               <td>هوش مصنوعی</td>
               <td><span class="badge badge-success">پذیرفته</span></td>
               <td>۳ از ۳</td>
-              <td><button type="button" class="btn btn-sm btn-outline" disabled title="این عملیات در نسخه ایستا فعال نیست">جزئیات</button></td>
+              <td><button type="button" class="btn btn-sm btn-outline" data-paper-details>جزئیات</button></td>
             </tr>
             <tr>
               <td>#P-0995</td>
@@ -56,11 +56,11 @@
               <td>IoT</td>
               <td><span class="badge badge-danger">رد شده</span></td>
               <td>۳ از ۳</td>
-              <td><button type="button" class="btn btn-sm btn-outline" disabled title="این عملیات در نسخه ایستا فعال نیست">جزئیات</button></td>
+              <td><button type="button" class="btn btn-sm btn-outline" data-paper-details>جزئیات</button></td>
             </tr>
           </tbody>
         </table>
-      </div><footer class="admin-main-footer"><span>همایش‌یار · مرکز مدیریت رویداد</span><span>نسخه رابط کاربری HTML</span></footer></main></div>
+      </div><div class="card mt-3" style="padding:22px"><h2>تغییر وضعیت مقاله (پیش‌نمایش مدیر)</h2><p class="text-muted">وضعیت تصمیم و نوع ارائه برای کد مقاله در مرورگر ذخیره می‌شود. ذخیره مرکزی و تخصیص واقعی داور به backend نیاز دارد.</p><form id="paper-admin-state" class="form-row"><div class="form-group"><label class="form-label" for="paper-code">کد مقاله</label><select id="paper-code" class="form-control"><option>#P-1042</option><option>#P-1038</option><option>#P-1001</option><option>#P-0995</option></select></div><div class="form-group"><label class="form-label" for="paper-decision">وضعیت</label><select id="paper-decision" class="form-control"><option value="submitted">ثبت اولیه</option><option value="review">در حال داوری</option><option value="revision">نیازمند اصلاح</option><option value="accepted">پذیرفته‌شده</option><option value="rejected">رد شده</option></select></div><div class="form-group"><label class="form-label" for="paper-presentation">نوع ارائه</label><select id="paper-presentation" class="form-control"><option value="oral">شفاهی</option><option value="poster">پوستر</option><option value="both">هر دو</option></select></div><button class="btn btn-primary" type="submit">ثبت وضعیت نمایشی</button></form></div><footer class="admin-main-footer"><span>همایش‌یار · مرکز مدیریت رویداد</span><span>نسخه رابط کاربری HTML</span></footer></main></div>
   <script src="js/main.js"></script>
-</body>
+<script>document.addEventListener("DOMContentLoaded",function(){const f=document.getElementById("paper-admin-state");if(!f)return;f.addEventListener("submit",function(e){e.preventDefault();const code=document.getElementById("paper-code").value,states=JSON.parse(localStorage.getItem("conference_paper_states")||"{}");states[code]={decision:document.getElementById("paper-decision").value,presentation:document.getElementById("paper-presentation").value,updated_at:new Date().toISOString()};localStorage.setItem("conference_paper_states",JSON.stringify(states));showAlert("وضعیت مقاله در مرورگر ذخیره شد؛ برای انتشار مرکزی backend لازم است.","success");});document.querySelectorAll("[data-paper-details]").forEach(b=>b.addEventListener("click",()=>showAlert("جزئیات نمونه مقاله در این نسخه نمایشی نمایش داده می‌شود.","info")));document.querySelectorAll("[data-assign-reviewer]").forEach(b=>b.addEventListener("click",()=>showAlert("تخصیص واقعی داور باید از backend و بر اساس دسترسی مدیر انجام شود.","info")));});</script></body>
 </html>
