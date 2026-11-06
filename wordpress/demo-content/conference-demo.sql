@@ -26,54 +26,6 @@ SELECT 0,NOW(),UTC_TIMESTAMP(),'دکتر سارا کریمی','speaker-sara-kari
 WHERE NOT EXISTS (SELECT 1 FROM wp_posts WHERE post_type='conf_speaker' AND post_name='پژوهشگر هوش مصنوعی پزشکی و پردازش تصویر در کاربردهای سلامت دیجیتال.');
 
 INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
-SELECT 0,NOW(),UTC_TIMESTAMP(),'تحویل کارت ورود، دریافت بسته همایش و پذیرایی صبحگاهی.','پذیرش و ثبت‌نام شرکت‌کنندگان','تحویل کارت ورود، دریافت بسته همایش و پذیرایی صبحگاهی.','publish','closed','closed','','day1-0830','','',NOW(),UTC_TIMESTAMP(),' ',0,'',0,'conf_session','',0
-WHERE NOT EXISTS (SELECT 1 FROM wp_posts WHERE post_type='conf_session' AND post_name='day1-0830');
-
-INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
-SELECT 0,NOW(),UTC_TIMESTAMP(),'خوشامدگویی دبیر همایش و تشریح برنامه سه روزه.','مراسم افتتاحیه همایش','خوشامدگویی دبیر همایش و تشریح برنامه سه روزه.','publish','closed','closed','','day1-0930','','',NOW(),UTC_TIMESTAMP(),' ',0,'',0,'conf_session','',0
-WHERE NOT EXISTS (SELECT 1 FROM wp_posts WHERE post_type='conf_session' AND post_name='day1-0930');
-
-INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
-SELECT 0,NOW(),UTC_TIMESTAMP(),'روندهای مدل‌های زبانی، کاربردهای سازمانی و چالش‌های اعتمادپذیری.','سخنرانی کلیدی: آینده هوش مصنوعی مولد','روندهای مدل‌های زبانی، کاربردهای سازمانی و چالش‌های اعتمادپذیری.','publish','closed','closed','','day1-1030','','',NOW(),UTC_TIMESTAMP(),' ',0,'',0,'conf_session','',0
-WHERE NOT EXISTS (SELECT 1 FROM wp_posts WHERE post_type='conf_session' AND post_name='day1-1030');
-
-INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
-SELECT 0,NOW(),UTC_TIMESTAMP(),'فرصت گفت‌وگو با سخنرانان و پژوهشگران.','ناهار و شبکه‌سازی','فرصت گفت‌وگو با سخنرانان و پژوهشگران.','publish','closed','closed','','day1-1200','','',NOW(),UTC_TIMESTAMP(),' ',0,'',0,'conf_session','',0
-WHERE NOT EXISTS (SELECT 1 FROM wp_posts WHERE post_type='conf_session' AND post_name='day1-1200');
-
-INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
-SELECT 0,NOW(),UTC_TIMESTAMP(),'ارائه مقالات منتخب در حوزه یادگیری ماشین، داده‌کاوی و تحلیل کلان‌داده.','ارائه مقالات: هوش مصنوعی و داده','ارائه مقالات منتخب در حوزه یادگیری ماشین، داده‌کاوی و تحلیل کلان‌داده.','publish','closed','closed','','day1-1330','','',NOW(),UTC_TIMESTAMP(),' ',0,'',0,'conf_session','',0
-WHERE NOT EXISTS (SELECT 1 FROM wp_posts WHERE post_type='conf_session' AND post_name='day1-1330');
-
-INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
-SELECT 0,NOW(),UTC_TIMESTAMP(),'از توسعه مدل تا استقرار، پایش و نگهداری در محیط عملیاتی.','کارگاه عملی MLOps','از توسعه مدل تا استقرار، پایش و نگهداری در محیط عملیاتی.','publish','closed','closed','','day1-1600','','',NOW(),UTC_TIMESTAMP(),' ',0,'',0,'conf_session','',0
-WHERE NOT EXISTS (SELECT 1 FROM wp_posts WHERE post_type='conf_session' AND post_name='day1-1600');
-
-INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
-SELECT 0,NOW(),UTC_TIMESTAMP(),'مروری بر الگوریتم‌ها، کاربردها و پیامدهای امنیتی محاسبات کوانتومی.','سخنرانی کلیدی: محاسبات کوانتومی','مروری بر الگوریتم‌ها، کاربردها و پیامدهای امنیتی محاسبات کوانتومی.','publish','closed','closed','','day2-0900','','',NOW(),UTC_TIMESTAMP(),' ',0,'',0,'conf_session','',0
-WHERE NOT EXISTS (SELECT 1 FROM wp_posts WHERE post_type='conf_session' AND post_name='day2-0900');
-
-INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
-SELECT 0,NOW(),UTC_TIMESTAMP(),'معماری امن سامانه‌های متصل و مدیریت ریسک در زیرساخت‌های هوشمند.','نشست تخصصی اینترنت اشیا و امنیت','معماری امن سامانه‌های متصل و مدیریت ریسک در زیرساخت‌های هوشمند.','publish','closed','closed','','day2-1045','','',NOW(),UTC_TIMESTAMP(),' ',0,'',0,'conf_session','',0
-WHERE NOT EXISTS (SELECT 1 FROM wp_posts WHERE post_type='conf_session' AND post_name='day2-1045');
-
-INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
-SELECT 0,NOW(),UTC_TIMESTAMP(),'تجربه‌های پیاده‌سازی هوش مصنوعی و تحول دیجیتال در سازمان‌ها.','پنل تحول دیجیتال در صنعت','تجربه‌های پیاده‌سازی هوش مصنوعی و تحول دیجیتال در سازمان‌ها.','publish','closed','closed','','day2-1400','','',NOW(),UTC_TIMESTAMP(),' ',0,'',0,'conf_session','',0
-WHERE NOT EXISTS (SELECT 1 FROM wp_posts WHERE post_type='conf_session' AND post_name='day2-1400');
-
-INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
-SELECT 0,NOW(),UTC_TIMESTAMP(),'معرفی دستاوردهای پژوهشی و نمونه‌های اولیه تیم‌های نوآور.','نمایشگاه پوستر و محصولات نوآورانه','معرفی دستاوردهای پژوهشی و نمونه‌های اولیه تیم‌های نوآور.','publish','closed','closed','','day2-1615','','',NOW(),UTC_TIMESTAMP(),' ',0,'',0,'conf_session','',0
-WHERE NOT EXISTS (SELECT 1 FROM wp_posts WHERE post_type='conf_session' AND post_name='day2-1615');
-
-INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
-SELECT 0,NOW(),UTC_TIMESTAMP(),'کاربرد یادگیری عمیق در تصویربرداری، تشخیص و پشتیبانی تصمیم بالینی.','سخنرانی کلیدی: هوش مصنوعی در پزشکی','کاربرد یادگیری عمیق در تصویربرداری، تشخیص و پشتیبانی تصمیم بالینی.','publish','closed','closed','','day3-0900','','',NOW(),UTC_TIMESTAMP(),' ',0,'',0,'conf_session','',0
-WHERE NOT EXISTS (SELECT 1 FROM wp_posts WHERE post_type='conf_session' AND post_name='day3-0900');
-
-INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
-SELECT 0,NOW(),UTC_TIMESTAMP(),'جمع‌بندی رویداد، تقدیر از مقالات برتر و اعلام مسیر همکاری‌های آینده.','اختتامیه و معرفی آثار برتر','جمع‌بندی رویداد، تقدیر از مقالات برتر و اعلام مسیر همکاری‌های آینده.','publish','closed','closed','','day3-1100','','',NOW(),UTC_TIMESTAMP(),' ',0,'',0,'conf_session','',0
-WHERE NOT EXISTS (SELECT 1 FROM wp_posts WHERE post_type='conf_session' AND post_name='day3-1100');
-
-INSERT INTO wp_posts (post_author,post_date,post_date_gmt,post_content,post_title,post_excerpt,post_status,comment_status,ping_status,post_password,post_name,to_ping,pinged,post_modified,post_modified_gmt,post_content_filtered,post_parent,guid,menu_order,post_type,post_mime_type,comment_count)
 SELECT 0,NOW(),UTC_TIMESTAMP(),'کمیته علمی همایش','committee-scientific','کمیته علمی همایش','publish','closed','closed','','تدوین محورهای علمی، ارزیابی مقاله‌ها و نظارت بر کیفیت برنامه علمی.','','',NOW(),UTC_TIMESTAMP(),' ',0,'',0,'conf_committee','',0
 WHERE NOT EXISTS (SELECT 1 FROM wp_posts WHERE post_type='conf_committee' AND post_name='تدوین محورهای علمی، ارزیابی مقاله‌ها و نظارت بر کیفیت برنامه علمی.');
 
