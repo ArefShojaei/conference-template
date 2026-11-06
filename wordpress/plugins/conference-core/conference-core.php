@@ -56,9 +56,10 @@ final class Conference_Core {
   }
   public static function activate(){
     add_role('conference_author','نویسنده همایش',array('read'=>true,'upload_files'=>true,'submit_conference_papers'=>true));
-    // Conference workflows are administrator-managed; no reviewer or manager role.
+    // Remove obsolete conference roles left by previous plugin versions.
+    remove_role('conference_reviewer');remove_role('conference_manager');
     $admin_role=get_role('administrator');
-    if($admin_role)$admin_role->add_cap('manage_conference');
+    if($admin_role){$admin_role->add_cap('manage_conference');$admin_role->remove_cap('review_conference_papers');}
 
     global $wpdb; $table=$wpdb->prefix.'confcore_otp';
     $charset=$wpdb->get_charset_collate();
@@ -95,7 +96,8 @@ final class Conference_Core {
   }
   public function ensure_role_caps(){
     $admin=get_role('administrator');
-    if($admin && !$admin->has_cap('manage_conference'))$admin->add_cap('manage_conference');
+    remove_role('conference_reviewer');remove_role('conference_manager');
+    if($admin){if(!$admin->has_cap('manage_conference'))$admin->add_cap('manage_conference');$admin->remove_cap('review_conference_papers');}
     $author=get_role('conference_author');
     if($author){foreach(array('submit_conference_papers','upload_files') as $cap)if(!$author->has_cap($cap))$author->add_cap($cap);}
   }
@@ -302,14 +304,14 @@ final class Conference_Core {
     if(!is_user_logged_in())return '<p>برای مشاهده پنل ابتدا <a href="'.esc_url(home_url('/login/')).'">وارد شوید</a>.</p>';
     $this->form_script();
     $u=wp_get_current_user(); $papers=get_posts(array('post_type'=>'conf_paper','author'=>$u->ID,'posts_per_page'=>50,'post_status'=>array('pending','publish','draft','private')));
-    ob_start(); ?><div class="admin-layout"><aside class="admin-sidebar"><h3>پنل کاربری</h3><nav class="admin-nav"><a href="<?php echo esc_url(home_url('/dashboard/')); ?>">داشبورد</a><a href="<?php echo esc_url(home_url('/my-papers/')); ?>">مقالات من</a><a href="<?php echo esc_url(home_url('/submit-paper/')); ?>">ارسال مقاله</a><a href="<?php echo esc_url(home_url('/certificates/')); ?>">گواهی‌ها</a><a href="<?php echo esc_url(home_url('/profile/')); ?>">پروفایل</a><a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">خروج</a></nav></aside><section class="admin-main"><header class="admin-page-header"><h1>سلام، <?php echo esc_html($u->display_name); ?></h1><p>وضعیت مقالات و فعالیت‌های حساب کاربری شما</p></header><div class="admin-content-grid"><div class="admin-panel"><h2>مقالات من</h2><?php if($papers): ?><div class="table-wrapper"><table><thead><tr><th>عنوان</th><th>وضعیت</th><th>نظر داور</th><th>فایل</th></tr></thead><tbody><?php foreach($papers as $p): ?><tr><td><?php echo esc_html($p->post_title); ?></td><td><?php echo esc_html($p->post_status==='pending'?'در انتظار بررسی':($p->post_status==='publish'?'پذیرفته/منتشرشده':($p->post_status==='draft'?'نیازمند اصلاح':$p->post_status))); ?></td><td><?php echo esc_html(get_post_meta($p->ID,'_conf_review_note',true)); ?></td><td><a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=confcore_download&paper='.$p->ID),'confcore_download_'.$p->ID)); ?>">دریافت فایل</a></td></tr><?php endforeach; ?></tbody></table></div><?php else: ?><p>هنوز مقاله‌ای ارسال نکرده‌اید.</p><?php endif; ?><a class="btn btn-primary" href="<?php echo esc_url(home_url('/submit-paper/')); ?>">ارسال مقاله جدید</a></div></div></section></div><?php return ob_get_clean();
+    ob_start(); ?><div class="admin-layout"><aside class="admin-sidebar"><h3>پنل کاربری</h3><nav class="admin-nav"><a href="<?php echo esc_url(home_url('/dashboard/')); ?>">داشبورد</a><a href="<?php echo esc_url(home_url('/my-papers/')); ?>">مقالات من</a><a href="<?php echo esc_url(home_url('/submit-paper/')); ?>">ارسال مقاله</a><a href="<?php echo esc_url(home_url('/certificates/')); ?>">گواهی‌ها</a><a href="<?php echo esc_url(home_url('/profile/')); ?>">پروفایل</a><a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">خروج</a></nav></aside><section class="admin-main"><header class="admin-page-header"><h1>سلام، <?php echo esc_html($u->display_name); ?></h1><p>وضعیت مقالات و فعالیت‌های حساب کاربری شما</p></header><div class="admin-content-grid"><div class="admin-panel"><h2>مقالات من</h2><?php if($papers): ?><div class="table-wrapper"><table><thead><tr><th>عنوان</th><th>نویسندگان</th><th>وضعیت</th><th>نظر دبیرخانه</th><th>فایل</th></tr></thead><tbody><?php foreach($papers as $p): ?><tr><td><?php echo esc_html($p->post_title); ?></td><td><?php echo esc_html($p->post_status==='pending'?'در انتظار بررسی':($p->post_status==='publish'?'پذیرفته/منتشرشده':($p->post_status==='draft'?'نیازمند اصلاح':$p->post_status))); ?></td><td><?php echo esc_html(get_post_meta($p->ID,'_conf_review_note',true)); ?></td><td><a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=confcore_download&paper='.$p->ID),'confcore_download_'.$p->ID)); ?>">دریافت فایل</a></td></tr><?php endforeach; ?></tbody></table></div><?php else: ?><p>هنوز مقاله‌ای ارسال نکرده‌اید.</p><?php endif; ?><a class="btn btn-primary" href="<?php echo esc_url(home_url('/submit-paper/')); ?>">ارسال مقاله جدید</a></div></div></section></div><?php return ob_get_clean();
   }
   public function my_papers_shortcode(){
     if(!is_user_logged_in())return '<p>برای مشاهده مقالات وارد شوید.</p>';
     $items=get_posts(array('post_type'=>'conf_paper','author'=>get_current_user_id(),'posts_per_page'=>50,'post_status'=>array('pending','publish','draft','private')));
     if(!$items)return '<p>هنوز مقاله‌ای ثبت نکرده‌اید.</p>';
     ob_start();echo '<div class="table-wrapper"><table><thead><tr><th>عنوان</th><th>وضعیت</th><th>نظر داور</th><th>فایل</th></tr></thead><tbody>';
-    foreach($items as $p){$label=$p->post_status==='pending'?'در انتظار بررسی':($p->post_status==='publish'?'پذیرفته‌شده':($p->post_status==='draft'?'نیازمند اصلاح':'در حال بررسی'));echo '<tr><td>'.esc_html($p->post_title).'</td><td>'.esc_html($label).'</td><td>'.esc_html(get_post_meta($p->ID,'_conf_review_note',true)).'</td><td><a href="'.esc_url(wp_nonce_url(admin_url('admin-post.php?action=confcore_download&paper='.$p->ID),'confcore_download_'.$p->ID)).'">دریافت فایل</a></td></tr>';}
+    foreach($items as $p){$label=$p->post_status==='pending'?'در انتظار بررسی':($p->post_status==='publish'?'پذیرفته‌شده':($p->post_status==='draft'?'نیازمند اصلاح':'در حال بررسی'));echo '<tr><td>'.esc_html($p->post_title).'</td><td>'.esc_html(implode('، ',(array)get_post_meta($p->ID,'_conf_paper_authors',true))).'</td><td>'.esc_html($label).'</td><td>'.esc_html(get_post_meta($p->ID,'_conf_review_note',true)).'</td><td><a href="'.esc_url(wp_nonce_url(admin_url('admin-post.php?action=confcore_download&paper='.$p->ID),'confcore_download_'.$p->ID)).'">دریافت فایل</a></td></tr>';}
     echo '</tbody></table></div>';return ob_get_clean();
   }
   public function review_queue_shortcode(){
@@ -509,7 +511,7 @@ final class Conference_Core {
   }
   public function admin_page(){
     if(!current_user_can('manage_conference'))return;
-    $counts=array('مقالات دریافت‌شده'=>wp_count_posts('conf_paper'),'ثبت‌نام شرکت‌کنندگان'=>wp_count_posts('conf_registration'),'سخنرانان'=>wp_count_posts('conf_speaker'),'جلسه‌های برنامه'=>wp_count_posts('conf_session'));
+    $counts=array('مقالات دریافت‌شده'=>wp_count_posts('conf_paper'),'ثبت‌نام شرکت‌کنندگان'=>wp_count_posts('conf_registration'),'سخنرانان'=>wp_count_posts('conf_speaker'));
     echo '<div class="wrap"><h1>مرکز مدیریت همایش</h1><p>آمار زیر مستقیماً از محتوای ثبت‌شده در وردپرس محاسبه می‌شود؛ هیچ عدد نمایشی یا ثابت در داشبورد استفاده نشده است.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:22px 0">';
     foreach($counts as $label=>$status){$total=0;if($status)foreach((array)$status as $n)$total+=(int)$n;echo '<div style="background:#fff;border:1px solid #dcdcde;border-radius:10px;padding:18px"><strong style="display:block;color:#123d38;font-size:28px">'.esc_html(number_format_i18n($total)).'</strong><span>'.esc_html($label).'</span></div>';}
     echo '</div><h2>مدیریت بخش‌ها</h2><p>';
