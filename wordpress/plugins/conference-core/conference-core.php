@@ -478,27 +478,11 @@ final class Conference_Core {
       echo '<p>شماره موبایل: <strong>'.esc_html(get_post_meta($post->ID,'_conf_contact_phone',true)).'</strong></p>';
       echo '<p>نام: '.esc_html(get_post_meta($post->ID,'_conf_contact_name',true)).'</p>';
     },'conf_message','side','high');
-    add_meta_box('confcore_paper_assignment','تخصیص داور مقاله',function($post){
-      wp_nonce_field('confcore_assign_reviewer','confcore_reviewer_nonce');
-      $assigned=(int)get_post_meta($post->ID,'_conf_assigned_reviewer',true);
-      $reviewers=get_users(array('role'=>'conference_reviewer','fields'=>array('ID','display_name')));
-      echo '<p><label for="confcore_assigned_reviewer">داور مسئول</label><select id="confcore_assigned_reviewer" name="confcore_assigned_reviewer" style="width:100%"><option value="0">بدون تخصیص</option>';
-      foreach($reviewers as $reviewer)echo '<option value="'.esc_attr($reviewer->ID).'" '.selected($assigned,$reviewer->ID,false).'>'.esc_html($reviewer->display_name).'</option>';
-      echo '</select></p>';
-    },'conf_paper','side','high');
     add_meta_box('confcore_registration_details','اطلاعات ثبت‌نام',function($post){
       echo '<p>نام: '.esc_html(get_post_meta($post->ID,'_conf_reg_name',true)).'</p>';
       echo '<p>شماره موبایل: '.esc_html(get_post_meta($post->ID,'_conf_reg_phone',true)).'</p>';
       echo '<p>دانشگاه/سازمان: '.esc_html(get_post_meta($post->ID,'_conf_reg_org',true)).'</p>';
     },'conf_registration','side','high');
-  }
-  public function save_paper_assignment($post_id){
-    if(defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)return;
-    if(wp_is_post_revision($post_id) || !current_user_can('edit_post',$post_id))return;
-    if(!isset($_POST['confcore_reviewer_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['confcore_reviewer_nonce'])),'confcore_assign_reviewer'))return;
-    $reviewer=absint($_POST['confcore_assigned_reviewer']??0);
-    if($reviewer){$user=get_user_by('id',$reviewer);if(!$user || !in_array('conference_reviewer',(array)$user->roles,true))$reviewer=0;}
-    if($reviewer)update_post_meta($post_id,'_conf_assigned_reviewer',$reviewer);else delete_post_meta($post_id,'_conf_assigned_reviewer');
   }
   public function admin_menu(){
     add_menu_page('سامانه همایش','سامانه همایش','manage_conference','confcore',array($this,'admin_page'),'dashicons-groups',26);
