@@ -42,3 +42,6 @@ button,.btn{touch-action:manipulation}
 
 /* Dropdown behavior and grid adjustments on small screens */
 @media(max-width:768px){.nav-menu .nav-item{display:block}.nav-menu.show .nav-dropdown{display:none}.nav-menu.show .nav-item:focus-within .nav-dropdown,.nav-menu.show .nav-item:hover .nav-dropdown{display:flex}}
+
+/* Mobile auth actions are shown as part of the opened hamburger menu. */
+@media(max-width:680px){.navbar{align-items:center}.menu-toggle{margin-right:auto;order:3}.nav-menu{order:4;width:100%;flex-basis:100%}.nav-actions{order:5;display:none;width:100%;flex-basis:100%;justify-content:flex-start}.nav-menu.show + .nav-actions{display:flex}}
