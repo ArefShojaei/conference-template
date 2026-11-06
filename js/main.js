@@ -364,3 +364,21 @@ if (document.readyState === 'loading') {
 } else {
   animateCounters();
 }
+
+
+/* Accessible off-canvas navigation for admin and participant panels on mobile. */
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.admin-app .admin-layout').forEach(function(layout){
+    const sidebar=layout.querySelector('.admin-sidebar');
+    const topbar=document.querySelector('.admin-topbar');
+    if(!sidebar||!topbar||topbar.querySelector('.panel-menu-toggle'))return;
+    const toggle=document.createElement('button');toggle.type='button';toggle.className='panel-menu-toggle';toggle.setAttribute('aria-label','باز کردن منوی پنل');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-controls','panel-sidebar');toggle.innerHTML='<span aria-hidden="true">☰</span><span class="panel-menu-toggle-label">منو</span>';
+    sidebar.id='panel-sidebar';topbar.insertBefore(toggle,topbar.firstChild);
+    const overlay=document.createElement('button');overlay.type='button';overlay.className='panel-menu-overlay';overlay.setAttribute('aria-label','بستن منوی پنل');overlay.setAttribute('tabindex','-1');layout.appendChild(overlay);
+    const close=function(){sidebar.classList.remove('is-open');overlay.classList.remove('is-visible');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','باز کردن منوی پنل');document.body.classList.remove('panel-menu-open');};
+    const open=function(){sidebar.classList.add('is-open');overlay.classList.add('is-visible');toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','بستن منوی پنل');document.body.classList.add('panel-menu-open');};
+    toggle.addEventListener('click',function(){sidebar.classList.contains('is-open')?close():open();});overlay.addEventListener('click',close);
+    sidebar.querySelectorAll('a').forEach(function(link){link.addEventListener('click',function(){if(window.matchMedia('(max-width:760px)').matches)close();});});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});window.addEventListener('resize',function(){if(window.innerWidth>760)close();});
+  });
+});
