@@ -406,6 +406,11 @@ if (document.readyState === 'loading') {
         sidebar.style.removeProperty('transform');
         sidebar.style.removeProperty('visibility');
         sidebar.style.removeProperty('opacity');
+        sidebar.querySelectorAll('.admin-nav, .admin-nav-label, .admin-nav > a').forEach(function (item) {
+          item.style.removeProperty('visibility');
+          item.style.removeProperty('opacity');
+          item.style.removeProperty('display');
+        });
         toggle.setAttribute('aria-expanded', 'false');
         toggle.setAttribute('aria-label', 'باز کردن منوی پنل');
         document.body.classList.remove('panel-menu-open');
@@ -419,6 +424,7 @@ if (document.readyState === 'loading') {
         sidebar.querySelectorAll('.admin-nav, .admin-nav-label, .admin-nav > a').forEach(function (item) {
           item.style.setProperty('visibility', 'visible', 'important');
           item.style.setProperty('opacity', '1', 'important');
+          item.style.setProperty('display', item.matches('.admin-nav') ? 'flex' : (item.matches('.admin-nav-label') ? 'block' : 'flex'), 'important');
         });
         overlay.classList.add('is-visible');
         toggle.setAttribute('aria-expanded', 'true');
@@ -432,7 +438,7 @@ if (document.readyState === 'loading') {
       overlay.onclick = closeMenu;
       sidebar.querySelectorAll('a').forEach(function (link) {
         link.onclick = function () {
-          if (window.matchMedia('(max-width: 760px)').matches) closeMenu();
+          if (window.matchMedia('(max-width: 900px)').matches) closeMenu();
         };
       });
       if (!layout.dataset.panelDrawerBound) {
@@ -441,7 +447,7 @@ if (document.readyState === 'loading') {
           if (event.key === 'Escape') closeMenu();
         });
         window.addEventListener('resize', function () {
-          if (window.innerWidth > 760) closeMenu();
+          if (window.innerWidth > 900) closeMenu();
         });
       }
     });
