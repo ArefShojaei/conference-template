@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (slides.length < 2) return;
     let active = Math.max(0, slides.findIndex(slide => slide.classList.contains('is-active')));
     let timer = null;
-    let paused = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let paused = true; // User-controlled navigation only; no automatic rotation without a pause control.
     const show = index => {
       active = (index + slides.length) % slides.length;
       slides.forEach((slide, i) => {
