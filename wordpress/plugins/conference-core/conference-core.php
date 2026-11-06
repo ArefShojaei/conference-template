@@ -173,11 +173,11 @@ final class Conference_Core {
     return rest_ensure_response(array('success'=>true,'message'=>'کد تأیید پیامک شد. کد تا ۵ دقیقه معتبر است.'));
   }
   private function send_verification_sms($phone,$code){
-    // API key را در wp-config.php با CONFERENCE_KAVENEGAR_API_KEY یا تنظیمات افزونه وارد کنید.
+    // API key and OTP template are server-side constants in wp-config.php; never expose them in the dashboard.
     // نام قالب باید در پنل کاوه‌نگار برای VerifyLookup تأیید شده باشد.
     $api=defined('CONFERENCE_KAVENEGAR_API_KEY')?CONFERENCE_KAVENEGAR_API_KEY:get_option('confcore_kavenegar_key','');
     $template=defined('CONFERENCE_KAVENEGAR_OTP_TEMPLATE')?CONFERENCE_KAVENEGAR_OTP_TEMPLATE:get_option('confcore_kavenegar_template',''); $sender=defined('CONFERENCE_KAVENEGAR_SENDER')?CONFERENCE_KAVENEGAR_SENDER:get_option('confcore_kavenegar_sender','');
-    if(!$api || !$template)return new WP_Error('sms_not_configured','تنظیمات سرویس پیامک کامل نیست؛ مدیر سایت باید API Key و نام قالب را وارد کند.',array('status'=>503));
+    if(!$api || !$template)return new WP_Error('sms_not_configured','تنظیم OTP کامل نیست؛ مدیر سایت باید API Key و قالب OTP را در wp-config.php تعریف کند.',array('status'=>503));
     $url='https://api.kavenegar.com/v1/'.rawurlencode($api).'/verify/lookup.json';
     $body=array('receptor'=>$phone,'token'=>$code,'template'=>$template,'type'=>'sms');
     if($sender!=='')$body['sender']=$sender;
