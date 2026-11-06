@@ -220,7 +220,7 @@ final class Conference_Core {
     if(!$user)return new WP_Error('account_missing','حساب کاربری پیدا نشد.',array('status'=>404));
     $wpdb->delete($table,array('phone'=>$phone),array('%s'));
     wp_set_current_user($user->ID); wp_set_auth_cookie($user->ID,true,is_ssl()); do_action('wp_login',$user->user_login,$user);
-    return rest_ensure_response(array('success'=>true,'message'=>'ورود با موفقیت انجام شد.','redirect'=>home_url('/dashboard/')));
+    return rest_ensure_response(array('success'=>true,'message'=>'ورود با موفقیت انجام شد.','redirect'=>user_can($user,'manage_options')?admin_url('index.php'):home_url('/dashboard/')));
   }
   public function upload_paper($request){
     if($this->rate_limited('conf_upload_user_'.get_current_user_id(),10,3600))return new WP_Error('upload_rate_limit','سقف ارسال فایل در این ساعت پر شده است.',array('status'=>429));
@@ -281,7 +281,7 @@ final class Conference_Core {
   }
   private function form_script(){wp_enqueue_style('confcore-front');wp_enqueue_script('confcore-front');}
   private function auth_form($mode){
-    if(is_user_logged_in())return '<p>شما وارد شده‌اید. <a href="'.esc_url(home_url('/dashboard/')).'">رفتن به پنل</a></p>';
+    if(is_user_logged_in()){$target=current_user_can('manage_options')?admin_url('index.php'):home_url('/dashboard/');return '<p>شما وارد شده‌اید. <a href="'.esc_url($target).'">'.(current_user_can('manage_options')?'رفتن به پیشخوان وردپرس':'رفتن به پنل کاربری').'</a></p>';}
     $this->form_script(); ob_start(); ?>
     <div class="card confcore-form"><h2><?php echo $mode==='register'?'ثبت‌نام با شماره موبایل':'ورود با شماره موبایل'; ?></h2>
     <form class="confcore-otp-form" data-mode="<?php echo esc_attr($mode); ?>"><label>شماره موبایل</label><input type="tel" name="phone" inputmode="numeric" autocomplete="tel" placeholder="09123456789" required><button class="btn btn-primary" type="submit">دریافت کد تأیید</button><div class="confcore-otp-step" hidden><label>کد پیامک‌شده</label><input type="text" name="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code"><button class="btn btn-primary" type="button" data-verify>تأیید و ادامه</button></div><p class="confcore-message" role="status"></p></form></div><?php return ob_get_clean();
