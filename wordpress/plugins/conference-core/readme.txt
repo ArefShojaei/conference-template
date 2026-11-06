@@ -2,7 +2,7 @@
 Contributors: conference-team
 Requires at least: 6.2
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 
 The application layer for Conference 1405: mobile OTP authentication, author paper submissions, attendee registration, contact inbox, administrator-issued certificates and conference content types. No reviewer role, role selector, schedule workflow, paid flow or SMS settings panel is included. Keep business logic here so it survives theme changes.
