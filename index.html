@@ -35,8 +35,12 @@
           <a href="about.html">درباره همایش</a>
           
           <a href="team.html">کمیته علمی و برگزارکننده</a>
+          <a href="dates.html">تاریخ‌ها و مهلت‌ها</a>
           <a href="schedule.html">برنامه زمانی</a>
           <a href="papers.html">مقالات پذیرفته‌شده</a>
+          <a href="submission-guide.html">راهنمای ارسال</a>
+          <a href="certificate-info.html">گواهی‌ها</a>
+          <a href="my-papers.html">پیگیری مقاله</a>
           <a href="posts.html">اخبار</a>
           <a href="register.html">ثبت‌نام</a>
           <a href="contact.html">تماس</a>
@@ -48,6 +52,8 @@
       </nav>
     </div>
   </header>
+
+  <section class="section" style="padding:18px 0 0"><div class="container"><div class="card" style="padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap"><div><strong>شمارش معکوس تا شروع همایش</strong><p id="home-countdown" class="text-primary fw-bold" aria-live="polite" style="margin:6px 0 0">در حال محاسبه…</p></div><div style="display:flex;gap:10px;flex-wrap:wrap"><a href="dates.html" class="btn btn-outline btn-sm">تقویم و مهلت‌ها</a><a href="submission-guide.html" class="btn btn-outline btn-sm">راهنمای ارسال مقاله</a></div></div></div></section>
 
   <!-- Editorial event hero / carousel -->
   <section class="event-hero" aria-label="رویدادهای برجسته همایش">
@@ -144,7 +150,7 @@
       <p style="opacity:0.9;margin-bottom:30px;max-width:600px;margin-left:auto;margin-right:auto;">همین حالا ثبت‌نام کنید و از تخفیف Early Bird بهره‌مند شوید. ظرفیت محدود است!</p>
       <div style="display:flex;gap:15px;justify-content:center;flex-wrap:wrap;">
         <a href="register.html" class="btn btn-accent btn-lg">ثبت‌نام شرکت‌کننده</a>
-        <a href="submit-paper.html" class="btn btn-outline btn-lg" style="border-color:white;color:white;">ارسال مقاله</a>
+        <a href="submit-paper.html" class="btn btn-outline btn-lg" data-submission-cta style="border-color:white;color:white;">ارسال مقاله</a>
       </div>
     </div>
   </section>
@@ -197,5 +203,5 @@
   </footer>
 
   <script src="js/main.js"></script>
-</body>
+<script>document.addEventListener("DOMContentLoaded",function(){let s={};try{s=JSON.parse(localStorage.getItem("conference_settings")||"{}")}catch(e){}const target=new Date(s.event_start||"2026-12-06T09:00");const el=document.getElementById("home-countdown");function tick(){const diff=target-new Date();if(!el)return;if(diff<=0){el.textContent="همایش آغاز شده است";return;}el.textContent=Math.floor(diff/86400000).toLocaleString("fa-IR")+" روز · "+Math.floor(diff%86400000/3600000).toLocaleString("fa-IR")+" ساعت · "+Math.floor(diff%3600000/60000).toLocaleString("fa-IR")+" دقیقه"}tick();setInterval(tick,60000);if(s.submissions_open===false){document.querySelectorAll("[data-submission-cta]").forEach(a=>{a.textContent="مهلت ارسال مقاله پایان یافته";a.classList.add("disabled");a.setAttribute("aria-disabled","true");a.removeAttribute("href")});}});</script></body>
 </html>
