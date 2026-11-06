@@ -39,3 +39,6 @@ button,.btn{touch-action:manipulation}
  .admin-app .admin-main .admin-table-wrap,.admin-app .admin-main .table-wrapper{margin-inline:0}
  .admin-app .admin-topbar-actions{margin-inline-start:auto}
 }
+
+/* Dropdown behavior and grid adjustments on small screens */
+@media(max-width:768px){.nav-menu .nav-item{display:block}.nav-menu.show .nav-dropdown{display:none}.nav-menu.show .nav-item:focus-within .nav-dropdown,.nav-menu.show .nav-item:hover .nav-dropdown{display:flex}}
