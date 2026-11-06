@@ -335,3 +335,6 @@ a:not(.btn):hover{color:#0f766e}
 .section[style*="#0f172a"],.section[style*="#1e3a5f"]{background:linear-gradient(135deg,#123d38,#0f766e)!important}
 [style*="#e9b765"]{background-color:#65b99b!important}
 [style*="#e9b765"][style*="linear-gradient"]{background:linear-gradient(135deg,#d8f1e8,#65b99b)!important}
+
+/* Homepage carousel spans the full content width; information rail remains visible while scrolling. */
+.event-hero-grid{grid-template-columns:minmax(0,1fr)!important}.event-carousel{width:100%;min-width:0}.event-side-rail{position:sticky;top:16px;z-index:2;display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,.65fr);align-items:start;gap:14px;margin-top:18px}.event-side-rail .rail-card{min-width:0}@media(max-width:680px){.event-side-rail{position:static;grid-template-columns:1fr}.event-side-rail .rail-mini-card{display:flex}}
