@@ -15,6 +15,38 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // Mobile dropdown navigation: first tap expands; a second tap follows the parent link.
+  if (navMenu) {
+    const dropdownLinks = navMenu.querySelectorAll('.nav-item.has-dropdown > a');
+    dropdownLinks.forEach(anchor => {
+      const item = anchor.parentElement;
+      anchor.setAttribute('aria-expanded', 'false');
+      anchor.addEventListener('click', event => {
+        if (!window.matchMedia('(max-width: 1180px)').matches) return;
+        if (!item.classList.contains('is-open')) {
+          event.preventDefault();
+          navMenu.querySelectorAll('.nav-item.has-dropdown.is-open').forEach(openItem => {
+            if (openItem !== item) {
+              openItem.classList.remove('is-open');
+              const openLink = openItem.querySelector(':scope > a');
+              if (openLink) openLink.setAttribute('aria-expanded', 'false');
+            }
+          });
+          item.classList.add('is-open');
+          anchor.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+    navMenu.querySelectorAll('a').forEach(link => {
+      if (link.matches('.nav-item.has-dropdown > a')) return;
+      link.addEventListener('click', () => {
+        if (!window.matchMedia('(max-width: 1180px)').matches) return;
+        navMenu.classList.remove('show');
+        if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
   // Accessible homepage carousel: autoplay pauses on interaction, focus, hover and reduced motion.
   document.querySelectorAll('[data-carousel]').forEach(carousel => {
     const slides = Array.from(carousel.querySelectorAll('[data-slide]'));
@@ -25,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (slides.length < 2) return;
     let active = Math.max(0, slides.findIndex(slide => slide.classList.contains('is-active')));
     let timer = null;
-    let paused = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let paused = false; // Keep the original automatic carousel rotation enabled.
     const show = index => {
       active = (index + slides.length) % slides.length;
       slides.forEach((slide, i) => {
@@ -231,18 +263,26 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      const file = this.files[0];
-      const maxBytes = 10 * 1024 * 1024;
-      const isPdfField = this.accept.toLowerCase().split(',').some(type => type.trim() === '.pdf' || type.trim() === 'application/pdf');
-      const extensionIsPdf = file.name.toLowerCase().endsWith('.pdf');
-      const mimeIsPdf = file.type === 'application/pdf' || file.type === '';
-      if (file.size > maxBytes || (isPdfField && (!extensionIsPdf || !mimeIsPdf))) {
+      const files = Array.from(this.files);
+      const maxBytes = this.dataset.fileRole === 'supplementary' ? 20 * 1024 * 1024 : 10 * 1024 * 1024;
+      const accepted = this.accept.toLowerCase().split(',').map(type => type.trim());
+      const extensions = accepted.filter(type => type.startsWith('.'));
+      if (accepted.includes('application/pdf')) extensions.push('.pdf');
+      if (accepted.includes('application/msword')) extensions.push('.doc');
+      if (accepted.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document')) extensions.push('.docx');
+      const invalid = files.some(file => {
+        const extension = '.' + file.name.toLowerCase().split('.').pop();
+        return file.size > maxBytes || (extensions.length > 0 && !extensions.includes(extension));
+      });
+      if (invalid) {
         this.value = '';
-        if (label) label.textContent = 'فایل نامعتبر است؛ PDF حداکثر ۱۰ مگابایت انتخاب کنید';
-        showAlert('فایل انتخاب‌شده معتبر نیست. برای مقاله، PDF حداکثر ۱۰ مگابایت انتخاب کنید.', 'danger');
+        if (label) label.textContent = this.dataset.fileRole === 'supplementary'
+          ? 'فایل نامعتبر است؛ فایل مکمل حداکثر ۲۰ مگابایت انتخاب کنید'
+          : 'فایل نامعتبر است؛ PDF یا Word حداکثر ۱۰ مگابایت انتخاب کنید';
+        showAlert('نوع یا حجم یکی از فایل‌های انتخاب‌شده مجاز نیست.', 'danger');
         return;
       }
-      if (label) label.textContent = file.name;
+      if (label) label.textContent = files.length > 1 ? files.length + ' فایل انتخاب شد' : files[0].name;
     });
   });
 
@@ -324,3 +364,98 @@ if (document.readyState === 'loading') {
 } else {
   animateCounters();
 }
+
+
+/* Reliable off-canvas navigation for admin and participant panels. */
+(function () {
+  function initPanelDrawers() {
+    document.querySelectorAll('.admin-app .admin-layout').forEach(function (layout, index) {
+      const app = layout.closest('.admin-app');
+      const sidebar = layout.querySelector('.admin-sidebar');
+      const topbar = app && app.querySelector('.admin-topbar');
+      if (!sidebar || !topbar) return;
+
+      let toggle = topbar.querySelector('.panel-menu-toggle');
+      if (!toggle) {
+        toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'panel-menu-toggle';
+        toggle.innerHTML = '<span class="panel-menu-toggle-icon" aria-hidden="true">☰</span><span class="panel-menu-toggle-label">منو</span>';
+        topbar.insertBefore(toggle, topbar.firstElementChild);
+      }
+      toggle.setAttribute('aria-label', 'باز کردن منوی پنل');
+      toggle.setAttribute('aria-expanded', 'false');
+
+      const sidebarId = sidebar.id || ('panel-sidebar-' + (index + 1));
+      sidebar.id = sidebarId;
+      toggle.setAttribute('aria-controls', sidebarId);
+
+      let overlay = layout.querySelector('.panel-menu-overlay');
+      if (!overlay) {
+        overlay = document.createElement('button');
+        overlay.type = 'button';
+        overlay.className = 'panel-menu-overlay';
+        overlay.setAttribute('aria-label', 'بستن منوی پنل');
+        overlay.setAttribute('tabindex', '-1');
+        layout.appendChild(overlay);
+      }
+
+      function closeMenu() {
+        sidebar.classList.remove('is-open');
+        overlay.classList.remove('is-visible');
+        sidebar.style.removeProperty('transform');
+        sidebar.style.removeProperty('visibility');
+        sidebar.style.removeProperty('opacity');
+        sidebar.querySelectorAll('.admin-nav, .admin-nav-label, .admin-nav > a').forEach(function (item) {
+          item.style.removeProperty('visibility');
+          item.style.removeProperty('opacity');
+          item.style.removeProperty('display');
+        });
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', 'باز کردن منوی پنل');
+        document.body.classList.remove('panel-menu-open');
+      }
+
+      function openMenu() {
+        sidebar.classList.add('is-open');
+        sidebar.style.setProperty('transform', 'translateX(0)', 'important');
+        sidebar.style.setProperty('visibility', 'visible', 'important');
+        sidebar.style.setProperty('opacity', '1', 'important');
+        sidebar.querySelectorAll('.admin-nav, .admin-nav-label, .admin-nav > a').forEach(function (item) {
+          item.style.setProperty('visibility', 'visible', 'important');
+          item.style.setProperty('opacity', '1', 'important');
+          item.style.setProperty('display', item.matches('.admin-nav') ? 'flex' : (item.matches('.admin-nav-label') ? 'block' : 'flex'), 'important');
+        });
+        overlay.classList.add('is-visible');
+        toggle.setAttribute('aria-expanded', 'true');
+        toggle.setAttribute('aria-label', 'بستن منوی پنل');
+        document.body.classList.add('panel-menu-open');
+      }
+
+      toggle.onclick = function () {
+        sidebar.classList.contains('is-open') ? closeMenu() : openMenu();
+      };
+      overlay.onclick = closeMenu;
+      sidebar.querySelectorAll('a').forEach(function (link) {
+        link.onclick = function () {
+          if (window.matchMedia('(max-width: 900px)').matches) closeMenu();
+        };
+      });
+      if (!layout.dataset.panelDrawerBound) {
+        layout.dataset.panelDrawerBound = 'true';
+        document.addEventListener('keydown', function (event) {
+          if (event.key === 'Escape') closeMenu();
+        });
+        window.addEventListener('resize', function () {
+          if (window.innerWidth > 900) closeMenu();
+        });
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPanelDrawers, { once: true });
+  } else {
+    initPanelDrawers();
+  }
+})();

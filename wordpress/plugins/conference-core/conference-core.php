@@ -8,7 +8,7 @@
  * Text Domain: conference-core
  */
 if (!defined('ABSPATH')) exit;
-define('CONFCORE_VERSION','1.0.0');
+define('CONFCORE_VERSION','1.0.1');
 define('CONFCORE_DIR',plugin_dir_path(__FILE__));
 
 final class Conference_Core {
@@ -80,6 +80,7 @@ final class Conference_Core {
     require_once ABSPATH.'wp-admin/includes/upgrade.php';
     dbDelta("CREATE TABLE {$table} (phone varchar(20) NOT NULL, mode varchar(10) NOT NULL DEFAULT 'login', code_hash varchar(255) NOT NULL, expires_at datetime NOT NULL, attempts tinyint unsigned NOT NULL DEFAULT 0, created_at datetime NOT NULL, PRIMARY KEY  (phone), KEY expires_at (expires_at)) {$charset};");
     update_option('confcore_db_version',CONFCORE_VERSION,false);
+    self::create_default_pages();
   }
   public static function deactivate(){ flush_rewrite_rules(); }
   private static function create_default_pages(){
@@ -93,6 +94,7 @@ final class Conference_Core {
     // Create editable public information pages and connect dynamic listings/forms.
     $extra=array(
       'about'=>array('درباره همایش','معرفی رویداد، اهداف و محورهای علمی همایش را از ویرایشگر برگه مدیریت کنید.'),
+      'dates'=>array('تاریخ‌های مهم','زمان‌بندی مهلت‌های همایش در بخش سفارشی‌سازی قالب قابل ویرایش است.'),
       'contact'=>array('تماس با ما','[conference_contact]'),
       'faq'=>array('سوالات متداول','پاسخ پرسش‌های متداول را از ویرایشگر برگه اضافه کنید.'),
       'speakers'=>array('سخنرانان','[conference_speakers]'),
@@ -102,7 +104,8 @@ final class Conference_Core {
       'my-papers'=>array('مقالات من','[conference_my_papers]'),
       'certificates'=>array('گواهی‌های من','[conference_certificates]'),
       'profile'=>array('پروفایل من','[conference_profile]'),
-      'author-guidelines'=>array('راهنمای نویسندگان','راهنمای نگارش و ارسال مقاله را از ویرایشگر برگه تکمیل کنید.')
+      'author-guidelines'=>array('راهنمای نویسندگان','راهنمای نگارش و ارسال مقاله را از ویرایشگر برگه تکمیل کنید.'),
+      'certificate-info'=>array('اطلاعات گواهی‌ها','اطلاعات دریافت و دانلود گواهی‌های همایش را در این برگه تکمیل کنید.')
     );
     foreach($extra as $slug=>$item){if(!get_page_by_path($slug))wp_insert_post(array('post_type'=>'page','post_status'=>'publish','post_title'=>$item[0],'post_name'=>$slug,'post_content'=>$item[1]));}
   }
