@@ -7,6 +7,8 @@ on:
       - 'css/**'
       - 'js/**'
       - 'scripts/check_frontend.py'
+      - 'docs/**'
+      - 'README.md'
       - '.github/workflows/frontend-checks.yml'
   pull_request:
     paths:
