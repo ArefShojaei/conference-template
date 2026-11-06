@@ -23,6 +23,8 @@ final class Conference_Core {
     add_action('admin_init',array($this,'settings'));
     add_action('add_meta_boxes',array($this,'contact_meta_box'));
     add_action('add_meta_boxes_conf_certificate',array($this,'certificate_meta_box'));
+    add_action('add_meta_boxes_conf_paper',array($this,'paper_admin_meta_box'));
+    add_action('save_post_conf_paper',array($this,'save_paper_admin_meta'));
     add_action('save_post_conf_certificate',array($this,'save_certificate_meta'));
     add_action('admin_enqueue_scripts',array($this,'certificate_admin_assets'));
     add_action('admin_head-user-edit.php',array($this,'hide_core_email_field'));
@@ -355,6 +357,19 @@ final class Conference_Core {
     $name=sanitize_text_field(wp_unslash($_POST['display_name']??''));if(!$name)wp_die('نام نمایشی الزامی است.',400);
     $updated=wp_update_user(array('ID'=>get_current_user_id(),'display_name'=>$name));if(is_wp_error($updated))wp_die('ذخیره پروفایل انجام نشد.',500);
     wp_safe_redirect(home_url('/profile/?updated=1'));exit;
+  }
+  public function paper_admin_meta_box($post){
+    add_meta_box('confcore_paper_admin_decision','بررسی مقاله توسط دبیرخانه',function($post){
+      wp_nonce_field('confcore_paper_admin_decision','confcore_paper_decision_nonce');
+      $note=get_post_meta($post->ID,'_conf_review_note',true);
+      echo '<p><label for="confcore_paper_decision_note">یادداشت/نتیجه بررسی</label><textarea id="confcore_paper_decision_note" name="confcore_paper_decision_note" rows="5" class="widefat">'.esc_textarea($note).'</textarea></p><p class="description">تصمیم وضعیت مقاله را از بخش وضعیت وردپرس (پیش‌نویس برای اصلاح، در انتظار بررسی، انتشار برای پذیرش) اعمال کنید. داور اختصاصی در این سامانه وجود ندارد.</p>';
+      $authors=(array)get_post_meta($post->ID,'_conf_paper_authors',true);echo '<p><strong>نویسندگان:</strong> '.esc_html(implode('، ',$authors)).'</p>';
+    },'conf_paper','normal','high');
+  }
+  public function save_paper_admin_meta($post_id){
+    if(defined('DOING_AUTOSAVE')&&DOING_AUTOSAVE)return;if(wp_is_post_revision($post_id)||!current_user_can('edit_post',$post_id))return;
+    if(!isset($_POST['confcore_paper_decision_nonce'])||!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['confcore_paper_decision_nonce'])),'confcore_paper_admin_decision'))return;
+    if(isset($_POST['confcore_paper_decision_note']))update_post_meta($post_id,'_conf_review_note',sanitize_textarea_field(wp_unslash($_POST['confcore_paper_decision_note'])));
   }
   public function certificate_meta_box($post){
     add_meta_box('confcore_certificate_file','فایل گواهی برای دانلود',function($post){
