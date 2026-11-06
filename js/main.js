@@ -15,6 +15,38 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // Mobile dropdown navigation: first tap expands; a second tap follows the parent link.
+  if (navMenu) {
+    const dropdownLinks = navMenu.querySelectorAll('.nav-item.has-dropdown > a');
+    dropdownLinks.forEach(anchor => {
+      const item = anchor.parentElement;
+      anchor.setAttribute('aria-expanded', 'false');
+      anchor.addEventListener('click', event => {
+        if (!window.matchMedia('(max-width: 1180px)').matches) return;
+        if (!item.classList.contains('is-open')) {
+          event.preventDefault();
+          navMenu.querySelectorAll('.nav-item.has-dropdown.is-open').forEach(openItem => {
+            if (openItem !== item) {
+              openItem.classList.remove('is-open');
+              const openLink = openItem.querySelector(':scope > a');
+              if (openLink) openLink.setAttribute('aria-expanded', 'false');
+            }
+          });
+          item.classList.add('is-open');
+          anchor.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+    navMenu.querySelectorAll('a').forEach(link => {
+      if (link.matches('.nav-item.has-dropdown > a')) return;
+      link.addEventListener('click', () => {
+        if (!window.matchMedia('(max-width: 1180px)').matches) return;
+        navMenu.classList.remove('show');
+        if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
   // Accessible homepage carousel: autoplay pauses on interaction, focus, hover and reduced motion.
   document.querySelectorAll('[data-carousel]').forEach(carousel => {
     const slides = Array.from(carousel.querySelectorAll('[data-slide]'));
