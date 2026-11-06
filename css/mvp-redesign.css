@@ -408,3 +408,10 @@ a:not(.btn):hover{color:#0f766e}
  .home-main-content .section-header h2{font-size:1.45rem}
  .home-main-content .section-header p{font-size:.9rem}
 }
+
+/* Auth pages retain their bespoke split-screen design with the same utility links. */
+.auth-utility-bar{width:min(1440px,calc(100% - 32px));margin:12px auto 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:11px 18px;border-radius:12px;background:linear-gradient(135deg,#164b42,#0f766e);color:#fff;font-size:.78rem}
+.auth-utility-bar>div{display:flex;align-items:center;gap:clamp(10px,2vw,22px);flex-wrap:wrap}
+.auth-utility-bar a{color:#fff;text-decoration:none;font-weight:600}
+.auth-utility-bar a:hover{text-decoration:underline;color:#d8f1e8}
+@media(max-width:600px){.auth-utility-bar{width:calc(100% - 20px);margin:10px auto;padding:10px 12px;align-items:flex-start;flex-direction:column;gap:8px;font-size:.72rem}.auth-utility-bar>div{gap:10px}}
