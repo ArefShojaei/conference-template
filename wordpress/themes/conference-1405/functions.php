@@ -41,7 +41,7 @@ function conf1405_customize($c){
   array('🤝','شبکه‌سازی حرفه‌ای','فرصت ارتباط با پژوهشگران و فعالان صنعت'),
   array('🏆','جوایز و تقدیر','تقدیر از مقاله‌ها و ارائه‌های برتر'),
   array('📚','انتشار مقالات','معرفی و انتشار آثار پذیرفته‌شده همایش'),
-  array('💻','پنل کاربری کامل','داشبورد اختصاصی برای نویسندگان و داوران')
+  array('💻','پنل کاربری کامل','داشبورد اختصاصی برای نویسندگان و شرکت‌کنندگان')
  );
  $feature_labels=array('icon'=>'آیکن','title'=>'عنوان','text'=>'توضیح');
  foreach($feature_defaults as $i=>$item){$n=$i+1;foreach(array('icon'=>$item[0],'title'=>$item[1],'text'=>$item[2]) as $key=>$value){$c->add_setting("conf1405_feature{$n}_{$key}",array('default'=>$value,'sanitize_callback'=>'sanitize_text_field'));$c->add_control("conf1405_feature{$n}_{$key}",array('label'=>"ویژگی {$n} - ".$feature_labels[$key],'section'=>'conf1405_features','type'=>'text'));}}
