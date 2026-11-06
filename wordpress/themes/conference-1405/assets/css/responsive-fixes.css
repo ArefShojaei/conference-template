@@ -39,3 +39,6 @@ button,.btn{touch-action:manipulation}
  .admin-app .admin-main .admin-table-wrap,.admin-app .admin-main .table-wrapper{margin-inline:0}
  .admin-app .admin-topbar-actions{margin-inline-start:auto}
 }
+
+/* Mobile auth actions are shown as part of the opened hamburger menu. */
+@media(max-width:680px){.navbar{align-items:center}.menu-toggle{margin-right:auto;order:3}.nav-menu{order:4;width:100%;flex-basis:100%}.nav-actions{order:5;display:none;width:100%;flex-basis:100%;justify-content:flex-start}.nav-menu.show + .nav-actions{display:flex}}
