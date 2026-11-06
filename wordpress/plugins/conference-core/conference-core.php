@@ -104,7 +104,7 @@ final class Conference_Core {
     if($author){foreach(array('submit_conference_papers','upload_files') as $cap)if(!$author->has_cap($cap))$author->add_cap($cap);}
   }
   public function remove_obsolete_pages(){
-    foreach(array('schedule','my-registration') as $slug){$page=get_page_by_path($slug);if($page && $page->post_status!=='trash')wp_update_post(array('ID'=>$page->ID,'post_status'=>'trash'));}
+    foreach(array('schedule','my-registration','messages') as $slug){$page=get_page_by_path($slug);if($page && $page->post_status!=='trash')wp_update_post(array('ID'=>$page->ID,'post_status'=>'trash'));}
   }
   public function register_types(){
     register_post_type('conf_speaker',array('labels'=>array('name'=>'سخنرانان','singular_name'=>'سخنران'),'public'=>true,'has_archive'=>true,'menu_icon'=>'dashicons-microphone','supports'=>array('title','editor','excerpt','thumbnail'),'show_in_rest'=>true));
