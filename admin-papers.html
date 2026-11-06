@@ -14,10 +14,10 @@
             <tr>
               <th>کد</th>
               <th>عنوان</th>
-              <th>نویسنده</th>
+              <th>نویسنده مسئول</th>
               <th>محور</th>
               <th>وضعیت</th>
-              <th>نویسندگان</th>
+              <th>تعداد نویسندگان</th>
               <th>عملیات</th>
             </tr>
           </thead>
@@ -27,8 +27,8 @@
               <td>بهینه‌سازی Transformer برای فارسی</td>
               <td>علی رضایی</td>
               <td>هوش مصنوعی</td>
-              <td><span class="badge badge-warning">در داوری</span></td>
-              <td>۲ از ۳</td>
+              <td><span class="badge badge-info">در انتظار بررسی دبیرخانه</span></td>
+              <td>۳ نفر</td>
               <td><button type="button" class="btn btn-sm btn-outline" data-paper-details>جزئیات</button> <span>بررسی دبیرخانه</span></td>
             </tr>
             <tr>
@@ -36,8 +36,8 @@
               <td>چارچوب امنیتی IoT صنعتی</td>
               <td>مریم احمدی</td>
               <td>امنیت</td>
-              <td><span class="badge badge-info">جدید</span></td>
-              <td>۰ از ۳</td>
+              <td><span class="badge badge-warning">بررسی دبیرخانه</span></td>
+              <td>۲ نفر</td>
               <td><button type="button" class="btn btn-sm btn-outline" data-paper-details>جزئیات</button> <span>بررسی دبیرخانه</span></td>
             </tr>
             <tr>
@@ -46,7 +46,7 @@
               <td>حسین کریمی</td>
               <td>هوش مصنوعی</td>
               <td><span class="badge badge-success">پذیرفته</span></td>
-              <td>۳ از ۳</td>
+              <td>۳ نفر</td>
               <td><button type="button" class="btn btn-sm btn-outline" data-paper-details>جزئیات</button></td>
             </tr>
             <tr>
@@ -60,7 +60,7 @@
             </tr>
           </tbody>
         </table>
-      </div><div class="card mt-3" style="padding:22px"><h2>تغییر وضعیت مقاله (پیش‌نمایش مدیر)</h2><p class="text-muted">وضعیت تصمیم و نوع ارائه برای کد مقاله در مرورگر ذخیره می‌شود. ذخیره مرکزی و ثبت تصمیم دبیرخانه به backend نیاز دارد.</p><form id="paper-admin-state" class="form-row"><div class="form-group"><label class="form-label" for="paper-code">کد مقاله</label><select id="paper-code" class="form-control"><option>#P-1042</option><option>#P-1038</option><option>#P-1001</option><option>#P-0995</option></select></div><div class="form-group"><label class="form-label" for="paper-decision">وضعیت</label><select id="paper-decision" class="form-control"><option value="submitted">ثبت اولیه</option><option value="review">در حال داوری</option><option value="revision">نیازمند اصلاح</option><option value="accepted">پذیرفته‌شده</option><option value="rejected">رد شده</option></select></div><div class="form-group"><label class="form-label" for="paper-presentation">نوع ارائه</label><select id="paper-presentation" class="form-control"><option value="oral">شفاهی</option><option value="poster">پوستر</option><option value="both">هر دو</option></select></div><button class="btn btn-primary" type="submit">ثبت وضعیت نمایشی</button></form></div><footer class="admin-main-footer"><span>همایش‌یار · مرکز مدیریت رویداد</span><span>نسخه رابط کاربری HTML</span></footer></main></div>
+      </div><div class="card mt-3" style="padding:22px"><h2>تصمیم دبیرخانه</h2><p class="text-muted">جریان کار: مقاله دریافت شد ← بررسی دبیرخانه ← (پذیرفته‌شده / نیازمند اصلاح / ردشده). تصمیم واقعی در وردپرس از صفحه ویرایش همان مقاله ثبت می‌شود؛ این فرم صرفاً پیش‌نمایش است.</p><form id="paper-admin-state" class="form-row"><div class="form-group"><label class="form-label" for="paper-code">کد مقاله</label><select id="paper-code" class="form-control"><option>#P-1042</option><option>#P-1038</option><option>#P-1001</option><option>#P-0995</option></select></div><div class="form-group"><label class="form-label" for="paper-decision">وضعیت</label><select id="paper-decision" class="form-control"><option value="submitted">دریافت‌شده</option><option value="review">در حال بررسی دبیرخانه</option><option value="revision">نیازمند اصلاح</option><option value="accepted">پذیرفته‌شده</option><option value="rejected">ردشده</option></select></div><div class="form-group"><label class="form-label" for="paper-presentation">نوع ارائه</label><select id="paper-presentation" class="form-control"><option value="oral">شفاهی</option><option value="poster">پوستر</option><option value="both">هر دو</option></select></div><button class="btn btn-primary" type="submit">ثبت تصمیم نمایشی</button></form></div><footer class="admin-main-footer"><span>همایش‌یار · مرکز مدیریت رویداد</span><span>نسخه رابط کاربری HTML</span></footer></main></div>
   <script src="js/main.js"></script>
-<script>document.addEventListener("DOMContentLoaded",function(){const f=document.getElementById("paper-admin-state");if(!f)return;f.addEventListener("submit",function(e){e.preventDefault();const code=document.getElementById("paper-code").value,states=JSON.parse(localStorage.getItem("conference_paper_states")||"{}");states[code]={decision:document.getElementById("paper-decision").value,presentation:document.getElementById("paper-presentation").value,updated_at:new Date().toISOString()};localStorage.setItem("conference_paper_states",JSON.stringify(states));showAlert("وضعیت مقاله در مرورگر ذخیره شد؛ برای انتشار مرکزی backend لازم است.","success");});document.querySelectorAll("[data-paper-details]").forEach(b=>b.addEventListener("click",()=>showAlert("جزئیات نمونه مقاله در این نسخه نمایشی نمایش داده می‌شود.","info")));document.querySelectorAll("[data-assign-reviewer]").forEach(b=>b.addEventListener("click",()=>showAlert("تصمیم مقاله توسط دبیرخانه در backend ثبت می‌شود.","info")));});</script></body>
+<script>document.addEventListener("DOMContentLoaded",function(){const f=document.getElementById("paper-admin-state");if(!f)return;f.addEventListener("submit",function(e){e.preventDefault();const code=document.getElementById("paper-code").value,states=JSON.parse(localStorage.getItem("conference_paper_states")||"{}");states[code]={decision:document.getElementById("paper-decision").value,presentation:document.getElementById("paper-presentation").value,updated_at:new Date().toISOString()};localStorage.setItem("conference_paper_states",JSON.stringify(states));showAlert("پیش‌نمایش تصمیم در مرورگر ثبت شد؛ برای ثبت نهایی از ویرایش مقاله در وردپرس استفاده کنید.","info");});document.querySelectorAll("[data-paper-details]").forEach(b=>b.addEventListener("click",()=>showAlert("جزئیات نمونه مقاله در این نسخه نمایشی نمایش داده می‌شود.","info")));document.querySelectorAll("[data-assign-reviewer]").forEach(b=>b.addEventListener("click",()=>showAlert("تصمیم مقاله توسط دبیرخانه در backend ثبت می‌شود.","info")));});</script></body>
 </html>
