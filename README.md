@@ -36,29 +36,19 @@
 | فایل | توضیحات |
 |------|---------|
 | `dashboard.html` | داشبورد کاربر |
-| `profile.html` | پروفایل |
+| `profile.html` | پروفایل بدون بیوگرافی و تصویر |
 | `my-papers.html` | مقالات من |
-| `my-registration.html` | جزئیات ثبت‌نام |
-| `certificates.html` | گواهی‌ها |
-| `messages.html` | پیام‌ها |
-
-### پنل داور
-| فایل | توضیحات |
-|------|---------|
-| `reviewer-dashboard.html` | داشبورد داور |
-| `review-queue.html` | صف داوری |
-| `review-paper.html` | فرم داوری مقاله |
-| `my-reviews.html` | تاریخچه داوری‌ها |
+| `certificates.html` | گواهی‌های صادرشده |
+| `submit-paper.html` | فرم ارسال مقاله با نویسندگان تگ‌مانند |
 
 ### پنل مدیریت (ادمین)
 | فایل | توضیحات |
 |------|---------|
-| `admin-dashboard.html` | داشبورد ادمین |
-| `admin-users.html` | مدیریت کاربران |
+| `admin-dashboard.html` | داشبورد مدیریت |
+| `admin-users.html` | مدیریت کاربران بدون نقش‌های داور/مدیر قابل‌انتخاب |
 | `admin-papers.html` | مدیریت مقالات |
-| `admin-registrations.html` | مدیریت ثبت‌نام‌ها |
-| `admin-reviews.html` | مدیریت داوری‌ها |
-| `admin-settings.html` | تنظیمات همایش |
+| `admin-registrations.html` | مدیریت ثبت‌نام رایگان |
+| `admin-settings.html` | تنظیمات عمومی همایش |
 
 ## نحوه استفاده
 
@@ -98,18 +88,13 @@
 قالب آماده برای استفاده در پروژه‌های همایش و رویداد فارسی.
 
 
-## تکمیل صفحات در شاخه feature/complete-responsive-html-pages
+## نسخه HTML نمایشی
 
-صفحات تکمیلی رابط کاربری:
-- عمومی: `team.html` (تیم و کمیته‌ها)، `posts.html` (اخبار و اطلاعیه‌ها)، `author-guidelines.html` (راهنمای نویسندگان)
-- مدیریت: `admin-reviewers.html`، `admin-sms.html`، `admin-team.html`، `admin-posts.html`
-- لایه‌های تکمیلی واکنش‌گرایی: `css/responsive-fixes.css` و قواعد مشترک افزوده‌شده به `css/style.css`
-
-**محدودیت مهم:** صفحات جدید نیز مانند سایر فایل‌های HTML پیش‌نمایش رابط هستند. هیچ پیامکی ارسال نمی‌شود، داده‌ای ذخیره نمی‌شود و احراز هویت/مجوزدهی واقعی وجود ندارد. برای بهره‌برداری، باید API و منطق سمت سرور وردپرس، نقش‌ها و قابلیت‌ها، nonce/CSRF، اعتبارسنجی و پاک‌سازی ورودی، کنترل فایل و ثبت رویدادها پیاده‌سازی و آزمون شوند.
+HTML root is a UI prototype. It does not store data or provide server-side authentication; WordPress implementation is maintained in the dedicated package.
 
 
 ## بسته وردپرسی
 
 قالب و افزونه عملیاتی اولیه در پوشه [wordpress](wordpress/README.md) قرار گرفته‌اند. برای نصب قالب `wordpress/themes/conference-1405` و افزونه `wordpress/plugins/conference-core` را به مسیرهای استاندارد وردپرس منتقل کنید. راهنمای نصب، تنظیم Kavenegar، امنیت فایل‌های مقاله و افزونه‌های پیشنهادی در همان پوشه است.
 
-**توجه:** فایل‌های HTML ریشه همچنان پیش‌نمایش ایستا هستند؛ نسخه وردپرسی در پوشه جداگانه قرار دارد. پیامک واقعی پس از وارد کردن کلید و قالب‌های تأییدشده در هاست فعال می‌شود.
+**توجه:** فایل‌های HTML ریشه همچنان پیش‌نمایش ایستا هستند؛ نسخه وردپرسی در پوشه جداگانه قرار دارد. پیامک OTP نیازمند تنظیم سروری API Key و قالب تأییدشده است؛ مدیریت پیامک از پنل همایش حذف شده است.
