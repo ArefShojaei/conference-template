@@ -36,7 +36,6 @@ final class Conference_Core {
     add_action('edit_user_profile_update',array($this,'save_admin_phone_profile'));
     add_filter('user_profile_update_errors',array($this,'allow_blank_profile_email'),10,3);
     add_action('admin_post_confcore_download',array($this,'download_paper'));
-    add_action('transition_post_status',array($this,'paper_status_notification'),10,3);
     add_action('admin_post_confcore_contact',array($this,'save_contact'));
     add_action('admin_post_nopriv_confcore_contact',array($this,'save_contact'));
     add_action('admin_post_confcore_event_registration',array($this,'save_event_registration'));
@@ -188,29 +187,6 @@ final class Conference_Core {
     if($status!==200 || empty($json['return']['status']) || (int)$json['return']['status']!==200)return new WP_Error('sms_failed','ارسال پیامک ناموفق بود؛ تنظیمات سرویس را بررسی کنید.',array('status'=>502));
     return true;
   }
-  private function send_submission_sms($post_id){
-    $post=get_post($post_id); if(!$post)return false;
-    $phone=get_user_meta($post->post_author,'conference_phone',true);
-    $api=defined('CONFERENCE_KAVENEGAR_API_KEY')?CONFERENCE_KAVENEGAR_API_KEY:get_option('confcore_kavenegar_key','');
-    $template=get_option('confcore_kavenegar_submission_template','');
-    if(!$phone || !$api || !$template)return false;
-    // Approved VerifyLookup template: token = submitted, token2 = paper ID.
-    $url='https://api.kavenegar.com/v1/'.rawurlencode($api).'/verify/lookup.json';
-    $response=wp_remote_post($url,array('timeout'=>15,'redirection'=>0,'body'=>array('receptor'=>$phone,'token'=>'ثبت شد','token2'=>(string)$post_id,'template'=>$template,'type'=>'sms')));
-    return !is_wp_error($response) && wp_remote_retrieve_response_code($response)===200;
-  }
-  private function send_status_sms($post_id,$status){
-    $post=get_post($post_id); if(!$post)return false;
-    $phone=get_user_meta($post->post_author,'conference_phone',true);
-    $api=defined('CONFERENCE_KAVENEGAR_API_KEY')?CONFERENCE_KAVENEGAR_API_KEY:get_option('confcore_kavenegar_key','');
-    $template=get_option('confcore_kavenegar_result_template','');
-    if(!$phone || !$api || !$template)return false;
-    // Configure a separate approved Kavenegar VerifyLookup template with %token% and optionally %token2%.
-    $label=$status==='publish'?'پذیرفته شد':'نیازمند اصلاح';
-    $url='https://api.kavenegar.com/v1/'.rawurlencode($api).'/verify/lookup.json';
-    $response=wp_remote_post($url,array('timeout'=>15,'redirection'=>0,'body'=>array('receptor'=>$phone,'token'=>$label,'token2'=>(string)$post_id,'template'=>$template,'type'=>'sms')));
-    return !is_wp_error($response) && wp_remote_retrieve_response_code($response)===200;
-  }
   public function verify_otp($request){
     $phone=$this->normalize_phone($request->get_param('phone')); $code=strtr((string)$request->get_param('code'),array('۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9','٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9')); $code=preg_replace('/[^0-9]/','',$code); $mode=sanitize_key($request->get_param('mode'));
     if(!$phone || !preg_match('/^[0-9]{6}$/',$code) || !in_array($mode,array('login','register'),true))return new WP_Error('invalid_input','اطلاعات واردشده معتبر نیست.',array('status'=>400));
@@ -255,12 +231,7 @@ final class Conference_Core {
     if(is_wp_error($post_id)){@unlink($target);return new WP_Error('save_error','ثبت اطلاعات مقاله ناموفق بود.',array('status'=>500));}
     update_post_meta($post_id,'_conf_private_path',$target); update_post_meta($post_id,'_conf_original_name',$name); update_post_meta($post_id,'_conf_file_size',(int)$f['size']);
     $authors=$request->get_param('authors');if(is_string($authors))$authors=json_decode(wp_unslash($authors),true);if(!is_array($authors))$authors=array();$authors=array_values(array_unique(array_filter(array_map('sanitize_text_field',$authors))));if(count($authors)<2){wp_delete_post($post_id,true);@unlink($target);return new WP_Error('authors_required','حداقل نام دو نویسنده را وارد کنید.',array('status'=>400));}update_post_meta($post_id,'_conf_paper_authors',$authors);
-    $this->send_submission_sms($post_id);
     return rest_ensure_response(array('success'=>true,'message'=>'مقاله با موفقیت ثبت شد و در انتظار بررسی است.','paper_id'=>$post_id));
-  }
-  public function paper_status_notification($new_status,$old_status,$post){
-    if($post instanceof WP_Post && $post->post_type==='conf_paper' && $old_status==='pending' && in_array($new_status,array('publish','draft'),true))$this->send_status_sms($post->ID,$new_status);
-    if($post instanceof WP_Post && $post->post_type==='conf_registration' && $old_status==='pending' && in_array($new_status,array('publish','draft'),true))$this->send_registration_sms($post->ID,$new_status==='publish'?'ثبت‌نام تأیید شد':'نیازمند پیگیری');
   }
   public function paper_decision($request){
     $id=absint($request['id']); $decision=sanitize_key($request->get_param('decision')); $note=sanitize_textarea_field($request->get_param('note'));
@@ -444,15 +415,7 @@ final class Conference_Core {
     $id=wp_insert_post(array('post_type'=>'conf_registration','post_status'=>'pending','post_title'=>'ثبت‌نام همایش - '.$name,'post_author'=>$user->ID),true);
     if(is_wp_error($id))wp_die('ثبت درخواست انجام نشد.',500);
     update_post_meta($id,'_conf_reg_name',$name);update_post_meta($id,'_conf_reg_org',$org);update_post_meta($id,'_conf_reg_phone',$phone);
-    $this->send_registration_sms($id,'درخواست ثبت شد');
     wp_safe_redirect(home_url('/event-registration/?registered=1'));exit;
-  }
-  private function send_registration_sms($id,$token){
-    $phone=get_post_meta($id,'_conf_reg_phone',true);$api=defined('CONFERENCE_KAVENEGAR_API_KEY')?CONFERENCE_KAVENEGAR_API_KEY:get_option('confcore_kavenegar_key','');$template=get_option('confcore_kavenegar_registration_template','');
-    if(!$phone || !$api || !$template)return false;
-    $url='https://api.kavenegar.com/v1/'.rawurlencode($api).'/verify/lookup.json';
-    $response=wp_remote_post($url,array('timeout'=>15,'redirection'=>0,'body'=>array('receptor'=>$phone,'token'=>$token,'token2'=>(string)$id,'template'=>$template,'type'=>'sms')));
-    return !is_wp_error($response) && wp_remote_retrieve_response_code($response)===200;
   }
   public function contact_shortcode(){
     $this->form_script();
