@@ -16,6 +16,7 @@ final class Conference_Core {
   public static function instance(){ if(self::$instance===null) self::$instance=new self(); return self::$instance; }
   private function __construct(){
     add_action('init',array($this,'ensure_role_caps'),1);
+    add_action('init',array($this,'upgrade_schema'),2);
     add_action('init',array($this,'register_types'));
     add_action('init',array($this,'remove_obsolete_pages'),30);
     add_action('rest_api_init',array($this,'routes'));
@@ -67,10 +68,18 @@ final class Conference_Core {
     global $wpdb; $table=$wpdb->prefix.'confcore_otp';
     $charset=$wpdb->get_charset_collate();
     require_once ABSPATH.'wp-admin/includes/upgrade.php';
-    dbDelta("CREATE TABLE {$table} (phone varchar(20) NOT NULL, code_hash varchar(255) NOT NULL, expires_at datetime NOT NULL, attempts tinyint unsigned NOT NULL DEFAULT 0, created_at datetime NOT NULL, PRIMARY KEY  (phone), KEY expires_at (expires_at)) {$charset};");
+    dbDelta("CREATE TABLE {$table} (phone varchar(20) NOT NULL, mode varchar(10) NOT NULL DEFAULT 'login', code_hash varchar(255) NOT NULL, expires_at datetime NOT NULL, attempts tinyint unsigned NOT NULL DEFAULT 0, created_at datetime NOT NULL, PRIMARY KEY  (phone), KEY expires_at (expires_at)) {$charset};");
     self::instance()->register_types();
     self::create_default_pages();
     flush_rewrite_rules();
+  }
+  public function upgrade_schema(){
+    $version=get_option('confcore_db_version','');
+    if($version===CONFCORE_VERSION)return;
+    global $wpdb;$table=$wpdb->prefix.'confcore_otp';$charset=$wpdb->get_charset_collate();
+    require_once ABSPATH.'wp-admin/includes/upgrade.php';
+    dbDelta("CREATE TABLE {$table} (phone varchar(20) NOT NULL, mode varchar(10) NOT NULL DEFAULT 'login', code_hash varchar(255) NOT NULL, expires_at datetime NOT NULL, attempts tinyint unsigned NOT NULL DEFAULT 0, created_at datetime NOT NULL, PRIMARY KEY  (phone), KEY expires_at (expires_at)) {$charset};");
+    update_option('confcore_db_version',CONFCORE_VERSION,false);
   }
   public static function deactivate(){ flush_rewrite_rules(); }
   private static function create_default_pages(){
@@ -168,7 +177,7 @@ final class Conference_Core {
     $code=(string)random_int(100000,999999); $hash=hash_hmac('sha256',$code,wp_salt('auth'));
     global $wpdb; $table=$wpdb->prefix.'confcore_otp';
     $wpdb->query("DELETE FROM {$table} WHERE expires_at < UTC_TIMESTAMP()");
-    $wpdb->replace($table,array('phone'=>$phone,'code_hash'=>$hash,'expires_at'=>gmdate('Y-m-d H:i:s',time()+300),'attempts'=>0,'created_at'=>current_time('mysql',true)),array('%s','%s','%s','%d','%s'));
+    $wpdb->replace($table,array('phone'=>$phone,'mode'=>$mode,'code_hash'=>$hash,'expires_at'=>gmdate('Y-m-d H:i:s',time()+300),'attempts'=>0,'created_at'=>current_time('mysql',true)),array('%s','%s','%s','%s','%d','%s'));
     $sent=$this->send_verification_sms($phone,$code);
     if(is_wp_error($sent)){ $wpdb->delete($table,array('phone'=>$phone),array('%s')); return $sent; }
     return rest_ensure_response(array('success'=>true,'message'=>'کد تأیید پیامک شد. کد تا ۵ دقیقه معتبر است.'));
@@ -191,12 +200,17 @@ final class Conference_Core {
   public function verify_otp($request){
     $phone=$this->normalize_phone($request->get_param('phone')); $code=strtr((string)$request->get_param('code'),array('۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9','٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9')); $code=preg_replace('/[^0-9]/','',$code); $mode=sanitize_key($request->get_param('mode'));
     if(!$phone || !preg_match('/^[0-9]{6}$/',$code) || !in_array($mode,array('login','register'),true))return new WP_Error('invalid_input','اطلاعات واردشده معتبر نیست.',array('status'=>400));
+    $ip=isset($_SERVER['REMOTE_ADDR'])?sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])):'unknown';
+    if($this->rate_limited('conf_otp_verify_ip_'.md5($ip),30,900))return new WP_Error('verify_rate_limit','تعداد تلاش‌های تأیید زیاد است. کمی بعد تلاش کنید.',array('status'=>429));
     global $wpdb; $table=$wpdb->prefix.'confcore_otp'; $row=$wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE phone=%s",$phone));
     if(!$row || strtotime($row->expires_at.' UTC')<time())return new WP_Error('expired','کد منقضی شده است؛ دوباره درخواست دهید.',array('status'=>400));
+    if(isset($row->mode) && $row->mode!==$mode){$wpdb->delete($table,array('phone'=>$phone),array('%s'));return new WP_Error('mode_mismatch','این کد برای مسیر دیگری صادر شده است؛ دوباره کد دریافت کنید.',array('status'=>400));}
     if((int)$row->attempts>=5){$wpdb->delete($table,array('phone'=>$phone),array('%s'));return new WP_Error('locked','تعداد تلاش مجاز تمام شده است.',array('status'=>429));}
     $hash=hash_hmac('sha256',$code,wp_salt('auth'));
     if(!hash_equals($row->code_hash,$hash)){ $wpdb->update($table,array('attempts'=>(int)$row->attempts+1),array('phone'=>$phone),array('%d'),array('%s'));return new WP_Error('wrong_code','کد تأیید اشتباه است.',array('status'=>400));}
     $user=$this->find_user_by_phone($phone);
+    if($mode==='register' && $user){$wpdb->delete($table,array('phone'=>$phone),array('%s'));return new WP_Error('already_registered','این شماره قبلاً ثبت‌نام شده است؛ از مسیر ورود استفاده کنید.',array('status'=>409));}
+    if($mode==='login' && !$user){$wpdb->delete($table,array('phone'=>$phone),array('%s'));return new WP_Error('account_missing','حساب کاربری پیدا نشد؛ ابتدا ثبت‌نام کنید.',array('status'=>404));}
     if($mode==='register' && !$user){
       $user_id=wp_insert_user(array('user_login'=>$phone,'user_pass'=>wp_generate_password(48,true,true),'user_email'=>'','display_name'=>$phone,'role'=>'conference_author'));
       if(is_wp_error($user_id))return new WP_Error('register_failed','ساخت حساب کاربری انجام نشد.',array('status'=>500));
