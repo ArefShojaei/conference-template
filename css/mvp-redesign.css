@@ -439,3 +439,20 @@ a:not(.btn):hover{color:#0f766e}
 }
 /* The auth split layouts already contain their own navigation links; no extra bar. */
 .auth-utility-bar{display:none!important}
+
+/* Homepage refinements: transparent important dates, stronger slide overlay and readable controls. */
+.important-dates-section{background:transparent!important}
+.event-slide-overlay{z-index:0!important;pointer-events:none;background:linear-gradient(90deg,rgba(8,24,24,.84) 0%,rgba(8,24,24,.66) 58%,rgba(8,24,24,.42) 100%),linear-gradient(0deg,rgba(4,18,18,.58),rgba(4,18,18,.12))!important}
+.event-slide-content{z-index:1!important}
+.slide-index{z-index:2}
+.carousel-arrows button{display:grid;place-items:center;font-family:inherit;font-weight:800;font-size:1.6rem;line-height:1;color:#fff;background:rgba(9,28,27,.62);border:1px solid rgba(255,255,255,.78);box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.carousel-arrows button[data-slide-prev],.carousel-arrows button[data-slide-next]{font-size:2rem}
+.carousel-arrows button[data-slide-pause]{font-size:1rem}
+@media(max-width:680px){
+ .navbar{position:relative;align-items:center}
+ .menu-toggle{margin-right:auto;order:3;display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#123d38;color:#fff;border:1px solid #65b99b;font-size:1.35rem;box-shadow:0 4px 12px rgba(18,61,56,.16)}
+ .nav-menu{order:4;width:100%;flex-basis:100%}
+ .nav-actions{order:5;display:none;width:100%;flex-basis:100%;justify-content:flex-start;padding:10px 12px;margin-top:-4px;background:#f0f7f3;border:1px solid #d8e9df;border-radius:0 0 14px 14px}
+ .nav-menu.show + .nav-actions{display:flex}
+ .nav-actions .btn{min-width:88px;text-align:center}
+}
