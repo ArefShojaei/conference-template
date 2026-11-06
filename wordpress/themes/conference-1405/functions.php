@@ -61,14 +61,21 @@ function conf1405_excerpt_length($n){return 24;} add_filter('excerpt_length','co
 function conf1405_meta_description(){
  if(defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION')) return;
  if(is_front_page()) $description=get_theme_mod('conf1405_event_description','وب‌سایت رسمی همایش؛ ثبت‌نام، ارسال مقاله و اطلاع‌رسانی.');
- elseif(is_singular()) $description=get_the_excerpt();
+ elseif(is_singular()) {$description=get_the_excerpt();if(!$description)$description=get_post_field('post_content',get_queried_object_id());}
  else $description=get_bloginfo('description');
- $description=wp_trim_words(wp_strip_all_tags($description),30,'');
- if($description) echo '<meta name="description" content="'.esc_attr($description).'">'.PHP_EOL;
+ $description=wp_trim_words(wp_strip_all_tags(strip_shortcodes((string)$description)),30,'');
+ if(!$description)$description='اطلاعات رسمی همایش، محورهای علمی، اخبار، ثبت‌نام و ارسال مقاله.';
+ $title=wp_get_document_title();
+ echo '<meta name="description" content="'.esc_attr($description).'">'.PHP_EOL;
+ echo '<meta property="og:type" content="'.(is_singular('post')?'article':'website').'">'.PHP_EOL;
+ echo '<meta property="og:title" content="'.esc_attr($title).'">'.PHP_EOL;
+ echo '<meta property="og:description" content="'.esc_attr($description).'">'.PHP_EOL;
+ echo '<meta property="og:url" content="'.esc_url(is_singular()?get_permalink():home_url(add_query_arg(array(),$GLOBALS['wp']->request))).'">'.PHP_EOL;
+ if(has_post_thumbnail() && is_singular())echo '<meta property="og:image" content="'.esc_url(get_the_post_thumbnail_url(null,'large')).'">'.PHP_EOL;
 }
 add_action('wp_head','conf1405_meta_description',2);
 function conf1405_private_page_robots($robots){
- if(is_page(array('login','register','dashboard','submit-paper'))) $robots['noindex']=true;
+ if(is_page(array('login','register','dashboard','submit-paper','my-papers','certificates','profile','event-registration'))) {$robots['noindex']=true;$robots['nofollow']=true;}
  return $robots;
 }
 add_filter('wp_robots','conf1405_private_page_robots');
