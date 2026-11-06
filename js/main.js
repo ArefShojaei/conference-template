@@ -231,18 +231,26 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      const file = this.files[0];
-      const maxBytes = 10 * 1024 * 1024;
-      const isPdfField = this.accept.toLowerCase().split(',').some(type => type.trim() === '.pdf' || type.trim() === 'application/pdf');
-      const extensionIsPdf = file.name.toLowerCase().endsWith('.pdf');
-      const mimeIsPdf = file.type === 'application/pdf' || file.type === '';
-      if (file.size > maxBytes || (isPdfField && (!extensionIsPdf || !mimeIsPdf))) {
+      const files = Array.from(this.files);
+      const maxBytes = this.dataset.fileRole === 'supplementary' ? 20 * 1024 * 1024 : 10 * 1024 * 1024;
+      const accepted = this.accept.toLowerCase().split(',').map(type => type.trim());
+      const extensions = accepted.filter(type => type.startsWith('.'));
+      if (accepted.includes('application/pdf')) extensions.push('.pdf');
+      if (accepted.includes('application/msword')) extensions.push('.doc');
+      if (accepted.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document')) extensions.push('.docx');
+      const invalid = files.some(file => {
+        const extension = '.' + file.name.toLowerCase().split('.').pop();
+        return file.size > maxBytes || (extensions.length > 0 && !extensions.includes(extension));
+      });
+      if (invalid) {
         this.value = '';
-        if (label) label.textContent = 'فایل نامعتبر است؛ PDF حداکثر ۱۰ مگابایت انتخاب کنید';
-        showAlert('فایل انتخاب‌شده معتبر نیست. برای مقاله، PDF حداکثر ۱۰ مگابایت انتخاب کنید.', 'danger');
+        if (label) label.textContent = this.dataset.fileRole === 'supplementary'
+          ? 'فایل نامعتبر است؛ فایل مکمل حداکثر ۲۰ مگابایت انتخاب کنید'
+          : 'فایل نامعتبر است؛ PDF یا Word حداکثر ۱۰ مگابایت انتخاب کنید';
+        showAlert('نوع یا حجم یکی از فایل‌های انتخاب‌شده مجاز نیست.', 'danger');
         return;
       }
-      if (label) label.textContent = file.name;
+      if (label) label.textContent = files.length > 1 ? files.length + ' فایل انتخاب شد' : files[0].name;
     });
   });
 
