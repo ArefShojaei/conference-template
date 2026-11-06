@@ -17,6 +17,7 @@ final class Conference_Core {
   private function __construct(){
     add_action('init',array($this,'ensure_role_caps'),1);
     add_action('init',array($this,'register_types'));
+    add_action('init',array($this,'remove_obsolete_pages'),30);
     add_action('rest_api_init',array($this,'routes'));
     add_action('admin_menu',array($this,'admin_menu'));
     add_action('admin_init',array($this,'settings'));
@@ -100,6 +101,9 @@ final class Conference_Core {
     if($admin){if(!$admin->has_cap('manage_conference'))$admin->add_cap('manage_conference');$admin->remove_cap('review_conference_papers');}
     $author=get_role('conference_author');
     if($author){foreach(array('submit_conference_papers','upload_files') as $cap)if(!$author->has_cap($cap))$author->add_cap($cap);}
+  }
+  public function remove_obsolete_pages(){
+    foreach(array('schedule','my-registration') as $slug){$page=get_page_by_path($slug);if($page && $page->post_status!=='trash')wp_update_post(array('ID'=>$page->ID,'post_status'=>'trash'));}
   }
   public function register_types(){
     register_post_type('conf_speaker',array('labels'=>array('name'=>'سخنرانان','singular_name'=>'سخنران'),'public'=>true,'has_archive'=>true,'menu_icon'=>'dashicons-microphone','supports'=>array('title','editor','excerpt','thumbnail'),'show_in_rest'=>true));
