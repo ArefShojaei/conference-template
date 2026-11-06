@@ -116,7 +116,7 @@
 (function(){
  const form=document.getElementById('paper-submission-form'); if(!form)return;
  const abstractField=document.getElementById('paper-abstract'),counter=document.getElementById('abstract-word-count');
- const words=()=>abstractField.value.trim().split(/\\s+/u).filter(Boolean).length;
+ const words=()=>abstractField.value.trim().split(/\s+/u).filter(Boolean).length;
  const update=()=>{const n=words();counter.textContent=n.toLocaleString('fa-IR')+' کلمه — بازه مجاز ۱۵۰ تا ۳۵۰';counter.style.color=(n>=150&&n<=350)?'':'#b91c1c';abstractField.setCustomValidity((n<150||n>350)?'چکیده باید بین ۱۵۰ تا ۳۵۰ کلمه باشد.':'');};
  abstractField.addEventListener('input',update);update();
  form.addEventListener('submit',function(e){update();if(!form.checkValidity()){e.preventDefault();form.reportValidity();return;}
