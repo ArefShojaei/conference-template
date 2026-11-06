@@ -16,7 +16,7 @@
               <th>کد</th>
               <th>عنوان</th>
               <th>محور</th>
-              <th>وضعیت</th>
+              <th>وضعیت</th><th>نوع ارائه</th>
               <th>تاریخ ارسال</th>
               <th>عملیات</th>
             </tr>
@@ -26,18 +26,18 @@
               <td>#P-1001</td>
               <td>بهبود دقت مدل‌های یادگیری عمیق در تشخیص تصویر</td>
               <td>هوش مصنوعی</td>
-              <td><span class="badge badge-success">پذیرفته‌شده</span></td>
+              <td data-paper-status="#P-1001"><span class="badge badge-success">پذیرفته‌شده</span></td><td data-paper-presentation="#P-1001">شفاهی</td>
               <td>۱۲ مهر ۱۴۰۵</td>
               <td>
-                <button type="button" class="btn btn-sm btn-outline" disabled title="این عملیات در نسخه ایستا فعال نیست">مشاهده</button>
-                <button type="button" class="btn btn-sm btn-outline" disabled title="این عملیات در نسخه ایستا فعال نیست">نظرات داور</button>
+                <button type="button" class="btn btn-sm btn-outline" data-paper-view>مشاهده وضعیت</button>
+                <button type="button" class="btn btn-sm btn-outline" data-review-comments>نظرات داور</button>
               </td>
             </tr>
             <tr>
               <td>#P-1038</td>
               <td>امنیت در سیستم‌های ابری توزیع‌شده</td>
               <td>امنیت سایبری</td>
-              <td><span class="badge badge-warning">در حال داوری</span></td>
+              <td data-paper-status="#P-1038"><span class="badge badge-warning">در حال داوری</span></td><td data-paper-presentation="#P-1038">اعلام نشده</td>
               <td>۱۸ مهر ۱۴۰۵</td>
               <td>
                 <button type="button" class="btn btn-sm btn-outline" disabled title="این عملیات در نسخه ایستا فعال نیست">مشاهده</button>
@@ -47,7 +47,7 @@
               <td>#P-0995</td>
               <td>کاربرد IoT در کشاورزی هوشمند</td>
               <td>اینترنت اشیاء</td>
-              <td><span class="badge badge-danger">رد شده</span></td>
+              <td data-paper-status="#P-0995"><span class="badge badge-danger">رد شده</span></td><td data-paper-presentation="#P-0995">پوستر</td>
               <td>۵ مهر ۱۴۰۵</td>
               <td>
                 <button type="button" class="btn btn-sm btn-outline" disabled title="این عملیات در نسخه ایستا فعال نیست">مشاهده</button>
@@ -58,5 +58,5 @@
         </table>
       </div><footer class="admin-main-footer"><span>همایش‌یار · فضای کاربری</span><span>نسخه رابط کاربری HTML</span></footer></main></div>
   <script src="js/main.js"></script>
-</body>
+<script>document.addEventListener("DOMContentLoaded",function(){let states={};try{states=JSON.parse(localStorage.getItem("conference_paper_states")||"{}")}catch(e){}const labels={submitted:["ثبت اولیه","badge-info"],review:["در حال داوری","badge-warning"],revision:["نیازمند اصلاح","badge-warning"],accepted:["پذیرفته‌شده","badge-success"],rejected:["رد شده","badge-danger"]},types={oral:"شفاهی",poster:"پوستر",both:"شفاهی و پوستر"};Object.keys(states).forEach(code=>{const status=document.querySelector("[data-paper-status=\\""+code+"\\"]"),presentation=document.querySelector("[data-paper-presentation=\\""+code+"\\"]");if(status&&labels[states[code].decision])status.innerHTML="<span class=\\"badge "+labels[states[code].decision][1]+"\\">"+labels[states[code].decision][0]+"</span>";if(presentation&&types[states[code].presentation])presentation.textContent=types[states[code].presentation];});document.querySelectorAll("[data-paper-view]").forEach(b=>b.addEventListener("click",()=>showAlert("نمایش جزئیات نمونه مقاله؛ داده‌های واقعی به حساب کاربری متصل نیستند.","info")));document.querySelectorAll("[data-review-comments]").forEach(b=>b.addEventListener("click",()=>showAlert("نظرات داور پس از اتصال backend در این بخش نمایش داده می‌شود.","info")));});</script></body>
 </html>
