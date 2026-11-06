@@ -349,13 +349,14 @@ final class Conference_Core {
   }
   public function certificate_meta_box($post){
     add_meta_box('confcore_certificate_file','فایل گواهی برای دانلود',function($post){
-      $file_id=(int)get_post_meta($post->ID,'_conf_certificate_file',true);
+      $file_id=(int)get_post_meta($post->ID,'_conf_certificate_file',true);$recipient=(int)get_post_meta($post->ID,'_conf_certificate_user_id',true);$users=get_users(array('fields'=>array('ID','display_name'),'orderby'=>'display_name','order'=>'ASC'));
       $url=$file_id?wp_get_attachment_url($file_id):'';
       wp_nonce_field('confcore_certificate_file','confcore_certificate_nonce');
+      echo '<p><label for="confcore_certificate_user_id"><strong>کاربر دریافت‌کننده گواهی</strong></label><select id="confcore_certificate_user_id" name="confcore_certificate_user_id" class="widefat" required><option value="">انتخاب کاربر…</option>';foreach($users as $user)echo '<option value="'.esc_attr($user->ID).'" '.selected($recipient,$user->ID,false).'>'.esc_html($user->display_name).' (#'.esc_html($user->ID).')</option>';echo '</select></p>';
       echo '<input type="hidden" id="confcore_certificate_file_id" name="confcore_certificate_file_id" value="'.esc_attr($file_id).'">';
       echo '<p><button type="button" class="button" id="confcore_certificate_choose">انتخاب فایل گواهی از کتابخانه رسانه</button> <button type="button" class="button" id="confcore_certificate_clear">حذف فایل</button></p>';
       echo '<p id="confcore_certificate_file_name">'.($url?esc_html(basename($url)):'فایلی انتخاب نشده است.').'</p>';
-      echo '<p class="description">نویسنده/گیرنده گواهی را از بخش «نویسنده» وردپرس انتخاب کنید. عنوان و محتوای برگه گواهی در همین ویرایشگر قابل تکمیل است.</p>';
+      echo '<p class="description">کاربر دریافت‌کننده را در همین فیلد انتخاب کنید؛ سپس عنوان، متن و فایل گواهی را تکمیل و منتشر کنید.</p>';
     },'conf_certificate','normal','high');
   }
   public function certificate_admin_assets($hook){
@@ -368,12 +369,13 @@ final class Conference_Core {
     if(defined('DOING_AUTOSAVE')&&DOING_AUTOSAVE)return;
     if(!isset($_POST['confcore_certificate_nonce'])||!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['confcore_certificate_nonce'])),'confcore_certificate_file'))return;
     if(!current_user_can('edit_post',$post_id))return;
-    $file_id=absint($_POST['confcore_certificate_file_id']??0);
+    $file_id=absint($_POST['confcore_certificate_file_id']??0);$user_id=absint($_POST['confcore_certificate_user_id']??0);
     if($file_id && get_post_type($file_id)==='attachment')update_post_meta($post_id,'_conf_certificate_file',$file_id);else delete_post_meta($post_id,'_conf_certificate_file');
+    if($user_id && get_user_by('id',$user_id))update_post_meta($post_id,'_conf_certificate_user_id',$user_id);else delete_post_meta($post_id,'_conf_certificate_user_id');
   }
   public function certificates_shortcode(){
     if(!is_user_logged_in())return '<p>برای مشاهده گواهی‌ها وارد شوید.</p>';
-    $items=get_posts(array('post_type'=>'conf_certificate','author'=>get_current_user_id(),'posts_per_page'=>50,'post_status'=>'publish'));
+    $items=get_posts(array('post_type'=>'conf_certificate','meta_key'=>'_conf_certificate_user_id','meta_value'=>get_current_user_id(),'posts_per_page'=>50,'post_status'=>'publish'));
     if(!$items)return '<p>گواهی‌ای برای حساب شما ثبت نشده است.</p>';
     ob_start();echo '<div class="grid grid-2">';foreach($items as $p){$file_id=(int)get_post_meta($p->ID,'_conf_certificate_file',true);$file_url=$file_id?wp_get_attachment_url($file_id):'';echo '<article class="card"><h3>'.esc_html($p->post_title).'</h3><div>'.wp_kses_post(apply_filters('the_content',$p->post_content)).'</div>'.($file_url?'<a class="btn btn-primary" href="'.esc_url($file_url).'" download>مشاهده و دانلود گواهی</a>':'').'</article>';}echo '</div>';return ob_get_clean();
   }
